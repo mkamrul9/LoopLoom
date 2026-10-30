@@ -16,6 +16,9 @@ SOLUTIONS = {
     'budget-window-v1': 'int solve(const vector<int>& a,int k){int left=0,sum=0,best=0;for(int right=0;right<(int)a.size();++right){sum+=a[right];while(sum>k)sum-=a[left++];best=max(best,right-left+1);}return best;}',
     'lower-bound-v1': 'int solve(const vector<int>& a,int t){int left=0,right=a.size();while(left<right){int mid=left+(right-left)/2;if(a[mid]<t)left=mid+1;else right=mid;}return left;}',
     'island-count-v1': 'int solve(const vector<vector<int>>& g){int rows=g.size(),cols=rows?g[0].size():0,count=0;vector<vector<char>> seen(rows,vector<char>(cols));int d[4][2]={{1,0},{-1,0},{0,1},{0,-1}};for(int r=0;r<rows;++r)for(int c=0;c<cols;++c){if(!g[r][c]||seen[r][c])continue;++count;queue<pair<int,int>> q;q.push({r,c});seen[r][c]=1;while(!q.empty()){auto [y,x]=q.front();q.pop();for(auto& step:d){int ny=y+step[0],nx=x+step[1];if(ny>=0&&ny<rows&&nx>=0&&nx<cols&&g[ny][nx]&&!seen[ny][nx]){seen[ny][nx]=1;q.push({ny,nx});}}}}return count;}',
+    'max-subarray-v1': 'int solve(const vector<int>& a){int ending=a[0],best=a[0];for(int i=1;i<(int)a.size();++i){ending=max(a[i],ending+a[i]);best=max(best,ending);}return best;}',
+    'single-trade-v1': 'int solve(const vector<int>& a){int low=INT_MAX,best=0;for(int p:a){if(low!=INT_MAX)best=max(best,p-low);low=min(low,p);}return best;}',
+    'graph-components-v1': 'int solve(const vector<vector<int>>& g){vector<char> seen(g.size());int count=0;for(int start=0;start<(int)g.size();++start){if(seen[start])continue;++count;seen[start]=1;queue<int> q;q.push(start);while(!q.empty()){int node=q.front();q.pop();for(int v:g[node])if(!seen[v]){seen[v]=1;q.push(v);}}}return count;}',
 }
 
 

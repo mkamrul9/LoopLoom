@@ -65,6 +65,18 @@ RUBRICS = {
         "task": "Count 4-direction connected components of 1s in a rectangular 0/1 grid. Diagonal cells do not connect. Empty or all-water grids return 0. Do not modify input; dimensions are at most 50x50.",
         "pitfalls": "Counting diagonal contact, incrementing once per land cell, revisiting already reached cells, stepping outside the grid, or changing the input.",
     },
+    "max-subarray-v1": {
+        "task": "Return the largest sum of a nonempty consecutive segment of signed values. All-negative input returns its largest (least negative) value; 1<=n<=10000, values -1000..1000.",
+        "pitfalls": "Allowing an empty segment, initializing best to zero, losing a positive prefix, or confusing the best ending at this index with the global best.",
+    },
+    "single-trade-v1": {
+        "task": "Return the maximum profit from at most one buy followed by one later sell, or 0 to skip an unprofitable trade. Empty input returns 0; n<=10000 and prices 0..1000000.",
+        "pitfalls": "Selling before buying, using the maximum before a minimum, trading multiple times, considering only adjacent days, or returning a negative profit.",
+    },
+    "graph-components-v1": {
+        "task": "Count connected components in an undirected graph represented by symmetric adjacency lists. No self-edges or duplicate neighbors; isolated nodes count. Empty graph returns 0; n<=1000. Do not modify input.",
+        "pitfalls": "Counting edges instead of components, missing isolated nodes, marking visited too late, treating the graph as directed, or revisiting nodes.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",

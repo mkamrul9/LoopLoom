@@ -1,6 +1,6 @@
 # Intermediate foundations
 
-Nine original lessons extend the pilot to twelve problems across two available tracks. Intermediate foundations is selected by default for the confirmed interview-preparation audience. Warm-ups remain accessible from the track chips on Learn and Roadmaps. The 30/75/300 paths remain planned; the app does not claim their catalogs are complete.
+Twelve original lessons extend the pilot to fifteen problems across two available tracks. Intermediate foundations is selected by default for the confirmed interview-preparation audience. Warm-ups remain accessible from the track chips on Learn and Roadmaps. The 30/75/300 paths remain planned; the app does not claim their catalogs are complete.
 
 **Count the signal ranges** introduces prefix totals and frequency maps. Learners count nonempty, potentially overlapping consecutive ranges with a target sum, including zeros and negative values. The trace checks six ranges in three zeros. A nested-loop baseline is accepted; the explanation discusses query-before-insert ordering and why a positive-only window rule fails.
 
@@ -20,11 +20,17 @@ Nine original lessons extend the pilot to twelve problems across two available t
 
 **Count the connected garden plots** introduces four-direction grid flood fill. The example separates diagonal contact, and the contract requires an unchanged input map.
 
+**Find the strongest consecutive stretch** introduces Kadane's dynamic-programming recurrence. The segment must be nonempty, so all-negative input cannot return zero.
+
+**Choose one profitable trade** introduces a running minimum buy price and one later sell. It allows skipping a losing trade and includes falling and empty price series.
+
+**Count separate friend groups** introduces BFS/DFS over undirected adjacency lists. Isolated vertices count, the input stays unchanged, and the stated complexity includes both nodes and edges.
+
 Each lesson includes five checkpoints, self-checks, three progressive hints, and an explicit explanation reveal. The same C++/Python/JavaScript/TypeScript draft workflow is available. Arbitrary explanations are not semantically graded. The opt-in local development runner checks only the visible examples and never awards a verified solve; default Android builds leave it disabled.
 
 Roadmap counts use distinct self-reviewed lesson IDs within the selected track. Multiple attempts cannot inflate the count. Tiles show Start, Resume, or Self-reviewed, and every lesson is available without a prerequisite lock. Existing unfinished work stays on the resume card. Track choice is currently view state and resets to Intermediate after restarting the app.
 
-The production bootstrap and backup screen use the combined versioned catalog. Existing lesson IDs and snapshot schemas are unchanged. New drafts can reopen and import through the same storage and backup system. Local coach rubrics and visible runner cases now include all twelve lessons; the models remain unapproved and disabled by default. The prior live-model benchmark covered only the original three lessons.
+The production bootstrap and backup screen use the combined versioned catalog. Existing lesson IDs and snapshot schemas are unchanged. New drafts can reopen and import through the same storage and backup system. Local coach rubrics and visible runner cases now include all fifteen lessons; the models remain unapproved and disabled by default. The prior live-model benchmark covered only the original three lessons.
 
 ## Content validation
 

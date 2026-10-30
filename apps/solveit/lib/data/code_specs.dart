@@ -268,4 +268,55 @@ const codeSpecs = <String, CodeSpec>{
     ],
     matrix: true,
   ),
+  'max-subarray-v1': CodeSpec(
+    ['changes'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Best stretch',
+        'changes = [-2, 1, -3, 4, -1, 2, 1, -5, 4]',
+        '6',
+      ),
+      ReferenceCase('All negative', 'changes = [-4, -2, -7]', '-2'),
+      ReferenceCase('One change', 'changes = [5]', '5'),
+    ],
+  ),
+  'single-trade-v1': CodeSpec(
+    ['prices'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Buy low, sell later',
+        'prices = [7, 1, 5, 3, 6, 4]',
+        '5',
+      ),
+      ReferenceCase(
+        'Prices only fall',
+        'prices = [7, 6, 4, 3, 1]',
+        '0',
+      ),
+      ReferenceCase('Empty series', 'prices = []', '0'),
+    ],
+  ),
+  'graph-components-v1': CodeSpec(
+    ['neighbors'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Connected groups and an isolate',
+        'neighbors = [[1], [0, 2], [1], [4], [3], []]',
+        '3',
+      ),
+      ReferenceCase(
+        'Every node is isolated',
+        'neighbors = [[], [], []]',
+        '3',
+      ),
+      ReferenceCase('Empty graph', 'neighbors = []', '0'),
+    ],
+    matrix: true,
+  ),
 };

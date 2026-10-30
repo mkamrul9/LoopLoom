@@ -298,6 +298,105 @@ const interviewLessons = <Lesson>[
     explanation:
         'Scan the map. Whenever an unvisited land cell appears, increment the group count and flood-fill its four-direction neighbors with BFS or DFS. Mark a land cell visited when it is added to the worklist, then add only in-bounds, unvisited land neighbors. This prevents duplicate work and keeps diagonal cells separate. Water is skipped. Empty dimensions return zero. Each cell is visited at most once, giving O(rows × columns) time and O(rows × columns) extra space for visited state and the worklist. The input remains unchanged.',
   ),
+  Lesson(
+    id: 'max-subarray-v1',
+    title: 'Find the strongest consecutive stretch',
+    pattern: 'Dynamic programming · Kadane',
+    summary: 'Decide whether the next value extends or restarts a run.',
+    statement:
+        'Given signed daily changes, return the largest sum of any nonempty consecutive segment. The segment must contain at least one value; all-negative inputs still have a negative answer.',
+    example:
+        'changes = [-2, 1, -3, 4, -1, 2, 1, -5, 4]\nAnswer: 6, from [4, -1, 2, 1].',
+    constraints:
+        '1–10,000 changes, each from −1,000 to 1,000. The input is not modified.',
+    questions: [
+      'Must the chosen segment be nonempty? What is the answer when every change is negative?',
+      'A quadratic scan is correct. For a segment ending at the current value, should you extend the best earlier segment or restart here?',
+      'Trace [-2, 1, -3, 4, -1, 2, 1, -5, 4]. Show the best ending at each index and the overall maximum.',
+      codeQuestion,
+      'Why must the current-ending value and overall best begin from a real input value rather than zero?',
+    ],
+    checks: [
+      'I select a nonempty consecutive segment and preserve the correct negative result for all-negative input.',
+      'For each value, I compare starting a new segment with extending the best segment ending just before it.',
+      'I get 6 from [4, -1, 2, 1] and explain how the best ending segment updates.',
+      codeCheck,
+      'I initialized from actual input, handled the one-element case, and distinguished local from overall best.',
+    ],
+    hints: [
+      'If the best segment ending just before x is negative, can including it help a segment that ends at x?',
+      'Let ending be the best segment that must end at the current value. Compare x with ending + x.',
+      'Initialize ending and best to the first value. For each later x, set ending = max(x, ending + x), then best = max(best, ending).',
+    ],
+    explanation:
+        'A quadratic baseline tries every start and extends a running sum, taking O(n²) time and O(1) extra space. For a linear method, let ending be the best nonempty segment that must end at the previous position. At each value x, either restart with x or extend with ending + x; choose the larger. Update the overall best afterward. A negative earlier sum is discarded when restarting is better, while positive accumulated work remains useful. Initialize from the first real value so all-negative input stays negative. The method uses O(n) time and O(1) extra space.',
+  ),
+  Lesson(
+    id: 'single-trade-v1',
+    title: 'Choose one profitable trade',
+    pattern: 'Greedy · running minimum',
+    summary: 'For each sell day, keep the cheapest earlier buy.',
+    statement:
+        'Given a daily price series, choose at most one buy day followed by one later sell day. Return the largest profit; skip trading and return 0 when no positive profit is possible. An empty series also returns 0.',
+    example:
+        'prices = [7, 1, 5, 3, 6, 4]\nAnswer: 5, by buying at 1 and selling later at 6.',
+    constraints:
+        '0–10,000 prices, each from 0 to 1,000,000. The input is not modified.',
+    questions: [
+      'What does “at most one” trade allow when prices only fall? Must the buy happen before the sell?',
+      'A quadratic baseline tries all pairs. As you scan a possible sell price, what earlier information is sufficient?',
+      'Trace [7, 1, 5, 3, 6, 4]. Show the minimum price before each sell day and the best profit so far.',
+      codeQuestion,
+      'Why can an earlier buy price larger than the current minimum be discarded for every future sell day?',
+    ],
+    checks: [
+      'I use no more than one buy before one sell and return 0 if no profitable trade exists.',
+      'For each sell day, I compare against the cheapest earlier buy rather than a same-day or later price.',
+      'I get profit 5, update the minimum after considering each day, and handle falling or empty prices.',
+      codeCheck,
+      'I justified why retaining only the minimum earlier price is safe and gave O(n) time, O(1) extra space.',
+    ],
+    hints: [
+      'If you already know the best buy price before today, what profit would selling today make?',
+      'Keep a running minimum of prices seen before the current sell day and a best profit.',
+      'Initialize the minimum from the first day. For each later price, update best with price − minimum, then update the minimum. Start best at 0 to represent skipping a losing trade.',
+    ],
+    explanation:
+        'Trying every earlier buy and later sell is correct but takes O(n²) time. Scan prices from left to right while retaining the minimum price seen before the current day. Selling today can produce current price minus that minimum. Update the best profit, then let today become the minimum for later days. The order guarantees a buy strictly before a sell. A best value of zero represents skipping the trade. This uses O(n) time and O(1) extra space; the input is not changed.',
+  ),
+  Lesson(
+    id: 'graph-components-v1',
+    title: 'Count separate friend groups',
+    pattern: 'Graphs · BFS/DFS',
+    summary: 'Traverse each undirected component from one unseen node.',
+    statement:
+        'A social graph has nodes numbered from 0 to n−1 and is given as an adjacency list. Each undirected edge appears in both endpoint lists; there are no self-edges or duplicate neighbors. Return the number of connected components. Isolated nodes each count as a group; an empty graph returns 0.',
+    example:
+        'neighbors = [[1], [0, 2], [1], [4], [3], []]\nAnswer: 3.',
+    constraints:
+        '0–1,000 nodes. Neighbor indices are valid and adjacency is symmetric. Do not modify the input.',
+    questions: [
+      'What makes two people part of the same group? How should an isolated node and an empty graph count?',
+      'How could BFS or DFS find every node reachable from a chosen start? What state prevents counting a node twice?',
+      'Trace [[1], [0, 2], [1], [4], [3], []]. Which nodes form each component?',
+      codeQuestion,
+      'Why does starting a new traversal at each unseen node count exactly one additional component?',
+    ],
+    checks: [
+      'I count connected components in the undirected graph and count each isolated node as one.',
+      'Each traversal follows adjacency edges and marks nodes visited so they are processed once.',
+      'I find three groups: {0, 1, 2}, {3, 4}, and {5}; empty input yields 0.',
+      codeCheck,
+      'I account for all nodes and edges in O(n + m) time and O(n) extra space.',
+    ],
+    hints: [
+      'Scan node IDs. What does an unvisited node tell you about groups already explored?',
+      'Start a queue or stack at each unseen node. Mark nodes when you add them and follow their neighbors.',
+      'Increment the group count when a new traversal starts. Visit each node and each adjacency entry at most once.',
+    ],
+    explanation:
+        'Initialize all nodes as unseen. Scan each node ID; when it is unseen, increment the component count and run BFS or DFS from it. Mark a node when it enters the worklist, then add each unseen neighbor. The traversal reaches exactly the nodes connected to that start. Later nodes in the same component are already marked, so they do not start another traversal. Isolated nodes start and finish a one-node traversal; an empty graph starts none. With n nodes and m undirected edges, adjacency lists give O(n + m) time and O(n) auxiliary space.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

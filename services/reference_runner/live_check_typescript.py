@@ -16,6 +16,9 @@ SOLUTIONS = {
     'budget-window-v1': 'function solve(a: readonly number[],k: number): number {let left=0,sum=0,best=0;for(let right=0;right<a.length;right++){sum+=a[right];while(sum>k)sum-=a[left++];best=Math.max(best,right-left+1);}return best;}',
     'lower-bound-v1': 'function solve(a: readonly number[],t: number): number {let left=0,right=a.length;while(left<right){const mid=left+Math.floor((right-left)/2);if(a[mid]<t)left=mid+1;else right=mid;}return left;}',
     'island-count-v1': 'function solve(g: ReadonlyArray<readonly number[]>): number {const rows=g.length,cols=rows?g[0].length:0,seen=Array.from({length:rows},()=>Array(cols).fill(false));let count=0;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){if(!g[r][c]||seen[r][c])continue;count++;const q: Array<[number,number]>=[[r,c]];seen[r][c]=true;for(let i=0;i<q.length;i++){const [y,x]=q[i];for(const [dy,dx] of [[1,0],[-1,0],[0,1],[0,-1]]){const ny=y+dy,nx=x+dx;if(ny>=0&&ny<rows&&nx>=0&&nx<cols&&g[ny][nx]&&!seen[ny][nx]){seen[ny][nx]=true;q.push([ny,nx]);}}}}return count;}',
+    'max-subarray-v1': 'function solve(a: readonly number[]): number {let ending=a[0],best=a[0];for(let i=1;i<a.length;i++){ending=Math.max(a[i],ending+a[i]);best=Math.max(best,ending);}return best;}',
+    'single-trade-v1': 'function solve(a: readonly number[]): number {let min=Infinity,best=0;for(const p of a){if(min!==Infinity)best=Math.max(best,p-min);min=Math.min(min,p);}return best;}',
+    'graph-components-v1': 'function solve(g: ReadonlyArray<readonly number[]>): number {const seen=Array(g.length).fill(false);let count=0;for(let start=0;start<g.length;start++){if(seen[start])continue;count++;seen[start]=true;const q=[start];for(let i=0;i<q.length;i++)for(const v of g[q[i]])if(!seen[v]){seen[v]=true;q.push(v);}}return count;}',
 }
 
 

@@ -26,8 +26,9 @@ WALL_SECONDS = 4
 CPP_WALL_SECONDS = 12
 IMMUTABLE_INPUT_LESSONS = {
     'busy-periods-v1', 'rotated-index-v1', 'products-except-self-v1', 'longest-run-v1', 'island-count-v1',
+    'graph-components-v1',
 }
-NESTED_INPUT_LESSONS = {'busy-periods-v1', 'island-count-v1'}
+NESTED_INPUT_LESSONS = {'busy-periods-v1', 'island-count-v1', 'graph-components-v1'}
 DOCKER = ['docker', '--context', 'desktop-linux']
 
 

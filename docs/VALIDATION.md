@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview catalog expansion — batch 3 — 30 October 2026
+
+Added three original intermediate lessons for maximum-subarray dynamic programming, one-trade greedy scanning, and graph components. The catalog now has fifteen lessons: three warm-ups and twelve intermediate foundations. Graph adjacency lists use the shared nested-input starter and local C++ harness; local-coach rubrics and reference fixtures were extended for all three.
+
+Tests and live-container checks were not run for this batch. The new content still needs independent editorial review; the 30/75/300 roadmaps remain incomplete and AI feedback remains disabled by default.
+
 ## Interview catalog expansion — batch 2 — 30 October 2026
 
 Added three original intermediate lessons for variable-size windows, lower-bound search, and four-direction grid traversal. The catalog now has twelve lessons: three warm-ups and nine intermediate foundations. The grid problem adds typed matrix input to the C++/Python/TypeScript starter generation and C++ reference harness. The local runner is configured to flag input mutation for the new problem contracts.

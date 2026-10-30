@@ -16,6 +16,9 @@ SOLUTIONS = {
     'budget-window-v1': 'def solve(a,k):\n left=total=best=0\n for right,x in enumerate(a):\n  total+=x\n  while total>k:total-=a[left];left+=1\n  best=max(best,right-left+1)\n return best',
     'lower-bound-v1': 'def solve(a,t):\n left,right=0,len(a)\n while left<right:\n  mid=left+(right-left)//2\n  if a[mid]<t:left=mid+1\n  else:right=mid\n return left',
     'island-count-v1': 'def solve(g):\n rows=len(g);cols=len(g[0]) if rows else 0;seen=set();count=0\n for r in range(rows):\n  for c in range(cols):\n   if not g[r][c] or (r,c) in seen:continue\n   count+=1;seen.add((r,c));q=[(r,c)];head=0\n   while head<len(q):\n    y,x=q[head];head+=1\n    for dy,dx in ((1,0),(-1,0),(0,1),(0,-1)):\n     ny,nx=y+dy,x+dx\n     if 0<=ny<rows and 0<=nx<cols and g[ny][nx] and (ny,nx) not in seen:seen.add((ny,nx));q.append((ny,nx))\n return count',
+    'max-subarray-v1': 'def solve(a):\n ending=best=a[0]\n for x in a[1:]:ending=max(x,ending+x);best=max(best,ending)\n return best',
+    'single-trade-v1': 'def solve(a):\n low=float("inf");best=0\n for p in a:\n  if low!=float("inf"):best=max(best,p-low)\n  low=min(low,p)\n return best',
+    'graph-components-v1': 'def solve(g):\n seen=set();count=0\n for start in range(len(g)):\n  if start in seen:continue\n  count+=1;seen.add(start);q=[start];head=0\n  while head<len(q):\n   node=q[head];head+=1\n   for v in g[node]:\n    if v not in seen:seen.add(v);q.append(v)\n return count',
 }
 
 def main():
