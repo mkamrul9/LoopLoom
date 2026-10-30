@@ -85,8 +85,10 @@ void main() {
         find.text('6'),
         findsNothing,
       ); // Expected results remain folded away.
-      await tester.ensureVisible(find.text('Reference cases · not run'));
-      await tester.tap(find.text('Reference cases · not run'));
+      await tester.ensureVisible(
+        find.text('Reference cases · expected results'),
+      );
+      await tester.tap(find.text('Reference cases · expected results'));
       await tester.pumpAndSettle();
       expect(find.text('6'), findsOneWidget);
       expect(find.text('changes = [0, 0, 0], target = 0'), findsOneWidget);

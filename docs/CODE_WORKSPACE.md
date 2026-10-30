@@ -6,7 +6,7 @@ The editor keeps separate drafts for each language, disables smart punctuation, 
 
 An untouched new starter or legacy default comment cannot acknowledge the Code checkpoint. Edited code can be saved for an explicit self-review; this is not evidence that the code compiles or is correct. Changing the language or editing invalidates the current code acknowledgement. No automatic solution insertion or draft reset was added.
 
-**Reference cases · not run** contains three authored examples per lesson. The disclosure starts closed. Cases show inputs and expected results, including negative scores, duplicate values, empty input, equal temperatures, nested intervals, and touching endpoints. Pair tasks explicitly allow either index order and any valid pair where applicable. These are examples for reasoning, not an exhaustive test suite or execution results.
+**Reference cases · expected results** contains three authored examples per lesson. The disclosure starts closed. Cases show inputs and expected results, including negative scores, duplicate values, empty input, equal temperatures, nested intervals, and touching endpoints. Pair tasks explicitly allow either index order and any valid pair where applicable. These are examples for reasoning, not an exhaustive test suite or execution results. Actual opt-in execution results appear in a separate panel.
 
 ## Validation
 
@@ -14,4 +14,4 @@ The Flutter suite checks all six lessons across four languages to ensure untouch
 
 From `apps/solveit`, `dart run tool/write_starters.dart` exports only trusted authored templates into ignored `.local/starter-validation` for developer syntax checks. It does not read learner drafts. Python AST parsing, Node `--check`, TypeScript `--noEmit --strict --target es2020`, and Android NDK clang++ `--target=aarch64-linux-android24 -std=c++17 -fsyntax-only` are used for their respective templates. The [syntax report](STARTER_SYNTAX_VALIDATION.json) records results. Syntax checks do not execute the TODO bodies or establish algorithm correctness.
 
-An isolated code judge remains the next infrastructure requirement. The app has no Run button, host-code execution endpoint, test-passed badge, or verified solve transition. Production execution needs resource limits, process/container isolation, network restrictions, reviewed harnesses and tests, and language-specific correctness/timeout reporting.
+An opt-in local JavaScript runner now adds **Run reference cases** in development builds. Default builds keep execution disabled. It reports only observed matches against the three visible cases and never creates a verified solve. C++, Python, and TypeScript execution, a hardened production judge, and authoritative verdicts remain future work. [Setup and limits](REFERENCE_RUNNER.md).

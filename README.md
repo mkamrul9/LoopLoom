@@ -27,6 +27,8 @@ Workbook backup is available from the header's **Workbook backup** button. Copy 
 
 ## Repository direction
 
+An opt-in local JavaScript reference runner now executes visible cases in restricted disposable Docker containers. It reports case results without granting verified solves. Other languages remain drafting-only; the default APK keeps execution disabled. [Setup and scope](docs/REFERENCE_RUNNER.md).
+
 The Code checkpoint includes lesson-specific starter signatures in all four languages, an indentation control, and folded reference cases with expected results. Code remains saved for self-review rather than executed. [Workspace details](docs/CODE_WORKSPACE.md).
 
 The available Intermediate foundations track covers prefix sums, monotonic stacks, and interval merging. Warm-ups remain available. Both tracks have independent self-review counts and lesson resume states. [Content and validation details](docs/INTERMEDIATE_LESSONS.md).

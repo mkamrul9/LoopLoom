@@ -1,5 +1,15 @@
 # Pilot validation
 
+## Local reference execution follow-up — 30 October 2026
+
+Added opt-in JavaScript execution for the visible reference cases in all six lessons. Each case runs in a fresh restricted local Docker container with no host bind mount or network, non-root UID, read-only runtime, limits, bounded output, and per-case cleanup. Source is never executed on the host. The default APK leaves execution disabled; the loopback web preview explicitly enables it. This is a development experiment, not hardened production judging. [Setup, boundary, and limitations](REFERENCE_RUNNER.md).
+
+Validation: 39 Flutter tests passed, including strict runner response validation, rejection of fake verified-solve responses, source/language staleness handling, cursor-versus-edit invalidation, visible/server case consistency, and restored-question display. Nine runner unit/HTTP tests passed. Thirteen live Docker checks passed: all six trusted implementations, separate syntax/runtime/time/output/memory failures, actual non-root/read-only/no-network probes, and cleanup. The live report is saved in `REFERENCE_RUNNER_VALIDATION.json`. These are authored regression probes, not a sandbox security review or hidden correctness suite.
+
+Browser testing used the separate localhost development workbook's existing Code checkpoint. Switching to JavaScript and submitting a trusted prefix-count implementation through the UI returned 3/3 matched reference cases while remaining at Code, without self-review completion or a verified solve. The main 127.0.0.1 workbook was not used for test submissions. Historical question messages are retained in notes while current guidance is displayed at the active checkpoint. Static analysis and web/debug APK builds passed during the phase; final builds include that display correction.
+
+Results are transient and cleared by source edits or reload. No authoritative result persistence, additional runtime support, account access control, public deployment, or production isolation claim was added. Docker/Desktop configuration and unrelated containers were left unchanged; the already installed pinned Node image was reused without purchases or image pulls.
+
 ## Code workspace follow-up — 30 October 2026
 
 Added 24 lesson/language starter templates, cursor-based four-space insertion, line/character counts, and 18 authored reference cases behind a collapsed disclosure. Both new untouched templates and legacy default comments are rejected as code checkpoint submissions. Previously saved drafts remain unchanged. Cases explicitly say “not run”; no execution verdict or verified solve was added. [Workspace details](CODE_WORKSPACE.md).

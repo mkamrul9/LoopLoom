@@ -3,9 +3,38 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:solveit/app.dart';
 import 'package:solveit/data/pilot_lessons.dart';
 import 'package:solveit/data/interview_lessons.dart';
+import 'package:solveit/features/coaching/practice_screen.dart';
 import 'package:solveit/features/coaching/session_controller.dart';
 
 void main() {
+  testWidgets(
+    'an older saved question does not override current checkpoint guidance',
+    (tester) async {
+      final store = PracticeStore();
+      final original = store.startOrResume(interviewLessons.first);
+      for (var i = 0; i < 3; i++) {
+        original.submit('Reasoning');
+        original.advanceAfterSelfCheck();
+      }
+      final snapshot = original.toJson();
+      final messages = snapshot['messages'] as List;
+      (messages.last as Map)['text'] = 'Obsolete code execution instruction';
+      final restored = SessionController.restore(
+        interviewLessons.first,
+        snapshot,
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PracticeScreen(session: restored, store: store),
+        ),
+      );
+      expect(find.text('Obsolete code execution instruction'), findsNothing);
+      expect(find.text(interviewLessons.first.questions[3]), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+      restored.dispose();
+      await store.close();
+    },
+  );
   testWidgets('roadmap progress counts only its own track', (tester) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;

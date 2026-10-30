@@ -353,7 +353,7 @@ class _LearningHomeState extends State<LearningHome> {
       ),
       const SizedBox(height: 10),
       const Text(
-        'Your workbook saves on this device. Guided checkpoints are self-reviewed; code is not executed.',
+        'Your workbook saves on this device. Guided checkpoints are self-reviewed; reference-case matches do not establish verified solves.',
         style: TextStyle(fontSize: 12, color: StudyColors.muted, height: 1.6),
       ),
     ],

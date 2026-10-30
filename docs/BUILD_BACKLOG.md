@@ -19,8 +19,7 @@ Implemented after the interaction prototype: versioned local persistence, unsent
 4. Find a model/configuration that clears independent correctness, teaching, injection, and latency review on available hardware. The initial small-model experiments failed. Keep guided practice until a candidate qualifies; hosted adapters are deferred under the zero-spend constraint.
 5. Author accepted-strategy rubrics and a held-out benchmark before enabling automatic semantic approval.
 6. Enforce coaching state and hint/reveal policy server-side; test ambiguous/alternative explanations.
-7. Build the first isolated judge integration, then expand verified execution to all four languages.
-   The code workspace now provides versioned lesson signatures, language drafts, and authored reference cases. Scaffolds have syntax checks in all four languages. The runner, harness isolation, verdicts, and reviewed execution tests remain open.
+7. A local-only development JavaScript runner now executes visible reference cases in restricted containers, with limits and per-case statuses. Expand language harnesses, harden and independently review isolation, add hidden execution tests and authoritative result provenance before production verified execution.
 8. Require a matching accepted judge result for verified solve state.
 9. Add auth/opt-in sync, review scheduling, and basic operations metrics.
 

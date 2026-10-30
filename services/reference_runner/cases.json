@@ -1,0 +1,32 @@
+{
+  "supply-pair-v1": [
+    {"label":"A matching pair","args":[[4,11,6,2],8],"expected":[2,3]},
+    {"label":"Duplicates","args":[[4,4],8],"expected":[0,1]},
+    {"label":"No partner","args":[[4],8],"expected":[]}
+  ],
+  "sorted-crates-v1": [
+    {"label":"Sorted search","args":[[1,3,5,8,12],11],"expected":[1,3]},
+    {"label":"Equal weights","args":[[3,3],6],"expected":[0,1]},
+    {"label":"Empty input","args":[[],5],"expected":[]}
+  ],
+  "focus-block-v1": [
+    {"label":"Consecutive block","args":[[3,-2,5,4,-1],3],"expected":8},
+    {"label":"All negative","args":[[-5,-2,-4],2],"expected":-6},
+    {"label":"Whole input","args":[[2,-3,4],3],"expected":3}
+  ],
+  "signal-ranges-v1": [
+    {"label":"Overlapping ranges","args":[[2,-2,2],2],"expected":3},
+    {"label":"Repeated totals","args":[[0,0,0],0],"expected":6},
+    {"label":"Empty input","args":[[],0],"expected":0}
+  ],
+  "warmer-readings-v1": [
+    {"label":"Waiting distances","args":[[20,20,19,23,21]],"expected":[3,2,1,0,0]},
+    {"label":"Equal is not warmer","args":[[7,7,7]],"expected":[0,0,0]},
+    {"label":"No future day","args":[[8]],"expected":[0]}
+  ],
+  "busy-periods-v1": [
+    {"label":"Nested and touching","args":[[[1,6],[2,4],[6,8],[7,9]]],"expected":[[1,6],[6,9]]},
+    {"label":"Touching stays separate","args":[[[3,5],[1,3]]],"expected":[[1,3],[3,5]]},
+    {"label":"Empty input","args":[[]],"expected":[]}
+  ]
+}

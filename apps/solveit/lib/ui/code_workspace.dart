@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/code_specs.dart';
 import '../domain/lesson.dart';
 import 'solveit_theme.dart';
+import 'reference_run_panel.dart';
 
 class CodeWorkspace extends StatelessWidget {
   const CodeWorkspace({
@@ -101,7 +102,7 @@ class CodeWorkspace extends StatelessWidget {
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
             title: const Text(
-              'Reference cases · not run',
+              'Reference cases · expected results',
               style: TextStyle(fontSize: 14),
             ),
             subtitle: const Text(
@@ -152,6 +153,12 @@ class CodeWorkspace extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 12),
+        ReferenceRunPanel(
+          lessonId: lessonId,
+          language: language,
+          editor: editor,
+          enabled: enabled,
+        ),
       ],
     );
   }

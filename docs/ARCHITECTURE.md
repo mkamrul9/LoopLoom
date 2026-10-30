@@ -54,6 +54,8 @@ The server checks ownership, valid session transitions, content versions, reques
 
 ## Code execution
 
+Implemented development slice: a loopback JavaScript reference runner calls a digest-pinned local Node container per visible case, compares returned values outside the container, and returns per-case statuses. The Flutter client is opt-in, rejects stale/inconsistent replies, and grants no verified progress. This pilot is separate from the proposed authenticated production submission/judge architecture. See [runner boundary](REFERENCE_RUNNER.md).
+
 Treat every learner program as untrusted. Execute in disposable sandboxes with no network, non-root identity, strict CPU/wall time/memory/process/output limits, read-only runtime, and short-lived isolated temporary storage. Use a hardened isolation boundary; ordinary application containers alone are insufficient justification for arbitrary-code safety. Run the judge in a separate network/account from the API and database. Give it no user data, secrets, or general database credentials.
 
 Pin compiler/runtime images, compile TypeScript before execution, and use explicit JSON input/output or generated function harnesses. Define numeric limits so Python integers and JavaScript numbers agree with each problem contract. Compare outputs with problem-specific checkers where order or multiple valid answers matter. Report compile error, runtime error, timeout, memory limit, wrong answer, accepted, and infrastructure failure distinctly.

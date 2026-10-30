@@ -253,6 +253,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         !complete &&
         !latest.isLearner &&
         latest.text != session.question &&
+        latest.kind != MessageKind.question &&
         latest.kind != MessageKind.checkpoint;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -310,8 +311,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
         const SizedBox(height: 12),
         Text(
           session.coach.enabled
-              ? 'Local coach · experimental feedback. Code is not executed.'
-              : 'Guided self-check · No AI grading or code execution.',
+              ? 'Local coach · experimental feedback. Feedback does not execute code.'
+              : 'Guided self-check · No AI grading. Saving code does not run it.',
           style: TextStyle(
             fontSize: 11,
             color: StudyColors.muted,

@@ -3,9 +3,9 @@ import '../domain/lesson.dart';
 // Original pilot content; independent review and tested language solutions
 // are required before production publishing.
 const codeQuestion =
-    'Write your implementation. This preview saves a draft; it does not execute or grade code.';
+    'Write your implementation, then review its behavior on the reference cases. Saving a draft does not compile or test it.';
 const codeCheck =
-    'I have a code draft and understand that it has not been compiled or tested here.';
+    'I have reviewed my code draft. Saving it alone does not mean it compiled or passed tests.';
 
 const pilotLessons = <Lesson>[
   Lesson(
