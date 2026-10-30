@@ -30,7 +30,7 @@ class ReferenceRunnerClient {
     String source, {
     String language = 'javascript',
   }) async {
-    if (!{'javascript', 'python'}.contains(language) ||
+    if (!{'javascript', 'typescript', 'python'}.contains(language) ||
         !codeSpecs.containsKey(lesson) ||
         utf8.encode(source).length > 32000 ||
         source.trim().isEmpty) {
@@ -74,6 +74,7 @@ class ReferenceRunnerClient {
       'matched',
       'wrong_answer',
       'syntax_error',
+      'unsupported_syntax',
       'runtime_error',
       'time_limit',
       'output_limit',

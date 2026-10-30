@@ -12,6 +12,9 @@ CASES = json.loads((ROOT / 'cases.json').read_text())
 WORKER = (ROOT / 'worker.js').read_text()
 RUNTIMES = {
     'javascript': (IMAGE, ['node', '--jitless', '-e', WORKER]),
+    # Node's TypeScript parser requires WebAssembly, unavailable with --jitless.
+    # All Docker controls remain identical; this is erasable syntax, not tsc.
+    'typescript': (IMAGE, ['node', '--max-old-space-size=64', '-e', WORKER, 'typescript']),
     'python': ('python@sha256:516b51cb9db2ef061e465c803e50f64361b82cefd91e525b889b967b83e83527',
                ['python', '-I', '-B', '-u', '-c', (ROOT / 'worker.py').read_text()]),
 }
@@ -61,7 +64,7 @@ def validate(payload):
     if not isinstance(payload['lesson_id'], str) or payload['lesson_id'] not in CASES:
         raise ValueError('Unknown lesson')
     if not isinstance(payload['language'], str) or payload['language'] not in RUNTIMES:
-        raise ValueError('This development runner supports JavaScript and Python')
+        raise ValueError('This development runner supports JavaScript, TypeScript and Python')
     if not isinstance(payload['source'], str) or not 1 <= len(payload['source'].encode('utf-8')) <= 32000:
         raise ValueError('Source must be between 1 and 32000 bytes')
 
@@ -119,7 +122,7 @@ def run_case(source, args, language='javascript'):
             return {'status': 'memory_limit' if oom == 'true' else 'runtime_error'}
         try:
             result = json.loads(chunks[0])
-            if not isinstance(result, dict) or result.get('status') not in ('returned', 'syntax_error', 'runtime_error', 'memory_limit'):
+            if not isinstance(result, dict) or result.get('status') not in ('returned', 'syntax_error', 'unsupported_syntax', 'runtime_error', 'memory_limit'):
                 raise ValueError()
             return result
         except (ValueError, UnicodeError):

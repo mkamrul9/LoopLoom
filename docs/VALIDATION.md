@@ -1,5 +1,15 @@
 # Pilot validation
 
+## TypeScript reference execution follow-up — 30 October 2026
+
+TypeScript now runs the visible examples in the existing pinned Node 24.22.2 container. Node's strip-mode parser removes erasable syntax without semantic type checking. The editor explicitly explains this limit; enums and parameter properties produce a separate unsupported-syntax result. No npm package, image download, paid service or host execution fallback was added. The parser requires WebAssembly, so this runtime uses normal Node execution with a 64 MB old-space limit, retaining the same Docker restrictions as the other languages. Full TypeScript type checks and C++ execution remain open.
+
+Clean Flutter analysis and all 43 Flutter tests passed. Fifteen runner unit/HTTP tests passed. Live checks passed 19/19 for TypeScript, 14/14 for JavaScript and 16/16 for Python (49 total). The TypeScript report covers all six authored implementations, syntax/unsupported/runtime/time/output/memory cases, actual UID/filesystem/network controls, debug output, deliberately absent semantic checking, boolean rejection, mutation reporting and cleanup. These fixtures are regression evidence, not a production security certification or hidden correctness suite. See `TYPESCRIPT_RUNNER_VALIDATION.json`.
+
+The web preview built with its explicit local runner URL. The default Android debug APK built with the documented NDK development override and its v2 signature verified; no physical-device run or release signing was performed. Restarting only the owned idle service exposed JavaScript, TypeScript and Python in health. The existing warm-paper/charcoal palette is unchanged.
+
+Browser verification used only the separate localhost development workbook for submissions. An authored typed range-count function with console logging returned 3/3 matches, with the attempt still at Code and no reflection completion or verified solve. The temporary test tab was closed. Reloading the main 127.0.0.1 workbook retained the supply-pair Approach checkpoint and 0 self-reviewed problems.
+
 ## Python reference execution follow-up — 30 October 2026
 
 Python now uses the same restricted-container reference runner as JavaScript. The official Python 3.14 slim Bookworm image was explicitly downloaded and pinned by digest. Requests never download images or fall back to a host interpreter. Health reports installed usable runtimes independently; a missing Python image leaves JavaScript available. The client sends the selected language, rejects mismatched replies, and discards a result when the language changes mid-run. Duplicate in-flight button actions are guarded.

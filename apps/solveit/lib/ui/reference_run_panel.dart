@@ -80,6 +80,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
         client == null ||
         !{
           CodeLanguage.javascript,
+          CodeLanguage.typescript,
           CodeLanguage.python,
         }.contains(widget.language)) {
       return;
@@ -135,6 +136,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
     final spec = codeSpecs[widget.lessonId]!;
     final supported = {
       CodeLanguage.javascript,
+      CodeLanguage.typescript,
       CodeLanguage.python,
     }.contains(widget.language);
     return Column(
@@ -144,13 +146,24 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
         Text(
           supported
               ? 'Local development execution · reference cases only. This does not establish a verified solve.'
-              : 'Reference execution currently supports JavaScript and Python. You can keep drafting in any language.',
+              : 'Reference execution currently supports JavaScript, TypeScript and Python. You can keep drafting in any language.',
           style: const TextStyle(
             fontSize: 12,
             height: 1.6,
             color: StudyColors.muted,
           ),
         ),
+        if (widget.language == CodeLanguage.typescript) ...[
+          const SizedBox(height: 8),
+          const Text(
+            'TypeScript runs with types removed; types are not checked. Use a synchronous solve function with no imports or exports. Enums, parameter properties and other syntax requiring transformation are unsupported.',
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.6,
+              color: StudyColors.muted,
+            ),
+          ),
+        ],
         const SizedBox(height: 10),
         ListenableBuilder(
           listenable: widget.editor,

@@ -9,7 +9,20 @@ class RunnerTests(unittest.TestCase):
         def selected(language):
             if language=='python': raise RunnerUnavailable('missing')
         with patch('runner.preflight',side_effect=selected):
-            self.assertEqual(available_languages(),['javascript'])
+            self.assertEqual(available_languages(),['javascript','typescript'])
+
+    def test_typescript_uses_pinned_node_with_identical_container_controls(self):
+        ts=command('solveit-reference-test','typescript')
+        js=command('solveit-reference-test','javascript')
+        self.assertEqual(ts[:ts.index('-i')+2],js[:js.index('-i')+2])
+        self.assertIn('--max-old-space-size=64',ts)
+        self.assertEqual(ts[-1],'typescript')
+        result=review({'lesson_id':'signal-ranges-v1','language':'typescript','source':'enum X { A }'},
+                      execute=lambda *_:{'status':'unsupported_syntax'},check=lambda:None)
+        self.assertEqual(result['language'],'typescript')
+        self.assertEqual(result['passed'],0)
+        self.assertTrue(all(c['status']=='unsupported_syntax' for c in result['cases']))
+        self.assertIs(result['verified_solve'],False)
 
     def test_python_request_keeps_language_and_never_falls_back(self):
         payload={'lesson_id':'signal-ranges-v1','language':'python','source':'def solve(a,t):return 0'}

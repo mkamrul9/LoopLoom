@@ -19,7 +19,7 @@ Implemented after the interaction prototype: versioned local persistence, unsent
 4. Find a model/configuration that clears independent correctness, teaching, injection, and latency review on available hardware. The initial small-model experiments failed. Keep guided practice until a candidate qualifies; hosted adapters are deferred under the zero-spend constraint.
 5. Author accepted-strategy rubrics and a held-out benchmark before enabling automatic semantic approval.
 6. Enforce coaching state and hint/reveal policy server-side; test ambiguous/alternative explanations.
-7. A local-only development JavaScript/Python runner now executes visible reference cases in restricted containers, with limits and per-case statuses. Add C++/TypeScript harnesses, harden and independently review isolation, add hidden execution tests and authoritative result provenance before production verified execution.
+7. A local-only development JavaScript/Python/TypeScript runner now executes visible reference cases in restricted containers, with limits and per-case statuses. TypeScript strips types without semantic checking. Add C++ execution and TypeScript type checks, harden and independently review isolation, add hidden execution tests and authoritative result provenance before production verified execution.
 8. Require a matching accepted judge result for verified solve state.
 9. Add auth/opt-in sync, review scheduling, and basic operations metrics.
 

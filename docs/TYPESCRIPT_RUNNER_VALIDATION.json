@@ -1,0 +1,294 @@
+{
+  "kind": "local_development_authored_typescript_fixtures_not_security_certification",
+  "type_checking": false,
+  "passed": 19,
+  "total": 19,
+  "checks": [
+    {
+      "check": "supply-pair-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "A matching pair",
+            "status": "matched"
+          },
+          {
+            "label": "Duplicates",
+            "status": "matched"
+          },
+          {
+            "label": "No partner",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "sorted-crates-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Sorted search",
+            "status": "matched"
+          },
+          {
+            "label": "Equal weights",
+            "status": "matched"
+          },
+          {
+            "label": "Empty input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "focus-block-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Consecutive block",
+            "status": "matched"
+          },
+          {
+            "label": "All negative",
+            "status": "matched"
+          },
+          {
+            "label": "Whole input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "signal-ranges-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "matched"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "matched"
+          },
+          {
+            "label": "Empty input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "warmer-readings-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Waiting distances",
+            "status": "matched"
+          },
+          {
+            "label": "Equal is not warmer",
+            "status": "matched"
+          },
+          {
+            "label": "No future day",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "busy-periods-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Nested and touching",
+            "status": "matched"
+          },
+          {
+            "label": "Touching stays separate",
+            "status": "matched"
+          },
+          {
+            "label": "Empty input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "syntax_error",
+      "passed": true,
+      "result": {
+        "status": "syntax_error"
+      }
+    },
+    {
+      "check": "unsupported_enum",
+      "passed": true,
+      "result": {
+        "status": "unsupported_syntax"
+      }
+    },
+    {
+      "check": "unsupported_parameter_property",
+      "passed": true,
+      "result": {
+        "status": "unsupported_syntax"
+      }
+    },
+    {
+      "check": "runtime_error",
+      "passed": true,
+      "result": {
+        "status": "runtime_error"
+      }
+    },
+    {
+      "check": "time_limit",
+      "passed": true,
+      "result": {
+        "status": "time_limit"
+      }
+    },
+    {
+      "check": "output_limit",
+      "passed": true,
+      "result": {
+        "status": "output_limit"
+      }
+    },
+    {
+      "check": "memory_limit",
+      "passed": true,
+      "result": {
+        "status": "memory_limit"
+      }
+    },
+    {
+      "check": "uid_root_filesystem_and_network",
+      "passed": true,
+      "result": {
+        "status": "returned",
+        "result": {
+          "uid": 65534,
+          "writable": false,
+          "interfaces": [
+            "lo"
+          ]
+        },
+        "mutated": false
+      }
+    },
+    {
+      "check": "type_alias_and_debug_output",
+      "passed": true,
+      "result": {
+        "status": "returned",
+        "result": 42,
+        "mutated": false
+      }
+    },
+    {
+      "check": "explicitly_no_semantic_type_checking",
+      "passed": true,
+      "result": {
+        "status": "returned",
+        "result": 42,
+        "mutated": false
+      }
+    },
+    {
+      "check": "boolean_is_not_an_integer_answer",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "wrong_answer"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "wrong_answer"
+          },
+          {
+            "label": "Empty input",
+            "status": "wrong_answer"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "mutating_input_is_reported",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "typescript",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Nested and touching",
+            "status": "input_modified"
+          },
+          {
+            "label": "Touching stays separate",
+            "status": "input_modified"
+          },
+          {
+            "label": "Empty input",
+            "status": "input_modified"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "container_cleanup",
+      "passed": true
+    }
+  ]
+}

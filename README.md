@@ -27,7 +27,7 @@ Workbook backup is available from the header's **Workbook backup** button. Copy 
 
 ## Repository direction
 
-An opt-in local JavaScript/Python reference runner executes visible cases in restricted disposable Docker containers. It reports case results without granting verified solves. C++ and TypeScript remain drafting-only; the default APK keeps execution disabled. [Setup and scope](docs/REFERENCE_RUNNER.md).
+An opt-in local JavaScript/Python/TypeScript reference runner executes visible cases in restricted disposable Docker containers. TypeScript uses type stripping without type checking. Results never grant verified solves. C++ remains drafting-only; the default APK keeps execution disabled. [Setup and scope](docs/REFERENCE_RUNNER.md).
 
 The Code checkpoint includes lesson-specific starter signatures in all four languages, an indentation control, and folded reference cases with expected results. Code remains saved for self-review rather than executed. [Workspace details](docs/CODE_WORKSPACE.md).
 

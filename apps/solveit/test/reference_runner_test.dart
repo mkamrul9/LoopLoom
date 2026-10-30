@@ -22,6 +22,70 @@ Map<String, Object?> goodReply() => {
 };
 
 void main() {
+  testWidgets('TypeScript shows its limits and handles unsupported syntax', (
+    tester,
+  ) async {
+    final client = ReferenceRunnerClient(
+      'http://localhost:8766',
+      client: MockClient((request) async {
+        expect(jsonDecode(request.body)['language'], 'typescript');
+        return http.Response(
+          jsonEncode({
+            ...goodReply(),
+            'language': 'typescript',
+            'passed': 0,
+            'cases': codeSpecs['signal-ranges-v1']!.cases
+                .map((c) => {'label': c.label, 'status': 'unsupported_syntax'})
+                .toList(),
+          }),
+          200,
+        );
+      }),
+    );
+    final editor = TextEditingController(
+      text: 'enum X { A }; function solve(){return X.A;}',
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ReferenceRunPanel(
+            lessonId: 'signal-ranges-v1',
+            language: CodeLanguage.typescript,
+            editor: editor,
+            enabled: true,
+            runner: client,
+          ),
+        ),
+      ),
+    );
+    expect(find.textContaining('types are not checked'), findsOneWidget);
+    await tester.tap(find.text('Run reference cases'));
+    await tester.pumpAndSettle();
+    expect(find.text('0/3 reference cases matched'), findsOneWidget);
+    expect(find.textContaining('unsupported syntax'), findsNWidgets(3));
+    editor.text = 'function solve(a: readonly number[]): number {return 0;}';
+    await tester.pump();
+    expect(find.text('0/3 reference cases matched'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    editor.dispose();
+  });
+  test('TypeScript rejects a JavaScript reply', () async {
+    final client = ReferenceRunnerClient(
+      'http://localhost:8766',
+      client: MockClient(
+        (_) async => http.Response(jsonEncode(goodReply()), 200),
+      ),
+    );
+    await expectLater(
+      client.run(
+        'signal-ranges-v1',
+        'function solve(): number {return 0;}',
+        language: 'typescript',
+      ),
+      throwsFormatException,
+    );
+    client.close();
+  });
   test(
     'Python submissions carry their language and reject another runtime reply',
     () async {
