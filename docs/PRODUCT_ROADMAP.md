@@ -1,0 +1,101 @@
+# SolveIt product and delivery roadmap
+
+Planning baseline: 29 October 2026. Scope, timing, prices, and success targets below are proposals, not achieved results or revenue forecasts.
+
+## Product promise
+
+Learn how to solve unfamiliar coding problems by explaining your thinking to a coach. The coach asks useful questions, identifies misconceptions, and helps you improve an approach before writing code.
+
+The confirmed initial audience is **intermediate developers preparing for coding interviews**. Interview 75 is the primary product path; foundation lessons act as diagnostic refreshers and warm-ups. Beginner and advanced paths extend the same learning system later. The confirmed development constraint is **strict zero spend**: no paid AI calls, paid infrastructure, purchased hardware, or automatic upgrade from free quotas. Use existing local resources and fail back to curated guided practice.
+
+The first product is a coding coach. Later modules can teach SQL, system design, CS fundamentals, and other technical material through the same lesson/checkpoint model.
+
+## The learning session
+
+1. Understand: restate the task, inputs, outputs, constraints, and edge cases.
+2. Approach: explain an algorithm in plain language or pseudocode. A correct brute-force approach is accepted and discussed; optimization is a separate learning step.
+3. Reason: identify the invariant, trace an example, and explain time and space complexity. Support multiple valid strategies, rather than one preferred wording.
+4. Code: choose C++, Python, JavaScript, or TypeScript. Keep a separate draft per language.
+5. Test and debug: execute visible examples and hidden cases in an isolated judge; use counterexamples to guide revision. Tests provide evidence within the stated contract, not a mathematical proof.
+6. Reflect: summarize the pattern, the mistake to remember, and when the method applies.
+7. Review: schedule a fresh attempt after a proposed 1, 3, 7, and 14 days; adapt these intervals after observing learners.
+
+Incorrect or incomplete explanations stay at the current checkpoint with one focused question. Feedback distinguishes incorrect, incomplete, valid-but-slower, and unclear. The learner can ask for another example, a more direct hint, a different explanation, or explicitly reveal a solution. An uncertain model asks a clarifying question; it does not confidently reject a valid answer.
+
+Progress states: not started, in progress, self-reviewed, verified solved with assistance, verified solved independently, and review due. Reading an editorial or a model saying "correct" never marks a problem solved. Mastery requires later independent recall and transfer to another problem.
+
+## Curriculum and roadmaps
+
+Roadmaps reference one shared problem catalog. A solved problem contributes to every roadmap containing it; attempts remain tied to the content version and language.
+
+- Foundation track: optional diagnostic refreshers in syntax, arrays, strings, complexity, maps/sets, two pointers, fixed/variable windows, stacks, binary search, and recursion basics. Experienced learners can skip mastered refreshers.
+- Interview 75 (primary): diagnostic placement and balanced practice across those foundations plus linked lists, trees, heaps, intervals, graphs, backtracking, greedy techniques, and basic dynamic programming. Emphasize explaining tradeoffs, invariants, complexity, edge cases, and follow-up variants under interview conditions.
+- Mastery 300: deeper graph algorithms, union-find, tries, advanced DP, monotonic structures, bit techniques, and mixed-pattern transfer problems.
+- Beginner, intermediate, and advanced are learner support modes as well as difficulty filters. Beginners get smaller checkpoints and worked traces; advanced learners get fewer prompts and more proof/optimization questions.
+- Optional Blind 75-style external reference track: link out and preserve source attribution. Do not imply affiliation. Verify permissions before distributing third-party list structure, statements, tests, explanations, or solutions.
+
+Start with original problem statements and examples. Familiar algorithmic ideas can be taught with original scenarios. Maintain authorship, license, provenance, reviewers, and version metadata. [LeetCode's terms](https://leetcode.com/terms/) are relevant before incorporating its content; a public URL is not a redistribution license.
+
+## Milestone 0 — define and prove the loop
+
+Estimated 1–2 weeks for one experienced full-time builder with content review help; validate effort after the first slice.
+
+- Write the product, coaching, AI, architecture, UX, and release specifications.
+- Build a responsive Flutter pilot with three original problems: map lookup, two pointers, and a fixed sliding window.
+- Support all four requested languages in the UI and draft model.
+- Use honest guided self-checks while real AI and the judge are unavailable.
+- Observe 5–10 intermediate interview candidates completing a session; record where hints are too vague or too revealing. The three simple pilot lessons validate interactions rather than represent the final difficulty mix.
+
+Exit: learners can finish the loop and explain what they learned; source passes analysis/tests, mobile layout works with the keyboard, and no unverified action is presented as a solved problem.
+
+## Milestone 1 — trustworthy coaching MVP
+
+Estimated 4–6 additional weeks, dependent on review capacity and judge infrastructure.
+
+- A 30-problem interview starter set across 6–8 patterns, weighted toward medium difficulty with a few diagnostic warm-ups. Each original reviewed problem has multiple accepted strategies, misconception examples, progressive hints, and four tested reference implementations.
+- Auth with optional guest start; durable local drafts; opt-in cloud sync; recovery after network failure.
+- Provider-independent coaching API, structured feedback, quotas, cost limits, and curated fallback.
+- Isolated execution for C++, Python, JavaScript, and TypeScript. TypeScript is compiled before execution; compiler versions are pinned per runtime image.
+- Real attempt history, verified solve state, bookmarks, reflection, and review scheduling.
+- Content publishing workflow with draft/review/published states and rollback.
+
+Exit: end-to-end sessions, adversarial AI evaluations, judge isolation checks, data ownership checks, and restore/delete flows meet the quality gates in the architecture and AI documents.
+
+## Milestone 2 — paid Android beta
+
+Estimated 2–4 additional weeks plus testing and store review time.
+
+- Add Google Play subscriptions, server-verified entitlements, purchase restore, grace-period handling, and cancellation state.
+- Complete privacy, data deletion, support, store listing, accessibility, crash monitoring, and signed release build.
+- Run internal and applicable closed tests. Launch to a limited audience before increasing AI quotas.
+- Offer the reviewed interview starter catalog; label incomplete roadmaps as upcoming rather than advertising empty 75/300 catalogs.
+
+Exit: real testers complete sessions reliably; costs per session are measurable; payment lifecycle tests pass; applicable Play production-access requirements are met.
+
+## Milestone 3 — 75-problem product and web beta
+
+Estimated 4–6 additional weeks, strongly dependent on content throughput.
+
+- Expand to 75 reviewed problems; add diagnostic placement, pattern mastery, and spaced review.
+- Ship web layouts with keyboard navigation, URL-based routing, browser history, and a larger editor workspace.
+- Add a small public HTML marketing/content site if search discovery matters. Flutter is suitable for the interactive learning application; document-heavy public articles can use a separate web rendering approach. [Flutter web guidance](https://docs.flutter.dev/platform-integration/web).
+- Run acquisition and pricing experiments with university clubs and interview-preparation communities.
+
+## Milestone 4 — deepen to 300 and expand
+
+Only commit a date after measuring problem authoring/review throughput and learner retention.
+
+- Reach 300 reviewed problems and more advanced patterns.
+- Add personalized weekly plans, mock interviews, team/cohort dashboards, and institution licensing when demand is demonstrated.
+- Explore optional on-device AI on supported devices and the next subject module.
+- Split backend services only when operational evidence requires it.
+
+## Measures and launch decisions
+
+Primary learning measure: independently verified solves on a later fresh attempt, normalized by problem difficulty. Track self-reported learning alongside this measure, not as its replacement.
+
+Instrument: onboarding completed, session started, approach submitted, misconception identified, hint requested by level, solution revealed, code submitted, judge finished, reflection completed, review attempted, subscription activated/renewed/cancelled.
+
+Proposed beta targets to validate: 60% of recruited learners finish a first session; 25% return in week one; at least 80% of reviewed coaching replies are rated useful by an expert; fewer than 2% of benchmark replies incorrectly reject a valid strategy. These are internal decision thresholds, not industry benchmarks. Report sample size and uncertainty; expand the benchmark before public claims.
+
+Revenue is a result to validate. Do not scale paid acquisition until retention, coaching quality, subscription conversion, and contribution margin justify it.

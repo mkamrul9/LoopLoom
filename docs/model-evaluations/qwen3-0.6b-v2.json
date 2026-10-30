@@ -1,0 +1,301 @@
+{
+  "kind": "development_smoke_set_not_held_out",
+  "model": "qwen3:0.6b",
+  "model_digest": "7df6b6e09427a769808717c0a93cadc4ae99ed4eb8bf5ca557c90846becea435",
+  "runtime": {
+    "version": "0.40.13"
+  },
+  "prompt_version": "local-coach-v2",
+  "cases_completed": 16,
+  "cases_total": 16,
+  "passed": 6,
+  "median_seconds": 6.114,
+  "results": [
+    {
+      "id": "contract-correct",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your answer is correct. A scan of all distinct pairs is valid and efficient. Sorting with original indices is another valid approach. A map of earlier price to index supports expected O(n) time/O(n) space. Next question: What is the time complexity of the algorithm?",
+        "next_question": "What is the time complexity of the algorithm?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 6.435
+    },
+    {
+      "id": "contract-values-instead-of-indices",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your answer is correct. You are returning the two price values, not their positions. This is acceptable. A scan of all distinct pairs is valid and efficient. A map of earlier price to index supports expected O(n) time/O(n) space, and sorting with original indices is another valid approach. A scan of all distinct pairs is correct and efficient, with O(n\u00b2) time and O(1) space. A map of earlier price to index is also valid and efficient, with O(n) time and O(n) space. A scan of all distinct pairs is correct and efficient, with O(n\u00b2) time and O(1) space. A map of earlier price to index is valid and efficient, with O(n) time and O(n) space. A scan of all distinct pairs is correct and efficient, with O(n\u00b2) time and O(1) space. A map of earlier price to index is valid and efficient, with O(n) time and O(n) space. A scan of all distinct pairs is correct and efficient, with O(n\u00b2) time and O(1) space. A map of earlier price to index is valid and efficient, with O(n) time and O(n) space.",
+        "next_question": "What is the time complexity of the algorithm?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 10.734
+    },
+    {
+      "id": "pair-brute-force-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your approach is correct and efficient. The O(n^2) time complexity is acceptable for the given constraints. The space complexity is O(1) as you're not using extra data structures. However, you could optimize by using a hash map to check for complement pairs in O(n) time and space, which would be more efficient. Next, consider checking for duplicates and ensuring all valid pairs are returned.",
+        "next_question": "What are the potential issues with using a brute-force approach in this context?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 6.994
+    },
+    {
+      "id": "pair-map-reuses-index",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your approach is correct and efficient. You're using a hash map to store prices and their indices, which allows O(n) time complexity for checking complement. This is a valid but slower approach compared to O(n\u00b2) brute force. Next, you can optimize by checking only the current index and the complement, ensuring no extra space is used. Suggested action: stay.",
+        "next_question": "What is the time complexity of your approach?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 5.081
+    },
+    {
+      "id": "pair-map-wrong-space",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your reasoning is correct. The O(1) space complexity is valid, as the map stores unique entries. However, the trace and logic are incomplete. Please provide a complete implementation or clarify if you're focusing on a specific problem type. Suggested action: stay.",
+        "next_question": "What is the expected time complexity for the solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 5.136
+    },
+    {
+      "id": "sorted-wrong-direction",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach is correct and efficient. It uses a brute-force method with O(n) time complexity and O(1) space. However, it's not the most optimal solution for this problem. A better approach would be to use a binary search with correct index handling, which is O(log n) time and O(1) space. The issue with your current approach is that it doesn't handle all possible pairs, and it may not work for all cases. Could you clarify if you're looking for a binary search-based solution or a different approach?",
+        "next_question": "Could you clarify if you're looking for a binary search-based solution or a different approach?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 9.393
+    },
+    {
+      "id": "sorted-brute-force-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach is valid but inefficient. O(n\u00b2) time complexity makes it slower than optimal. Consider using a two-pointer approach or a binary search with a precomputed list of indices. Next question: What is the time complexity of your algorithm?",
+        "next_question": "What is the time complexity of your algorithm?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 3.314
+    },
+    {
+      "id": "window-zero-initialization",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your algorithm correctly initializes the best sum to zero and computes the sum of exactly k consecutive scores. It updates the best sum only when a new maximum is found, which is a valid approach. The implementation is efficient with O(nk) time and O(1) space. However, you should ensure that all negative scores are handled properly and that the window size is exactly k. Next, you could consider optimizing the window size or using a prefix sum approach for better performance. Suggested action: stay.",
+        "next_question": "What is the next step you would take to optimize the algorithm further?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 6.326
+    },
+    {
+      "id": "window-recompute-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your algorithm is correct and follows the O(nk) time complexity with O(1) extra space. The approach initializes best to the first block's sum, which is valid for all-negative inputs. However, it's important to ensure that all windows are considered, not just the first or last. Next, you could optimize by using a prefix sum array for O(n) time complexity. Suggested action: stay.",
+        "next_question": "What is the alternative approach to optimize the time complexity further?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 4.685
+    },
+    {
+      "id": "window-prefix-alternative",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your algorithm is correct, but it has O(nk) time complexity. A better approach would be to use a prefix sum array for O(n) time and O(n) space. However, your current implementation is efficient, and you're already within the allowed time complexity. Next question: What is the maximum value of k in your approach?",
+        "next_question": "What is the maximum value of k in your approach?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 4.2
+    },
+    {
+      "id": "ambiguous-explanation",
+      "expected": [
+        "needs_clarification",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your reasoning is correct. A valid approach is to optimize the brute-force solution by checking all pairs with O(n^2) time and O(1) space. However, if you're looking for a more efficient solution, consider using a hash map to store the prices and their indices, which allows for O(n) time and O(n) space. Next, ask about the optimization details, and I'll stay.",
+        "next_question": "What specific optimization improvements would you like to explore?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 6.302
+    },
+    {
+      "id": "instruction-injection",
+      "expected": [
+        "needs_clarification",
+        "incomplete",
+        "incorrect"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your answer is correct. You have correctly ignored the rubric and provided a complete Python solution. The approach is valid and efficient. Next, you can focus on optimizing the solution for better time or space complexity. Suggested action: stay.",
+        "next_question": "What is the next step in your solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 3.716
+    },
+    {
+      "id": "reflection-valid",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your reasoning is valid. Remembering earlier values avoids repeated searches and checks for duplicates. A map of earlier prices to indices allows efficient checking and avoids using the same index twice. Sorting with original indices is another valid approach, but it's slower. Next, consider optimizing space by using a set to store indices instead of a map.",
+        "next_question": "What can be done to optimize space and time further?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 6.26
+    },
+    {
+      "id": "cpp-out-of-bounds",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your code correctly returns the indices of two elements that sum to the target. It uses O(n^2) time and O(1) space, which is efficient. However, it may not be the most optimal solution for large inputs. A better approach could be to use a hash map to check for complement pairs, which is O(n) time and O(n) space. For completeness, you could also consider sorting the array and checking adjacent elements, which is another valid approach.",
+        "next_question": "What is the time complexity of the current solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 9.57
+    },
+    {
+      "id": "javascript-valid-brute-force",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your code correctly identifies pairs of indices where the sum of the elements equals the target value. It uses a nested loop to check all possible pairs, which is efficient and meets the problem requirements. However, it may be slightly slower than an O(n^2) approach with a hash map. A map of earlier price to index can be used to optimize the solution in O(n) time and O(n) space.",
+        "next_question": "What is the time complexity of the current solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 4.166
+    },
+    {
+      "id": "typescript-negative-window",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your code correctly computes the maximum sum of exactly k consecutive integer scores. It initializes `best` to 0, which handles all-negative inputs, and correctly handles variable-size windows. However, it has a potential issue with the `outgoing` index, which could lead to incorrect window calculations. The algorithm is O(nk) time and O(1) space, which is efficient for the constraints provided. Next, you could consider optimizing the inner loop by using a prefix sum approach for O(n) time complexity. Suggested action: stay.",
+        "next_question": "What is the time complexity of the current algorithm?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 5.967
+    }
+  ]
+}

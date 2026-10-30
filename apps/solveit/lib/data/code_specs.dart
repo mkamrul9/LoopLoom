@@ -1,0 +1,153 @@
+import '../domain/lesson.dart';
+
+class ReferenceCase {
+  const ReferenceCase(this.label, this.input, this.expected);
+  final String label, input, expected;
+}
+
+class CodeSpec {
+  const CodeSpec(this.names, this.returnsList, this.intervals, this.cases);
+  final List<String> names;
+  final bool returnsList, intervals;
+  final List<ReferenceCase> cases;
+
+  String starter(CodeLanguage language) {
+    final array = names.first;
+    final scalar = names.length > 1 ? names[1] : null;
+    switch (language) {
+      case CodeLanguage.cpp:
+        final result = intervals
+            ? 'std::vector<std::vector<int>>'
+            : returnsList
+            ? 'std::vector<int>'
+            : 'int';
+        final input = intervals
+            ? 'std::vector<std::vector<int>>'
+            : 'std::vector<int>';
+        return '#include <vector>\n#include <stdexcept>\n\n$result solve(const $input& $array${scalar == null ? '' : ', int $scalar'}) {\n    // TODO: implement your approach.\n    throw std::logic_error("TODO");\n}\n';
+      case CodeLanguage.python:
+        final result = intervals
+            ? 'list[list[int]]'
+            : returnsList
+            ? 'list[int]'
+            : 'int';
+        final input = intervals ? 'list[list[int]]' : 'list[int]';
+        return 'def solve($array: $input${scalar == null ? '' : ', $scalar: int'}) -> $result:\n    # TODO: implement your approach.\n    raise NotImplementedError("TODO")\n';
+      case CodeLanguage.javascript:
+        return 'function solve($array${scalar == null ? '' : ', $scalar'}) {\n    // TODO: implement your approach.\n    throw new Error("TODO");\n}\n';
+      case CodeLanguage.typescript:
+        final result = intervals
+            ? 'Array<[number, number]>'
+            : returnsList
+            ? 'number[]'
+            : 'number';
+        final input = intervals
+            ? 'ReadonlyArray<readonly [number, number]>'
+            : 'readonly number[]';
+        return 'function solve($array: $input${scalar == null ? '' : ', $scalar: number'}): $result {\n    // TODO: implement your approach.\n    throw new Error("TODO");\n}\n';
+    }
+  }
+}
+
+const codeSpecs = <String, CodeSpec>{
+  'supply-pair-v1': CodeSpec(
+    ['prices', 'budget'],
+    true,
+    false,
+    [
+      ReferenceCase(
+        'A matching pair',
+        'prices = [4, 11, 6, 2], budget = 8',
+        'One valid result: [2, 3]. Either index order is accepted.',
+      ),
+      ReferenceCase(
+        'Duplicates',
+        'prices = [4, 4], budget = 8',
+        '[0, 1] or [1, 0]; the indices must differ.',
+      ),
+      ReferenceCase('No partner', 'prices = [4], budget = 8', '[]'),
+    ],
+  ),
+  'sorted-crates-v1': CodeSpec(
+    ['weights', 'target'],
+    true,
+    false,
+    [
+      ReferenceCase(
+        'Sorted search',
+        'weights = [1, 3, 5, 8, 12], target = 11',
+        '[1, 3] or [3, 1]',
+      ),
+      ReferenceCase(
+        'Equal weights',
+        'weights = [3, 3], target = 6',
+        '[0, 1] or [1, 0]',
+      ),
+      ReferenceCase('Empty input', 'weights = [], target = 5', '[]'),
+    ],
+  ),
+  'focus-block-v1': CodeSpec(
+    ['scores', 'k'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Consecutive block',
+        'scores = [3, -2, 5, 4, -1], k = 3',
+        '8',
+      ),
+      ReferenceCase('All negative', 'scores = [-5, -2, -4], k = 2', '-6'),
+      ReferenceCase('Whole input', 'scores = [2, -3, 4], k = 3', '3'),
+    ],
+  ),
+  'signal-ranges-v1': CodeSpec(
+    ['changes', 'target'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Overlapping ranges',
+        'changes = [2, -2, 2], target = 2',
+        '3',
+      ),
+      ReferenceCase('Repeated totals', 'changes = [0, 0, 0], target = 0', '6'),
+      ReferenceCase('Empty input', 'changes = [], target = 0', '0'),
+    ],
+  ),
+  'warmer-readings-v1': CodeSpec(
+    ['temperatures'],
+    true,
+    false,
+    [
+      ReferenceCase(
+        'Waiting distances',
+        'temperatures = [20, 20, 19, 23, 21]',
+        '[3, 2, 1, 0, 0]',
+      ),
+      ReferenceCase(
+        'Equal is not warmer',
+        'temperatures = [7, 7, 7]',
+        '[0, 0, 0]',
+      ),
+      ReferenceCase('No future day', 'temperatures = [8]', '[0]'),
+    ],
+  ),
+  'busy-periods-v1': CodeSpec(
+    ['bookings'],
+    true,
+    true,
+    [
+      ReferenceCase(
+        'Nested and touching',
+        'bookings = [[1, 6], [2, 4], [6, 8], [7, 9]]',
+        '[[1, 6], [6, 9]]',
+      ),
+      ReferenceCase(
+        'Touching stays separate',
+        'bookings = [[3, 5], [1, 3]]',
+        '[[1, 3], [3, 5]]',
+      ),
+      ReferenceCase('Empty input', 'bookings = []', '[]'),
+    ],
+  ),
+};

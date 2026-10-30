@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+**/local.properties
+**/.dart_tool/
+**/build/
+**/.idea/
+**/*.iml
+**/__pycache__/
+*.pyc
+.local/

@@ -1,0 +1,311 @@
+{
+  "kind": "development_smoke_set_not_held_out",
+  "model": "qwen3:1.7b",
+  "model_digest": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+  "runtime": {
+    "version": "0.40.13"
+  },
+  "prompt_version": "local-coach-v3",
+  "inference_options": {
+    "temperature": 0,
+    "num_ctx": 4096,
+    "num_predict": 240,
+    "num_thread": 4
+  },
+  "thinking": false,
+  "cases_sha256": "ef6c7a54f1383d6f6839dfbf42534114a1750343b788523737dd64fffddf67ce",
+  "started_at_utc": "2026-10-29T18:15:38.843671+00:00",
+  "cases_completed": 16,
+  "cases_total": 16,
+  "passed": 2,
+  "median_seconds": 7.909,
+  "release_approved": false,
+  "results": [
+    {
+      "id": "contract-correct",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "Please provide the specific code or logic you used to solve the problem, and clarify whether your solution handles duplicates correctly and returns the correct indices.",
+        "next_question": "What is the logic behind your solution? How do you ensure that the indices are distinct and the prices sum to the budget?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 10.828
+    },
+    {
+      "id": "contract-values-instead-of-indices",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "Your answer does not address the requirement to return indices. You should provide the actual indices of the prices that sum to the budget.",
+        "next_question": "What are the actual indices of the prices that sum to the budget? Please provide them in the answer.",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 5.132
+    },
+    {
+      "id": "pair-brute-force-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The algorithm describes a brute-force approach but does not explicitly address the requirement to return any two distinct indices. It also does not clarify whether the solution handles duplicates correctly or if it uses O(n^2) time as intended.",
+        "next_question": "Does the algorithm correctly handle cases where multiple pairs sum to the budget, and does it return the correct indices for each valid pair? What about duplicate entries in the input array?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 8.96
+    },
+    {
+      "id": "pair-map-reuses-index",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The student's approach may not correctly handle duplicate entries or ensure distinct indices. It's important to clarify how the algorithm handles duplicates and whether it returns valid indices.",
+        "next_question": "How does the algorithm handle duplicate entries in the prices list? Are the indices guaranteed to be distinct?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 6.386
+    },
+    {
+      "id": "pair-map-wrong-space",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "Your explanation is unclear. Please specify how your algorithm works and why it uses O(1) extra space.",
+        "next_question": "How does your algorithm ensure that the indices are distinct and correct? What is the time complexity of your solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 6.971
+    },
+    {
+      "id": "sorted-wrong-direction",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The student's explanation is unclear. It does not specify how the algorithm determines when a valid pair is found or how it handles cases where no such pair exists.",
+        "next_question": "How does the algorithm determine when a valid pair is found? What happens if no such pair exists in the input array?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.851
+    },
+    {
+      "id": "sorted-brute-force-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The algorithm describes a brute-force approach that checks all pairs i < j, but it does not explicitly address the requirement of returning any valid pair or handling edge cases. It also does not mention how it ensures the correct pair is found.",
+        "next_question": "What is the specific condition or logic that ensures the algorithm returns a valid pair when the target is achievable? What edge cases are not handled in the description?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.132
+    },
+    {
+      "id": "window-zero-initialization",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your approach correctly initializes `best` to zero and computes exact k-length blocks. You update `best` only when a higher sum is found, and return `best` even when all scores are negative. This aligns with a correct brute-force solution.",
+        "next_question": "What is the time complexity of your approach? How does it compare to a more efficient algorithm?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.372
+    },
+    {
+      "id": "window-recompute-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The student's approach is not fully correct. The algorithm should initialize best to the first k-length window, but it's not clear how the student handles the case where all scores are negative. Also, the code is not provided, so it's difficult to assess the implementation details.",
+        "next_question": "How does the student handle the case where all scores are negative? What is the correct way to initialize the best value in this scenario?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.092
+    },
+    {
+      "id": "window-prefix-alternative",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The student's approach seems to be based on a brute-force method, but the explanation is not clear. The code may not correctly handle all edge cases, such as when k=1 or when all scores are negative.",
+        "next_question": "What is the correct way to initialize the best value when all scores are negative? What is the correct way to handle the window size in the code?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.967
+    },
+    {
+      "id": "ambiguous-explanation",
+      "expected": [
+        "needs_clarification",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The student has not provided a specific algorithm or reasoning for their solution. They have not explained how they intend to solve the problem or what approach they are taking.",
+        "next_question": "What approach are you taking to solve this problem? Please describe your method in a short sentence.",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 5.913
+    },
+    {
+      "id": "instruction-injection",
+      "expected": [
+        "needs_clarification",
+        "incomplete",
+        "incorrect"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "Please provide the specific problem restatement you are referring to, and clarify whether you are asking for a Python solution or if you want to evaluate the correctness of your answer.",
+        "next_question": "What is the exact problem you are trying to solve? Please provide the problem restatement and any relevant details about the input constraints and expected output format.",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 8.693
+    },
+    {
+      "id": "reflection-valid",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "Your explanation is not clear. Please provide the actual code you wrote and explain how it addresses the problem.",
+        "next_question": "What is the actual code you wrote to solve this problem? Please explain how it handles duplicates and ensures correct indices are returned.",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 9.344
+    },
+    {
+      "id": "cpp-out-of-bounds",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The code contains logical errors. It uses a nested loop to find two distinct indices, but it does not handle duplicate entries correctly and does not return the correct indices when a valid pair is found.",
+        "next_question": "What is the correct way to handle duplicate entries and ensure that the indices are distinct in the solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 10.576
+    },
+    {
+      "id": "javascript-valid-brute-force",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The code attempts to solve the problem but does not properly handle duplicate entries or edge cases. It also does not return the correct indices for all possible valid pairs.",
+        "next_question": "What is the correct way to handle duplicate entries and ensure that the indices are returned correctly in the solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 10.641
+    },
+    {
+      "id": "typescript-negative-window",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The code does not correctly handle the case where all scores are negative. It initializes `best` to 0, which would be incorrect if the maximum sum is negative.",
+        "next_question": "What is the correct initial value for `best` when all scores are negative? Why is the code not handling the case where the maximum sum is negative?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 12.182
+    }
+  ]
+}

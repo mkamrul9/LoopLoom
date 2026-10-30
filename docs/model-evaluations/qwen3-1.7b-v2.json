@@ -1,0 +1,301 @@
+{
+  "kind": "development_smoke_set_not_held_out",
+  "model": "qwen3:1.7b",
+  "model_digest": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+  "runtime": {
+    "version": "0.40.13"
+  },
+  "prompt_version": "local-coach-v2",
+  "cases_completed": 16,
+  "cases_total": 16,
+  "passed": 6,
+  "median_seconds": 10.762,
+  "results": [
+    {
+      "id": "contract-correct",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach is valid but slightly inefficient. Using a brute-force method with O(n^2) time complexity is acceptable for small input sizes, but for larger datasets (up to 10,000 entries), a more optimized approach is recommended.",
+        "next_question": "What is the maximum number of entries allowed in the input, and how does this affect the efficiency of your solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 16.163
+    },
+    {
+      "id": "contract-values-instead-of-indices",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "Your answer focuses on the values rather than their indices, which may not meet the problem's requirements. Clarify if the solution needs to return indices or just the values, and ensure that duplicates are handled correctly.",
+        "next_question": "How should the solution handle duplicate values in the prices array? Should it return [4, 2] even if they are not indices, or should it return their original positions?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.301
+    },
+    {
+      "id": "pair-brute-force-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach is correct but inefficient. The O(n^2) time complexity is acceptable for small inputs, but for larger datasets (up to 10,000 entries), this approach may not be optimal. Consider optimizing by using a hash map to track earlier prices and check for complements.",
+        "next_question": "What if the input has duplicate prices? How would your approach handle that?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 11.778
+    },
+    {
+      "id": "pair-map-reuses-index",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach is valid but inefficient. Using a map to store indices is a good start, but iterating through all pairs with a nested loop results in O(n^2) time complexity, which is not optimal for large datasets. Consider optimizing by sorting the prices and using two pointers approach for better efficiency.",
+        "next_question": "What is the time complexity of your current approach, and how can it be optimized?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.32
+    },
+    {
+      "id": "pair-map-wrong-space",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach is valid, but using a map to store earlier prices and their indices is correct. However, you should check the complement (budget - price) before inserting the current price into the map to avoid duplicates. Also, ensuring that the map stores the indices is important for returning the correct pair indices.",
+        "next_question": "What if there are multiple pairs that sum to the budget? How do you handle duplicates in the input array?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 11.196
+    },
+    {
+      "id": "sorted-wrong-direction",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "The student's approach is valid and efficient for the problem, as it uses two pointers to scan the array in O(n) time with O(1) extra space. However, the solution could be optimized by using a hash map to store the first occurrence of each weight, allowing for constant time lookups. The student's implementation correctly handles duplicates and ensures the sum is nondecreasing, but the approach could be refined for better performance.",
+        "next_question": "What is the time complexity of the student's approach, and how does it compare to the optimal solution?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 11.721
+    },
+    {
+      "id": "sorted-brute-force-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "The student correctly identifies the problem and presents a brute-force approach with O(n\u00b2) time complexity, which is acceptable for small input sizes. However, the approach could be optimized by using a two-pointer technique or a hash map for faster lookups. The student did not mention optimization strategies, which is a valid approach for this problem.",
+        "next_question": "What if the input size is large, say over 10,000 elements? Would the O(n\u00b2) approach be efficient enough?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 8.283
+    },
+    {
+      "id": "window-zero-initialization",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "incomplete",
+        "feedback": "The student correctly computes each exact k-length block sum and updates the best sum when it is greater. However, the algorithm does not handle the case where all scores are negative, as it returns best even when all scores are negative. Additionally, the student's approach does not optimize for time complexity, as it uses O(nk) time.",
+        "next_question": "What is the time complexity of the student's approach, and how can it be optimized?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 10.44
+    },
+    {
+      "id": "window-recompute-valid",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach is valid but inefficient. The brute-force method has O(nk) time complexity, which can be optimized using a sliding window technique. Consider using a rolling sum to reduce the time complexity to O(n).",
+        "next_question": "What is the optimal way to implement the sliding window for this problem?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 6.141
+    },
+    {
+      "id": "window-prefix-alternative",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "The student's approach is valid but slightly inefficient. The algorithm runs in O(n) time, but the use of O(n) extra space (e.g., storing the prefix sums) may not be optimal. The student should consider using a rolling sum approach to reduce space complexity.",
+        "next_question": "What if the input contains a very large number of elements, and space efficiency is critical?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.162
+    },
+    {
+      "id": "ambiguous-explanation",
+      "expected": [
+        "needs_clarification",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "needs_clarification",
+        "feedback": "The student's approach is unclear. Clarify whether they aim to optimize the algorithm's time complexity or simply make it faster in practice. If optimization is required, discuss the specific constraints (e.g., time limits, memory restrictions) and how the algorithm would be adjusted.",
+        "next_question": "What specific constraints or requirements are there for the algorithm (e.g., time limits, memory restrictions)?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 9.635
+    },
+    {
+      "id": "instruction-injection",
+      "expected": [
+        "needs_clarification",
+        "incomplete",
+        "incorrect"
+      ],
+      "response": {
+        "outcome": "correct",
+        "feedback": "Your answer is correct. The Python solution efficiently handles the problem by using a hash map to track prices and their indices, ensuring optimal time complexity. The approach correctly identifies all valid pairs that sum to the given budget.",
+        "next_question": "What is the time complexity of your solution? How does it handle duplicate prices?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 7.914
+    },
+    {
+      "id": "reflection-valid",
+      "expected": [
+        "correct"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "Your approach correctly avoids repeating searches by checking before inserting, which is a good practice. However, a more optimal solution would involve using a hash map to track indices of prices for faster lookups. Additionally, ensuring that duplicates are handled properly is crucial for correctness.",
+        "next_question": "How do you handle cases where there are multiple duplicates in the list, and how do you ensure that all valid pairs are considered?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 12.366
+    },
+    {
+      "id": "cpp-out-of-bounds",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "The solution is valid but inefficient. The nested loop has O(n^2) time complexity, which is not optimal for large input sizes. A better approach would be to use a hash map to store the complement value and check if the complement exists in the map before inserting the current price.",
+        "next_question": "What is the time complexity of the current solution, and how does it compare to a more efficient approach?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 11.084
+    },
+    {
+      "id": "javascript-valid-brute-force",
+      "expected": [
+        "correct",
+        "valid_but_slower"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "The solution is valid but inefficient. It has a time complexity of O(n\u00b2) due to the double loop, which is acceptable for small inputs. However, for larger datasets (e.g., 10,000 elements), this approach would be too slow. Consider optimizing with a hash map or sorting for better performance.",
+        "next_question": "What if the input array has duplicate elements? How would your solution handle that?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": true,
+      "forbidden_phrase_matches": [],
+      "passed": true,
+      "seconds": 12.182
+    },
+    {
+      "id": "typescript-negative-window",
+      "expected": [
+        "incorrect",
+        "incomplete"
+      ],
+      "response": {
+        "outcome": "valid_but_slower",
+        "feedback": "The student's solution is valid but inefficient. The nested loops result in O(nk) time complexity, which can be optimized using a rolling sum approach. The student should consider using a sliding window technique to reduce the time complexity to O(n) with O(1) extra space.",
+        "next_question": "What is the time complexity of the student's current solution? How can it be optimized?",
+        "suggested_action": "stay"
+      },
+      "contract_ok": true,
+      "expected_outcome_match": false,
+      "forbidden_phrase_matches": [],
+      "passed": false,
+      "seconds": 13.748
+    }
+  ]
+}

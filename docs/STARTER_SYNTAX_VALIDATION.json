@@ -1,0 +1,145 @@
+{
+  "kind": "trusted_scaffold_syntax_only_not_learner_execution",
+  "checks": [
+    {
+      "file": "busy-periods-v1.py",
+      "check": "Python AST",
+      "passed": true
+    },
+    {
+      "file": "focus-block-v1.py",
+      "check": "Python AST",
+      "passed": true
+    },
+    {
+      "file": "signal-ranges-v1.py",
+      "check": "Python AST",
+      "passed": true
+    },
+    {
+      "file": "sorted-crates-v1.py",
+      "check": "Python AST",
+      "passed": true
+    },
+    {
+      "file": "supply-pair-v1.py",
+      "check": "Python AST",
+      "passed": true
+    },
+    {
+      "file": "warmer-readings-v1.py",
+      "check": "Python AST",
+      "passed": true
+    },
+    {
+      "file": "busy-periods-v1.js",
+      "check": "js syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "focus-block-v1.js",
+      "check": "js syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "signal-ranges-v1.js",
+      "check": "js syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "sorted-crates-v1.js",
+      "check": "js syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "supply-pair-v1.js",
+      "check": "js syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "warmer-readings-v1.js",
+      "check": "js syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "busy-periods-v1.ts",
+      "check": "ts syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "focus-block-v1.ts",
+      "check": "ts syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "signal-ranges-v1.ts",
+      "check": "ts syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "sorted-crates-v1.ts",
+      "check": "ts syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "supply-pair-v1.ts",
+      "check": "ts syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "warmer-readings-v1.ts",
+      "check": "ts syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "busy-periods-v1.cpp",
+      "check": "cpp syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "focus-block-v1.cpp",
+      "check": "cpp syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "signal-ranges-v1.cpp",
+      "check": "cpp syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "sorted-crates-v1.cpp",
+      "check": "cpp syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "supply-pair-v1.cpp",
+      "check": "cpp syntax",
+      "passed": true,
+      "diagnostics": ""
+    },
+    {
+      "file": "warmer-readings-v1.cpp",
+      "check": "cpp syntax",
+      "passed": true,
+      "diagnostics": ""
+    }
+  ],
+  "passed": 24,
+  "total": 24
+}
