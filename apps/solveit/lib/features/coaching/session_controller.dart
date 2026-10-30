@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import '../../data/session_repository.dart';
 import '../../domain/lesson.dart';
+import '../../domain/learner_preferences.dart';
 import '../../data/code_specs.dart';
 import 'coach_provider.dart';
 
@@ -60,11 +61,14 @@ class SessionController extends ChangeNotifier {
     String? id,
     DateTime? startedAt,
     CoachProvider? coach,
+    this.pace = CoachingPace.intermediate,
+    CodeLanguage initialLanguage = CodeLanguage.python,
   }) : id =
            id ??
            '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}-${Random.secure().nextInt(0x7fffffff).toRadixString(36)}',
        startedAt = startedAt ?? DateTime.now(),
-       coach = coach ?? const DisabledCoach() {
+       coach = coach ?? const DisabledCoach(),
+       _language = initialLanguage {
     _messages.add(CoachMessage(question, kind: MessageKind.question));
   }
   final Lesson lesson;
@@ -72,8 +76,9 @@ class SessionController extends ChangeNotifier {
   final int attemptNumber;
   final DateTime startedAt;
   final CoachProvider coach;
+  final CoachingPace pace;
   CoachingStage _stage = CoachingStage.understand;
-  CodeLanguage _language = CodeLanguage.python;
+  late CodeLanguage _language;
   final Map<CodeLanguage, String> _drafts = {};
   final Map<CoachingStage, String> _reasoning = {};
   final Map<CoachingStage, String> _answers = {};
@@ -102,7 +107,8 @@ class SessionController extends ChangeNotifier {
       : reasoningDraft.trim().isNotEmpty
       ? reasoningDraft
       : _answers[_stage] ?? '';
-  String get question => lesson.questions[_stage.index.clamp(0, 4)];
+  String get question =>
+      pace.prompt(_stage, lesson.questions[_stage.index.clamp(0, 4)]);
   String get selfCheck => lesson.checks[_stage.index.clamp(0, 4)];
 
   void _changed() {
@@ -265,6 +271,7 @@ class SessionController extends ChangeNotifier {
     'startedAt': startedAt.toUtc().toIso8601String(),
     'stage': stage.name,
     'language': language.name,
+    'pace': pace.name,
     'drafts': _drafts.map((key, value) => MapEntry(key.name, value)),
     'reasoning': _reasoning.map((key, value) => MapEntry(key.name, value)),
     'answers': _answers.map((key, value) => MapEntry(key.name, value)),
@@ -300,6 +307,8 @@ class SessionController extends ChangeNotifier {
       id: _string(json, 'id'),
       startedAt: DateTime.parse(_string(json, 'startedAt')).toLocal(),
       coach: coach,
+      pace: LearnerPreferences.fromJson({'pace': json['pace']}).pace,
+      initialLanguage: _enum(CodeLanguage.values, json['language']),
     );
     session._stage = _enum(CoachingStage.values, json['stage']);
     session._language = _enum(CodeLanguage.values, json['language']);
@@ -361,6 +370,10 @@ class PracticeStore extends ChangeNotifier {
       coach = coach ?? const DisabledCoach();
   final SessionRepository repository;
   final CoachProvider coach;
+  LearnerPreferences preferences = const LearnerPreferences();
+  bool preferencesSaving = false;
+  bool preferencesSaveFailed = false;
+  Future<void>? _preferencesWrite;
   final List<SessionController> _sessions = [];
   final Map<String, Map<String, Object?>> _pending = {};
   final Map<String, Map<String, Object?>> _unavailableRecords = {};
@@ -371,7 +384,8 @@ class PracticeStore extends ChangeNotifier {
   bool saveConflict = false;
   int unavailableAttempts = 0, _nextAttempt = 1;
   List<SessionController> get sessions => List.unmodifiable(_sessions.reversed);
-  bool get saving => _saving != null || _pending.isNotEmpty;
+  bool get saving =>
+      _saving != null || _pending.isNotEmpty || preferencesSaving;
   SessionController? get latestIncomplete =>
       sessions.where((s) => s.stage != CoachingStage.complete).firstOrNull;
   int get selfReviewed => _sessions
@@ -386,6 +400,10 @@ class PracticeStore extends ChangeNotifier {
     CoachProvider? coach,
   }) async {
     final store = PracticeStore(repository: repository, coach: coach);
+    final savedPreferences = await repository.loadPreferences();
+    if (savedPreferences != null) {
+      store.preferences = LearnerPreferences.fromJson(savedPreferences);
+    }
     for (final json in await repository.load()) {
       if (json['attemptNumber'] case final int number) {
         store._nextAttempt = max(store._nextAttempt, number + 1);
@@ -556,10 +574,48 @@ class PracticeStore extends ChangeNotifier {
       lesson,
       attemptNumber: _nextAttempt++,
       coach: coach,
+      pace: preferences.pace,
+      initialLanguage: preferences.preferredLanguage,
     );
     _attach(session);
     _scheduleSave(session);
     return session;
+  }
+
+  Future<void> updatePreferences(LearnerPreferences value) async {
+    preferences = value;
+    preferencesSaving = true;
+    preferencesSaveFailed = false;
+    notifyListeners();
+    final previous = _preferencesWrite;
+    final write = () async {
+      if (previous != null) {
+        try {
+          await previous;
+        } catch (_) {
+          // A newer explicit save is allowed to recover from a failed write.
+        }
+      }
+      await repository.savePreferences(value.toJson());
+    }();
+    _preferencesWrite = write;
+    try {
+      await write;
+    } catch (_) {
+      if (!identical(_preferencesWrite, write)) return;
+      preferencesSaveFailed = true;
+      rethrow;
+    } finally {
+      if (identical(_preferencesWrite, write)) {
+        preferencesSaving = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<void> retrySave() async {
+    if (preferencesSaveFailed) await updatePreferences(preferences);
+    if (saveFailed) await flush();
   }
 
   Future<void> flush() {
@@ -600,6 +656,11 @@ class PracticeStore extends ChangeNotifier {
     _disposed = true;
     _timer?.cancel();
     await flush();
+    try {
+      await _preferencesWrite;
+    } catch (_) {
+      // A failed preference write must not prevent workbook shutdown.
+    }
     await repository.close();
     coach.close();
   }

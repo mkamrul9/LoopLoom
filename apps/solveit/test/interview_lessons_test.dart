@@ -49,8 +49,16 @@ void main() {
       for (final l in allLessons) {
         expect(l.questions.length, 5);
         expect(l.checks.length, 5);
+        expect(
+          l.questions.every((question) => question.trim().isNotEmpty),
+          isTrue,
+        );
+        expect(l.checks.every((check) => check.trim().isNotEmpty), isTrue);
         expect(l.hints.length, 3);
         expect(l.explanation, isNotEmpty);
+        expect(l.statement, isNotEmpty);
+        expect(l.example, isNotEmpty);
+        expect(l.constraints, isNotEmpty);
       }
     },
   );

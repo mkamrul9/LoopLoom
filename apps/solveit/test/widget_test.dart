@@ -5,6 +5,8 @@ import 'package:solveit/data/pilot_lessons.dart';
 import 'package:solveit/data/interview_lessons.dart';
 import 'package:solveit/features/coaching/practice_screen.dart';
 import 'package:solveit/features/coaching/session_controller.dart';
+import 'package:solveit/domain/learner_preferences.dart';
+import 'package:solveit/domain/lesson.dart';
 
 void main() {
   testWidgets(
@@ -51,7 +53,7 @@ void main() {
     await tester.pumpWidget(SolveItApp(store: store));
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('1 of 3 self-reviewed'), findsOneWidget);
+    expect(find.textContaining('1 of 27 self-reviewed'), findsOneWidget);
     expect(find.text('Intermediate foundations'), findsOneWidget);
     await tester.tap(find.text('Warm-ups · 3'));
     await tester.pumpAndSettle();
@@ -72,7 +74,9 @@ void main() {
     final backup = source.exportBackup();
     final target = PracticeStore();
     await tester.pumpWidget(SolveItApp(store: target));
-    await tester.tap(find.byTooltip('Workbook backup'));
+    await tester.tap(find.byTooltip('Workbook options'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Workbook backup'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), backup);
     await tester.ensureVisible(find.text('Review backup'));
@@ -122,6 +126,54 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Your first attempt starts here.'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('starter roadmap includes all thirty available lessons', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.tap(find.text('Roadmaps'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Starter 30 · 30'));
+    await tester.pumpAndSettle();
+    expect(find.text('Interview starter 30'), findsOneWidget);
+    expect(find.textContaining('0 of 30 self-reviewed'), findsOneWidget);
+    expect(find.text('The supply pair'), findsOneWidget);
+    expect(
+      find.text(
+        '45 additional original problems are still to be authored and reviewed.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('phone settings update coaching pace and default language', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = PracticeStore();
+    await tester.pumpWidget(SolveItApp(store: store));
+    await tester.tap(find.byTooltip('Workbook options'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Learning preferences'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Beginner'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('TypeScript'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('TypeScript'));
+    await tester.pumpAndSettle();
+    expect(store.preferences.pace, CoachingPace.beginner);
+    expect(store.preferences.preferredLanguage, CodeLanguage.typescript);
+    expect(tester.takeException(), isNull);
+    await store.close();
   });
 
   testWidgets('focus view hides context without losing the reasoning draft', (

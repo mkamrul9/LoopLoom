@@ -3,6 +3,8 @@ import 'package:sembast/sembast.dart';
 abstract interface class SessionRepository {
   Future<List<Map<String, Object?>>> load();
   Future<void> saveAll(Map<String, Map<String, Object?>> snapshots);
+  Future<Map<String, Object?>?> loadPreferences();
+  Future<void> savePreferences(Map<String, Object?> preferences);
   Future<void> close();
 }
 
@@ -10,11 +12,18 @@ class SessionWriteConflict implements Exception {}
 
 class MemorySessionRepository implements SessionRepository {
   final Map<String, Map<String, Object?>> records = {};
+  Map<String, Object?>? preferences;
   @override
   Future<List<Map<String, Object?>>> load() async => records.values.toList();
   @override
   Future<void> saveAll(Map<String, Map<String, Object?>> snapshots) async =>
       records.addAll(snapshots);
+  @override
+  Future<Map<String, Object?>?> loadPreferences() async =>
+      preferences == null ? null : Map<String, Object?>.of(preferences!);
+  @override
+  Future<void> savePreferences(Map<String, Object?> value) async =>
+      preferences = Map<String, Object?>.of(value);
   @override
   Future<void> close() async {}
 }
@@ -23,6 +32,7 @@ class SembastSessionRepository implements SessionRepository {
   SembastSessionRepository(this.database);
   final Database database;
   final _sessions = stringMapStoreFactory.store('sessions');
+  final _settings = stringMapStoreFactory.store('settings');
   final Map<String, int> _versions = {};
   @override
   Future<List<Map<String, Object?>>> load() async {
@@ -53,6 +63,15 @@ class SembastSessionRepository implements SessionRepository {
     for (final id in snapshots.keys) {
       _versions[id] = (_versions[id] ?? 0) + 1;
     }
+  }
+
+  @override
+  Future<Map<String, Object?>?> loadPreferences() =>
+      _settings.record('learner').get(database);
+
+  @override
+  Future<void> savePreferences(Map<String, Object?> preferences) async {
+    await _settings.record('learner').put(database, preferences);
   }
 
   @override

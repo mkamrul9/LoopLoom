@@ -8,6 +8,7 @@ import 'ui/solveit_theme.dart';
 import 'ui/save_status.dart';
 import 'ui/workbook_bootstrap.dart';
 import 'ui/backup_screen.dart';
+import 'ui/settings_screen.dart';
 
 class SolveItApp extends StatelessWidget {
   const SolveItApp({super.key, this.store});
@@ -34,7 +35,17 @@ class _LearningHomeState extends State<LearningHome> {
   PracticeStore get store => widget.store;
   int selected = 0;
   int track = 1;
-  List<Lesson> get trackLessons => track == 0 ? pilotLessons : interviewLessons;
+  List<Lesson> get trackLessons => switch (track) {
+    0 => pilotLessons,
+    1 => interviewLessons,
+    _ => allLessons,
+  };
+
+  String get trackTitle => switch (track) {
+    0 => 'Interview warm-ups',
+    1 => 'Intermediate foundations',
+    _ => 'Interview starter 30',
+  };
   int reviewedInTrack() => store.sessions
       .where(
         (s) =>
@@ -65,9 +76,14 @@ class _LearningHomeState extends State<LearningHome> {
         onSelected: (_) => setState(() => track = 0),
       ),
       ChoiceChip(
-        label: const Text('Intermediate · 3'),
+        label: Text('Intermediate · ${interviewLessons.length}'),
         selected: track == 1,
         onSelected: (_) => setState(() => track = 1),
+      ),
+      ChoiceChip(
+        label: Text('Starter 30 · ${allLessons.length}'),
+        selected: track == 2,
+        onSelected: (_) => setState(() => track = 2),
       ),
     ],
   );
@@ -114,14 +130,39 @@ class _LearningHomeState extends State<LearningHome> {
               ],
             ),
             actions: [
-              IconButton(
-                tooltip: 'Workbook backup',
-                icon: const Icon(Icons.inventory_2_outlined),
-                onPressed: () => Navigator.of(context).push(
+              PopupMenuButton<String>(
+                tooltip: 'Workbook options',
+                icon: const Icon(Icons.more_horiz),
+                constraints: const BoxConstraints(minWidth: 224),
+                onSelected: (option) => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (_) => BackupScreen(store: store),
+                    builder: (_) => option == 'settings'
+                        ? SettingsScreen(store: store)
+                        : BackupScreen(store: store),
                   ),
                 ),
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: 'settings',
+                    child: Row(
+                      children: [
+                        Icon(Icons.tune_outlined, size: 19),
+                        SizedBox(width: 12),
+                        Text('Learning preferences'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'backup',
+                    child: Row(
+                      children: [
+                        Icon(Icons.inventory_2_outlined, size: 19),
+                        SizedBox(width: 12),
+                        Text('Workbook backup'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               Padding(
                 padding: EdgeInsets.only(right: 24),
@@ -264,7 +305,7 @@ class _LearningHomeState extends State<LearningHome> {
             const SizedBox(height: 10),
             Text(
               store.latestIncomplete == null
-                  ? 'Explain your method, trace it, then write your code.'
+                  ? 'Understand the task, shape an approach, trace it, write code, and reflect.'
                   : 'Continue from your ${store.latestIncomplete!.stage.label.toLowerCase()} checkpoint.',
               style: TextStyle(
                 fontSize: 15,
@@ -314,12 +355,14 @@ class _LearningHomeState extends State<LearningHome> {
       ),
       const SizedBox(height: 22),
       const Wrap(
-        spacing: 24,
+        spacing: 16,
         runSpacing: 10,
         children: [
-          Text('01  Explain', style: noteLabel),
-          Text('02  Trace', style: noteLabel),
-          Text('03  Write code', style: noteLabel),
+          Text('01  Understand', style: noteLabel),
+          Text('02  Approach', style: noteLabel),
+          Text('03  Trace', style: noteLabel),
+          Text('04  Code', style: noteLabel),
+          Text('05  Reflect', style: noteLabel),
         ],
       ),
       const SizedBox(height: 38),
@@ -446,7 +489,7 @@ class _LearningHomeState extends State<LearningHome> {
       const Text('AVAILABLE NOW', style: noteLabel),
       const SizedBox(height: 10),
       Text(
-        track == 0 ? 'Interview warm-ups' : 'Intermediate foundations',
+        trackTitle,
         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
       ),
       const SizedBox(height: 10),
@@ -461,9 +504,14 @@ class _LearningHomeState extends State<LearningHome> {
       ),
       const SizedBox(height: 24),
       Text(
-        track == 0
-            ? 'Build confidence with lookup, sorted search, and fixed windows.'
-            : 'Practice windows, search boundaries, strings, heaps, trees, linked lists, graphs, backtracking, and dynamic programming.',
+        switch (track) {
+          0 =>
+            'Build confidence with lookup, sorted search, and fixed windows.',
+          1 =>
+            'Practice windows, search boundaries, strings, heaps, trees, linked lists, graphs, backtracking, and dynamic programming.',
+          _ =>
+            'The starter path combines three warm-ups with twenty-seven intermediate pattern lessons.',
+        },
         style: const TextStyle(
           fontSize: 13,
           height: 1.65,
@@ -473,25 +521,28 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 16),
       ...trackLessons.indexed.map((item) => _lessonTile(item.$2, item.$1 + 1)),
       const SizedBox(height: 32),
-      const Text('IN DEVELOPMENT', style: noteLabel),
+      const Text('NEXT PATHS', style: noteLabel),
       const SizedBox(height: 14),
       const ListTile(
         contentPadding: EdgeInsets.zero,
-        title: Text('Interview starter / 30'),
-        subtitle: Text('Intermediate · core patterns'),
-        trailing: Text('PLANNED', style: noteLabel),
-      ),
-      const ListTile(
-        contentPadding: EdgeInsets.zero,
         title: Text('Interview / 75'),
-        subtitle: Text('The main path · connected practice'),
+        subtitle: Text(
+          '45 additional original problems are still to be authored and reviewed.',
+        ),
         trailing: Text('PLANNED', style: noteLabel),
       ),
       const ListTile(
         contentPadding: EdgeInsets.zero,
         title: Text('Mastery / 300'),
-        subtitle: Text('Advanced · deeper problem solving'),
+        subtitle: Text(
+          'Advanced patterns and transfer problems are still in development.',
+        ),
         trailing: Text('PLANNED', style: noteLabel),
+      ),
+      const SizedBox(height: 16),
+      const Text(
+        'The available 30 lessons are original drafts with five guided checkpoints each. They are useful for practice, but still need independent editorial review before a reviewed interview curriculum can be claimed.',
+        style: TextStyle(fontSize: 12, height: 1.65, color: StudyColors.muted),
       ),
     ],
   );
