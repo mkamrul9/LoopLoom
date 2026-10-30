@@ -79,6 +79,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
         !widget.enabled ||
         client == null ||
         !{
+          CodeLanguage.cpp,
           CodeLanguage.javascript,
           CodeLanguage.typescript,
           CodeLanguage.python,
@@ -135,6 +136,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
     }
     final spec = codeSpecs[widget.lessonId]!;
     final supported = {
+      CodeLanguage.cpp,
       CodeLanguage.javascript,
       CodeLanguage.typescript,
       CodeLanguage.python,
@@ -146,7 +148,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
         Text(
           supported
               ? 'Local development execution · reference cases only. This does not establish a verified solve.'
-              : 'Reference execution currently supports JavaScript, TypeScript and Python. You can keep drafting in any language.',
+              : 'Reference execution currently supports C++, JavaScript, TypeScript and Python. You can keep drafting in any language.',
           style: const TextStyle(
             fontSize: 12,
             height: 1.6,
@@ -157,6 +159,17 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
           const SizedBox(height: 8),
           const Text(
             'TypeScript runs with types removed; types are not checked. Use a synchronous solve function with no imports or exports. Enums, parameter properties and other syntax requiring transformation are unsupported.',
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.6,
+              color: StudyColors.muted,
+            ),
+          ),
+        ],
+        if (widget.language == CodeLanguage.cpp) ...[
+          const SizedBox(height: 8),
+          const Text(
+            'C++ compiles as C++17 for these reference cases. Implement solve with the lesson signature. Compilation and execution happen in a local development container.',
             style: TextStyle(
               fontSize: 12,
               height: 1.6,

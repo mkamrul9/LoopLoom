@@ -1,7 +1,7 @@
 import json
 import unittest
 from unittest.mock import patch
-from runner import CASES, RunnerUnavailable, available_languages, command, matches, review, validate
+from runner import CASES, RunnerUnavailable, _cpp_translation_unit, available_languages, command, matches, review, validate
 
 
 class RunnerTests(unittest.TestCase):
@@ -9,7 +9,31 @@ class RunnerTests(unittest.TestCase):
         def selected(language):
             if language=='python': raise RunnerUnavailable('missing')
         with patch('runner.preflight',side_effect=selected):
-            self.assertEqual(available_languages(),['javascript','typescript'])
+            self.assertEqual(available_languages(),['cpp','javascript','typescript'])
+
+    def test_cpp_uses_pinned_compiler_and_separate_executable_temporary_filesystem(self):
+        args=command('solveit-reference-test','cpp')
+        for flag in ('--pull=never','--network=none','--read-only','--user=65534:65534','--cap-drop=ALL',
+                     '--security-opt=no-new-privileges','--pids-limit=64','--memory=512m','--cpus=1',
+                     '--tmpfs=/tmp:rw,exec,nosuid,nodev,size=64m','--entrypoint=/bin/sh'):
+            self.assertIn(flag,args)
+        self.assertTrue(any(arg.startswith('gcc@sha256:') for arg in args))
+        for flag in ('--privileged','--volume','-v','--mount'):
+            self.assertNotIn(flag,args)
+
+    def test_cpp_harness_passes_each_case_and_checks_input_mutation(self):
+        suite=CASES['busy-periods-v1']
+        unit=_cpp_translation_unit('vector<vector<int>> solve(vector<vector<int>>& x){return x;}',suite,'busy-periods-v1').decode()
+        self.assertIn('vector<vector<int>> input_0{{1,6},{2,4},{6,8},{7,9}};',unit)
+        self.assertIn('solve(input_0)',unit)
+        self.assertIn('input_0 == before_0',unit)
+        self.assertEqual(unit.count('solve(input_'),3)
+
+    def test_cpp_request_keeps_language_and_never_grants_verified_solve(self):
+        payload={'lesson_id':'signal-ranges-v1','language':'cpp','source':'int solve(vector<int> a,int t){return 0;}'}
+        result=review(payload,execute=lambda *_:{'status':'returned','result':0},check=lambda:None)
+        self.assertEqual(result['language'],'cpp')
+        self.assertIs(result['verified_solve'],False)
 
     def test_typescript_uses_pinned_node_with_identical_container_controls(self):
         ts=command('solveit-reference-test','typescript')
@@ -42,7 +66,7 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(any(arg.startswith('python@sha256:') for arg in python))
     def test_validation_rejects_unknown_fields_and_unsupported_language_before_execution(self):
         valid = {'lesson_id':'signal-ranges-v1','language':'javascript','source':'function solve(){return 0;}'}
-        for changed in ({'language':'cpp'},{'language':[]},{'lesson_id':[]},{'source':'x'*32001},{'image':'remote:latest'}):
+        for changed in ({'language':'java'},{'language':[]},{'lesson_id':[]},{'source':'x'*32001},{'image':'remote:latest'}):
             with self.assertRaises(ValueError):
                 review({**valid,**changed}, execute=lambda *_: self.fail('executed invalid input'), check=lambda:None)
 

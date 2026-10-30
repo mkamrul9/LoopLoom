@@ -1,0 +1,383 @@
+{
+  "kind": "local_development_authored_cpp_fixtures_not_security_certification",
+  "compiler": "GNU C++17",
+  "passed": 16,
+  "total": 16,
+  "checks": [
+    {
+      "check": "supply-pair-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "A matching pair",
+            "status": "matched"
+          },
+          {
+            "label": "Duplicates",
+            "status": "matched"
+          },
+          {
+            "label": "No partner",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "sorted-crates-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Sorted search",
+            "status": "matched"
+          },
+          {
+            "label": "Equal weights",
+            "status": "matched"
+          },
+          {
+            "label": "Empty input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "focus-block-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Consecutive block",
+            "status": "matched"
+          },
+          {
+            "label": "All negative",
+            "status": "matched"
+          },
+          {
+            "label": "Whole input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "signal-ranges-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "matched"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "matched"
+          },
+          {
+            "label": "Empty input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "warmer-readings-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Waiting distances",
+            "status": "matched"
+          },
+          {
+            "label": "Equal is not warmer",
+            "status": "matched"
+          },
+          {
+            "label": "No future day",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "busy-periods-v1",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Nested and touching",
+            "status": "matched"
+          },
+          {
+            "label": "Touching stays separate",
+            "status": "matched"
+          },
+          {
+            "label": "Empty input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "compile_error",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "compile_error"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "compile_error"
+          },
+          {
+            "label": "Empty input",
+            "status": "compile_error"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "runtime_error",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "runtime_error"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "runtime_error"
+          },
+          {
+            "label": "Empty input",
+            "status": "runtime_error"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "time_limit",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "time_limit"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "time_limit"
+          },
+          {
+            "label": "Empty input",
+            "status": "time_limit"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "output_limit",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "output_limit"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "output_limit"
+          },
+          {
+            "label": "Empty input",
+            "status": "output_limit"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "memory_limit",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "memory_limit"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "memory_limit"
+          },
+          {
+            "label": "Empty input",
+            "status": "memory_limit"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "uid_root_filesystem_and_network",
+      "passed": true,
+      "result": [
+        {
+          "status": "returned",
+          "result": 42,
+          "mutated": false
+        },
+        {
+          "status": "returned",
+          "result": 42,
+          "mutated": false
+        },
+        {
+          "status": "returned",
+          "result": 42,
+          "mutated": false
+        }
+      ]
+    },
+    {
+      "check": "debug_output_keeps_result_protocol",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 3,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "matched"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "matched"
+          },
+          {
+            "label": "Empty input",
+            "status": "matched"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "boolean_is_not_an_integer_answer",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Overlapping ranges",
+            "status": "wrong_answer"
+          },
+          {
+            "label": "Repeated totals",
+            "status": "wrong_answer"
+          },
+          {
+            "label": "Empty input",
+            "status": "wrong_answer"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "mutating_input_is_reported",
+      "passed": true,
+      "result": {
+        "suite": "reference-v1",
+        "language": "cpp",
+        "passed": 0,
+        "total": 3,
+        "cases": [
+          {
+            "label": "Nested and touching",
+            "status": "input_modified"
+          },
+          {
+            "label": "Touching stays separate",
+            "status": "input_modified"
+          },
+          {
+            "label": "Empty input",
+            "status": "input_modified"
+          }
+        ],
+        "verified_solve": false
+      }
+    },
+    {
+      "check": "container_cleanup",
+      "passed": true
+    }
+  ]
+}

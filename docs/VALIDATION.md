@@ -1,8 +1,18 @@
 # Pilot validation
 
+## C++17 reference execution follow-up — 30 October 2026
+
+C++ now uses the Docker Official GCC 13.5 image pinned by digest. The compiler builds one harness for the selected problem, then evaluates all three authored examples together; each learner request remains in its own local disposable container. A compiler error is distinct from an execution error. C++ extends the same local reference-run flow and never marks a lesson solved.
+
+Flutter analysis passed with no issues; all 45 Flutter tests passed; 19 runner unit/HTTP tests passed; and all 16 live C++ checks passed. The live checks cover all six authored reference solutions, compile/runtime/time/output/memory failures, UID/filesystem/network controls, debug output, boolean rejection, mutation reporting, and cleanup. These examples are regression checks, not a security certification or hidden correctness suite. See `CPP_RUNNER_VALIDATION.json`.
+
+The web preview and default Android debug APK built successfully; the APK's v2 signature verified. Builds used the existing development NDK override, and the APK remains debug-signed. No physical-device installation or store release was performed. The C++ execution surface was exercised in the separate localhost web workbook. The compiler image uses roughly 2 GB of local Docker storage. It was pulled explicitly during development; request handling never pulls images. The compiler requires a 64 MB executable temporary filesystem, 512 MB memory and a 12-second total limit while compiling and running. The temporary executable remains inside the container.
+
+The development-only web preview is the supported execution surface. The default Android APK keeps its runner URL empty, so it still provides guided practice, drafts, roadmap and history without executing code. A public judge, hidden cases, hardened hostile-code isolation and authoritative verdicts remain launch work.
+
 ## TypeScript reference execution follow-up — 30 October 2026
 
-TypeScript now runs the visible examples in the existing pinned Node 24.22.2 container. Node's strip-mode parser removes erasable syntax without semantic type checking. The editor explicitly explains this limit; enums and parameter properties produce a separate unsupported-syntax result. No npm package, image download, paid service or host execution fallback was added. The parser requires WebAssembly, so this runtime uses normal Node execution with a 64 MB old-space limit, retaining the same Docker restrictions as the other languages. Full TypeScript type checks and C++ execution remain open.
+TypeScript now runs the visible examples in the existing pinned Node 24.22.2 container. Node's strip-mode parser removes erasable syntax without semantic type checking. The editor explicitly explains this limit; enums and parameter properties produce a separate unsupported-syntax result. No npm package, image download, paid service or host execution fallback was added. The parser requires WebAssembly, so this runtime uses normal Node execution with a 64 MB old-space limit, retaining the same Docker restrictions as the other languages. Full TypeScript type checks remain open.
 
 Clean Flutter analysis and all 43 Flutter tests passed. Fifteen runner unit/HTTP tests passed. Live checks passed 19/19 for TypeScript, 14/14 for JavaScript and 16/16 for Python (49 total). The TypeScript report covers all six authored implementations, syntax/unsupported/runtime/time/output/memory cases, actual UID/filesystem/network controls, debug output, deliberately absent semantic checking, boolean rejection, mutation reporting and cleanup. These fixtures are regression evidence, not a production security certification or hidden correctness suite. See `TYPESCRIPT_RUNNER_VALIDATION.json`.
 

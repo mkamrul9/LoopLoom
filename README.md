@@ -4,7 +4,7 @@ A Flutter problem-solving coach: understand the problem, explain an approach, tr
 
 Android first, with a responsive Flutter web application from the same codebase. **SolveIt is a working name**, pending brand and store availability checks.
 
-Confirmed direction: intermediate developers preparing for interviews; strict zero-spend development. Interview 75 is the main planned path. The three original pilot lessons are warm-ups. Default builds use guided practice; optional AI requests go only through a local development gateway.
+Confirmed direction: intermediate developers preparing for interviews; strict zero-spend development. Interview 75 is the main planned path. The six original pilot lessons cover warm-up and intermediate foundations. Default builds use guided practice; optional AI requests go only through a local development gateway.
 
 ## Start here
 
@@ -27,9 +27,9 @@ Workbook backup is available from the header's **Workbook backup** button. Copy 
 
 ## Repository direction
 
-An opt-in local JavaScript/Python/TypeScript reference runner executes visible cases in restricted disposable Docker containers. TypeScript uses type stripping without type checking. Results never grant verified solves. C++ remains drafting-only; the default APK keeps execution disabled. [Setup and scope](docs/REFERENCE_RUNNER.md).
+An opt-in local C++/JavaScript/Python/TypeScript reference runner executes visible cases in restricted disposable Docker containers. TypeScript uses type stripping without type checking. Results never grant verified solves; the default APK keeps execution disabled. [Setup and scope](docs/REFERENCE_RUNNER.md).
 
-The Code checkpoint includes lesson-specific starter signatures in all four languages, an indentation control, and folded reference cases with expected results. Code remains saved for self-review rather than executed. [Workspace details](docs/CODE_WORKSPACE.md).
+The Code checkpoint includes lesson-specific starter signatures in all four languages, an indentation control, and folded reference cases with expected results. Drafts save locally; opt-in execution is available only in the local development preview and never marks a problem solved. [Workspace details](docs/CODE_WORKSPACE.md).
 
 The available Intermediate foundations track covers prefix sums, monotonic stacks, and interval merging. Warm-ups remain available. Both tracks have independent self-review counts and lesson resume states. [Content and validation details](docs/INTERMEDIATE_LESSONS.md).
 

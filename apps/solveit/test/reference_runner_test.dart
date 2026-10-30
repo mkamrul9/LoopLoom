@@ -10,9 +10,9 @@ import 'package:solveit/domain/lesson.dart';
 import 'package:solveit/features/coaching/reference_runner.dart';
 import 'package:solveit/ui/reference_run_panel.dart';
 
-Map<String, Object?> goodReply() => {
+Map<String, Object?> goodReply({String language = 'javascript'}) => {
   'suite': 'reference-v1',
-  'language': 'javascript',
+  'language': language,
   'passed': 3,
   'total': 3,
   'verified_solve': false,
@@ -22,6 +22,68 @@ Map<String, Object?> goodReply() => {
 };
 
 void main() {
+  test(
+    'C++ submissions carry their language and recognize compile errors',
+    () async {
+      final client = ReferenceRunnerClient(
+        'http://localhost:8766',
+        client: MockClient((request) async {
+          expect(jsonDecode(request.body)['language'], 'cpp');
+          return http.Response(
+            jsonEncode({
+              ...goodReply(language: 'cpp'),
+              'passed': 0,
+              'cases': codeSpecs['signal-ranges-v1']!.cases
+                  .map((c) => {'label': c.label, 'status': 'compile_error'})
+                  .toList(),
+            }),
+            200,
+          );
+        }),
+      );
+      final result = await client.run(
+        'signal-ranges-v1',
+        'int solve(vector<int> a, int t) { return 0; }',
+        language: 'cpp',
+      );
+      expect(result.passed, 0);
+      expect(result.statuses, everyElement('compile_error'));
+      client.close();
+    },
+  );
+  testWidgets('C++ execution notice is visible in the development panel', (
+    tester,
+  ) async {
+    final client = ReferenceRunnerClient(
+      'http://localhost:8766',
+      client: MockClient((request) async {
+        expect(jsonDecode(request.body)['language'], 'cpp');
+        return http.Response(jsonEncode(goodReply(language: 'cpp')), 200);
+      }),
+    );
+    final editor = TextEditingController(
+      text: 'int solve(vector<int> a, int t) { return 3; }',
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ReferenceRunPanel(
+            lessonId: 'signal-ranges-v1',
+            language: CodeLanguage.cpp,
+            editor: editor,
+            enabled: true,
+            runner: client,
+          ),
+        ),
+      ),
+    );
+    expect(find.textContaining('compiles as C++17'), findsOneWidget);
+    await tester.tap(find.text('Run reference cases'));
+    await tester.pumpAndSettle();
+    expect(find.text('3/3 reference cases matched'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    editor.dispose();
+  });
   testWidgets('TypeScript shows its limits and handles unsupported syntax', (
     tester,
   ) async {
@@ -128,7 +190,7 @@ void main() {
         ),
       );
       await expectLater(
-        client.run('signal-ranges-v1', 'draft', language: 'cpp'),
+        client.run('signal-ranges-v1', 'draft', language: 'java'),
         throwsFormatException,
       );
       client.close();

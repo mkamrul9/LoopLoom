@@ -30,7 +30,7 @@ class ReferenceRunnerClient {
     String source, {
     String language = 'javascript',
   }) async {
-    if (!{'javascript', 'typescript', 'python'}.contains(language) ||
+    if (!{'cpp', 'javascript', 'typescript', 'python'}.contains(language) ||
         !codeSpecs.containsKey(lesson) ||
         utf8.encode(source).length > 32000 ||
         source.trim().isEmpty) {
@@ -72,6 +72,7 @@ class ReferenceRunnerClient {
     final expected = codeSpecs[lesson]!.cases;
     const allowed = {
       'matched',
+      'compile_error',
       'wrong_answer',
       'syntax_error',
       'unsupported_syntax',

@@ -51,6 +51,11 @@ class HttpTests(unittest.TestCase):
         body=json.dumps({'lesson_id':'signal-ranges-v1','language':'typescript','source':'function solve(): number {return 0;}'})
         self.assertEqual(self.request('POST','/run',body,{'Content-Type':'application/json'})[0],200)
         self.assertEqual(self.calls[0]['language'],'typescript')
+    def test_cpp_submission_keeps_its_language(self):
+        self.ready_languages=['cpp']
+        body=json.dumps({'lesson_id':'signal-ranges-v1','language':'cpp','source':'int solve(vector<int> a,int t){return 0;}'})
+        self.assertEqual(self.request('POST','/run',body,{'Content-Type':'application/json'})[0],200)
+        self.assertEqual(self.calls[0]['language'],'cpp')
     def test_oversized_headers_and_invalid_payload_are_rejected(self):
         self.assertEqual(self.request('POST','/run',headers={'Content-Length':'65537','Content-Type':'application/json'})[0],400)
         self.assertEqual(self.request('POST','/run','{}',{'Content-Type':'application/json'})[0],400)
