@@ -29,6 +29,7 @@ IMMUTABLE_INPUT_LESSONS = {
     'graph-components-v1',
 }
 NESTED_INPUT_LESSONS = {'busy-periods-v1', 'island-count-v1', 'graph-components-v1'}
+CPP_STRING_INPUT_LESSONS = {'first-signal-v1', 'anagram-pair-v1', 'distinct-letter-window-v1'}
 DOCKER = ['docker', '--context', 'desktop-linux']
 
 
@@ -162,6 +163,8 @@ def run_case(source, args, language='javascript'):
 def _cpp_literal(value):
     if type(value) is int:
         return str(value)
+    if isinstance(value, str):
+        return json.dumps(value)
     if isinstance(value, list):
         return '{' + ','.join(_cpp_literal(item) for item in value) + '}'
     raise ValueError('Unsupported C++ reference input')
@@ -183,10 +186,18 @@ def _cpp_translation_unit(source, cases, lesson):
         nested = lesson in NESTED_INPUT_LESSONS
         array_type = 'vector<vector<int>>' if nested else 'vector<int>'
         args = case['args']
-        lines += [f'  {array_type} input_{index}{_cpp_literal(args[0])};',
+        if lesson in CPP_STRING_INPUT_LESSONS:
+            input_declaration = f'  string input_{index} = {_cpp_literal(args[0])};'
+        else:
+            input_declaration = f'  {array_type} input_{index}{_cpp_literal(args[0])};'
+        extra = ''
+        if len(args) > 1:
+            extra_value = _cpp_literal(args[1]) if lesson in CPP_STRING_INPUT_LESSONS else str(args[1])
+            extra = ', ' + extra_value
+        lines += [input_declaration,
                   f'  const auto before_{index} = input_{index};',
                   '  if (!first) result << ","; first = false;',
-                  f'  try {{ auto answer = solve(input_{index}' + (f', {args[1]}' if len(args) > 1 else '') + ');',
+                  f'  try {{ auto answer = solve(input_{index}{extra});',
                   '    result << "{\\"status\\":\\"returned\\",\\"result\\":";',
                   '    emitJson(result, answer);',
                   f'    result << ",\\"mutated\\":" << (input_{index} == before_{index} ? "false" : "true") << "}}";',

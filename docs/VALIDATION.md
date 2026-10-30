@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview catalog expansion — batch 4 — 30 October 2026
+
+Added three original intermediate string lessons: first unique character, anagram matching, and longest substring without repeats. The catalog now has eighteen lessons: three warm-ups and fifteen intermediate foundations. Typed string starters support C++, Python, JavaScript, and TypeScript; the anagram lesson also returns a boolean. Visible cases, local-runner fixtures, and local-coach rubrics cover all three.
+
+Tests and live-container checks were not run for this batch. New string references and fixtures still need independent editorial review; the 30/75/300 roadmaps remain incomplete and AI feedback remains disabled by default.
+
 ## Interview catalog expansion — batch 3 — 30 October 2026
 
 Added three original intermediate lessons for maximum-subarray dynamic programming, one-trade greedy scanning, and graph components. The catalog now has fifteen lessons: three warm-ups and twelve intermediate foundations. Graph adjacency lists use the shared nested-input starter and local C++ harness; local-coach rubrics and reference fixtures were extended for all three.

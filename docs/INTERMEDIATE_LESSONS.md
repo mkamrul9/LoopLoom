@@ -1,6 +1,6 @@
 # Intermediate foundations
 
-Twelve original lessons extend the pilot to fifteen problems across two available tracks. Intermediate foundations is selected by default for the confirmed interview-preparation audience. Warm-ups remain accessible from the track chips on Learn and Roadmaps. The 30/75/300 paths remain planned; the app does not claim their catalogs are complete.
+Fifteen original intermediate lessons extend the pilot to eighteen problems across two available tracks. Intermediate foundations is selected by default for the confirmed interview-preparation audience. Warm-ups remain accessible from the track chips on Learn and Roadmaps. The 30/75/300 paths remain planned; the app does not claim their catalogs are complete.
 
 **Count the signal ranges** introduces prefix totals and frequency maps. Learners count nonempty, potentially overlapping consecutive ranges with a target sum, including zeros and negative values. The trace checks six ranges in three zeros. A nested-loop baseline is accepted; the explanation discusses query-before-insert ordering and why a positive-only window rule fails.
 
@@ -26,14 +26,20 @@ Twelve original lessons extend the pilot to fifteen problems across two availabl
 
 **Count separate friend groups** introduces BFS/DFS over undirected adjacency lists. Isolated vertices count, the input stays unchanged, and the stated complexity includes both nodes and edges.
 
+**Find the first one-off signal** uses two passes over a lowercase string: count each character, then return the first index whose frequency is one.
+
+**Check whether two labels rearrange** compares lowercase character multiplicities, rejecting different lengths early and matching empty strings.
+
+**Find the longest unbroken signal** uses a sliding window and last-seen indices to find the longest substring without repeated lowercase letters.
+
 Each lesson includes five checkpoints, self-checks, three progressive hints, and an explicit explanation reveal. The same C++/Python/JavaScript/TypeScript draft workflow is available. Arbitrary explanations are not semantically graded. The opt-in local development runner checks only the visible examples and never awards a verified solve; default Android builds leave it disabled.
 
 Roadmap counts use distinct self-reviewed lesson IDs within the selected track. Multiple attempts cannot inflate the count. Tiles show Start, Resume, or Self-reviewed, and every lesson is available without a prerequisite lock. Existing unfinished work stays on the resume card. Track choice is currently view state and resets to Intermediate after restarting the app.
 
-The production bootstrap and backup screen use the combined versioned catalog. Existing lesson IDs and snapshot schemas are unchanged. New drafts can reopen and import through the same storage and backup system. Local coach rubrics and visible runner cases now include all fifteen lessons; the models remain unapproved and disabled by default. The prior live-model benchmark covered only the original three lessons.
+The production bootstrap and backup screen use the combined versioned catalog. Existing lesson IDs and snapshot schemas are unchanged. New drafts can reopen and import through the same storage and backup system. Local coach rubrics and visible runner cases now include all eighteen lessons; the models remain unapproved and disabled by default. The prior live-model benchmark covered only the original three lessons.
 
 ## Content validation
 
-The original three foundation lessons have trusted Dart authoring references: prefix counting and next-warmer results are compared against brute-force baselines on every array of length 0–5 over −1, 0, and 1; interval fixtures cover overlap chains, nesting, duplicates, adjacency, sorted output, empty input, and input preservation. The nine lessons added later include visible fixtures and runner references in all four languages, but those fixtures have not yet been independently reviewed or run through the validation scripts. Existing tests check versioned IDs, checkpoint structure, four-language draft backup recovery, no early solution message, and progress scoped to each track.
+The original three foundation lessons have trusted Dart authoring references: prefix counting and next-warmer results are compared against brute-force baselines on every array of length 0–5 over −1, 0, and 1; interval fixtures cover overlap chains, nesting, duplicates, adjacency, sorted output, empty input, and input preservation. The twelve lessons added later include visible fixtures and runner references in all four languages, but those fixtures have not yet been independently reviewed or run through the validation scripts. Existing tests check versioned IDs, checkpoint structure, four-language draft backup recovery, no early solution message, and progress scoped to each track.
 
 This is internal content verification, not independent editorial approval, a four-language solution suite, or a learner-code judge. Those remain release requirements.

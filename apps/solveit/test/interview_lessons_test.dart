@@ -45,7 +45,7 @@ void main() {
   test(
     'all published lessons have a unique versioned identity and five checkpoints',
     () {
-      expect(allLessons.map((l) => l.id).toSet().length, 15);
+      expect(allLessons.map((l) => l.id).toSet().length, 18);
       for (final l in allLessons) {
         expect(l.questions.length, 5);
         expect(l.checks.length, 5);
@@ -164,7 +164,7 @@ void main() {
         restored.inspectBackup(source.exportBackup(), allLessons),
         allLessons,
       );
-      expect(restored.sessions.length, 12);
+      expect(restored.sessions.length, 15);
       for (final s in restored.sessions) {
         for (final lang in CodeLanguage.values) {
           s.changeLanguage(lang);

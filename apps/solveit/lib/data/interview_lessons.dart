@@ -397,6 +397,102 @@ const interviewLessons = <Lesson>[
     explanation:
         'Initialize all nodes as unseen. Scan each node ID; when it is unseen, increment the component count and run BFS or DFS from it. Mark a node when it enters the worklist, then add each unseen neighbor. The traversal reaches exactly the nodes connected to that start. Later nodes in the same component are already marked, so they do not start another traversal. Isolated nodes start and finish a one-node traversal; an empty graph starts none. With n nodes and m undirected edges, adjacency lists give O(n + m) time and O(n) auxiliary space.',
   ),
+  Lesson(
+    id: 'first-signal-v1',
+    title: 'Find the first one-off signal',
+    pattern: 'Strings · frequency counts',
+    summary: 'Count first, then keep the original order for the answer.',
+    statement:
+        'Given a lowercase signal string, return the index of its first character that appears exactly once. Return -1 if every character repeats or the string is empty.',
+    example: 'signal = "swiss"\nAnswer: 1, the character "w".',
+    constraints:
+        '0–10,000 lowercase English letters. Return a zero-based index.',
+    questions: [
+      'What does “first” refer to: the character type or its position? What if no character occurs once?',
+      'How can you count occurrences without losing the original left-to-right order?',
+      'Trace "swiss". Which characters repeat, and why is the answer index 1 rather than 2?',
+      codeQuestion,
+      'Why can you return during a second scan, and what bounds the frequency table size?',
+    ],
+    checks: [
+      'I return the first position whose character has frequency one, or -1 when none exists.',
+      'I count every character, then scan the original string in order to choose the first qualifying position.',
+      'For "swiss", I return 1; I also handle empty and all-repeated strings.',
+      codeCheck,
+      'I gave O(n) time and O(1) extra space for a fixed lowercase alphabet.',
+    ],
+    hints: [
+      'A character’s count alone does not say whether it is earliest. What extra ordering information do you still have?',
+      'Make one pass to build character counts, then read the string from its first position again.',
+      'Return the first index i where count[signal[i]] == 1. If the scan ends, return -1.',
+    ],
+    explanation:
+        'A nested comparison can count each character in O(n²) time and O(1) space for the fixed alphabet. A frequency table counts all lowercase letters in one pass. A second left-to-right pass returns the first index whose stored count is one. If none qualifies, return -1. Counting first avoids mistaking a character that appears unique so far for one that never repeats later. The two scans take O(n) time; the 26-entry table is O(1) extra space.',
+  ),
+  Lesson(
+    id: 'anagram-pair-v1',
+    title: 'Check whether two labels rearrange',
+    pattern: 'Strings · frequency matching',
+    summary: 'Compare character counts, not just the shared alphabet.',
+    statement:
+        'Return true when two lowercase labels contain exactly the same characters with the same multiplicities, in any order. Otherwise return false. Two empty labels match.',
+    example: 'first = "listen", second = "silent"\nAnswer: true.',
+    constraints:
+        'Each label contains 0–10,000 lowercase English letters. Return a boolean.',
+    questions: [
+      'Does order matter? Do repeated letters need to occur the same number of times?',
+      'What quick condition can reject a pair before counting? What information proves the remaining pairs match?',
+      'Compare "listen" and "silent" by character counts. Why would checking only that both contain an "s" be insufficient?',
+      codeQuestion,
+      'How do your counts account for empty strings, different lengths, and extra copies of a letter?',
+    ],
+    checks: [
+      'I compare character multiplicities and ignore order; empty strings match each other.',
+      'My method rejects unequal lengths and verifies every lowercase character count.',
+      'I return true for "listen" and "silent" and false when one label has a missing or extra character.',
+      codeCheck,
+      'I explained why matching counts are sufficient and gave O(n + m) time with fixed-alphabet space.',
+    ],
+    hints: [
+      'Can two strings of different lengths contain exactly the same multiset of characters?',
+      'Increment counts for one label and decrement for the other. What should every final count be?',
+      'After checking equal lengths, update a 26-entry table across both strings. They match exactly when all counts are zero.',
+    ],
+    explanation:
+        'Unequal lengths cannot be anagrams, so they can return false immediately. Otherwise use 26 counts: increment for each character in the first label and decrement for each in the second. The strings have identical multiplicities exactly when every count ends at zero. Empty labels leave all counts zero and match. This takes O(n + m) time and O(1) extra space for the fixed alphabet. Sorting both strings is also correct but takes O(n log n + m log m) time.',
+  ),
+  Lesson(
+    id: 'distinct-letter-window-v1',
+    title: 'Find the longest unbroken signal',
+    pattern: 'Strings · sliding window',
+    summary: 'Move past the last repeated character without rescanning.',
+    statement:
+        'Return the length of the longest contiguous substring with no repeated character. The input contains lowercase English letters. An empty string returns 0.',
+    example: 'signal = "abcabcbb"\nAnswer: 3, from "abc".',
+    constraints:
+        '0–10,000 lowercase English letters. Return a length, not the substring.',
+    questions: [
+      'Must the characters be contiguous? What makes a substring invalid?',
+      'A quadratic method checks every start. What boundary could help you keep a valid window as you scan right?',
+      'Trace "abcabcbb". When the second "a" appears, which earlier positions can no longer belong to the window?',
+      codeQuestion,
+      'How does remembering the last index improve on removing one character at a time?',
+    ],
+    checks: [
+      'I maximize the length of a contiguous substring with all distinct characters; empty input returns 0.',
+      'My window has no repeated characters, and a repeat advances its left edge beyond the prior copy.',
+      'I get length 3 for "abcabcbb" and do not move the left edge backward.',
+      codeCheck,
+      'I explained last-seen positions and gave O(n) time with O(1) space for lowercase letters.',
+    ],
+    hints: [
+      'Keep a window that has no duplicates. What information would tell you where a repeated character last appeared?',
+      'Store each character’s most recent index. If it falls inside the current window, move left to one position after it.',
+      'Set left = max(left, last[signal[right]] + 1), update that character’s last index, and compare right − left + 1 with the best.',
+    ],
+    explanation:
+        'For each right endpoint, remember the most recent index of its character. Keep a left boundary for a window with no duplicates. If the repeated character’s previous index is at or after left, advance left to one position past that index; taking max with the current left prevents moving backward. Record the current index and update the maximum window length. Each position is processed once, so this is O(n) time. A 26-entry last-seen table gives O(1) extra space. An empty input naturally returns zero.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

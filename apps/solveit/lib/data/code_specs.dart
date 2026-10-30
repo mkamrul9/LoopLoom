@@ -12,10 +12,12 @@ class CodeSpec {
     this.intervals,
     this.cases, {
     this.matrix = false,
+    this.text = false,
+    this.booleanResult = false,
   });
   final List<String> names;
   final bool returnsList, intervals;
-  final bool matrix;
+  final bool matrix, text, booleanResult;
   final List<ReferenceCase> cases;
 
   String starter(CodeLanguage language) {
@@ -23,37 +25,54 @@ class CodeSpec {
     final scalar = names.length > 1 ? names[1] : null;
     switch (language) {
       case CodeLanguage.cpp:
-        final result = intervals
+        final result = booleanResult
+            ? 'bool'
+            : intervals
             ? 'std::vector<std::vector<int>>'
             : returnsList
             ? 'std::vector<int>'
             : 'int';
-        final input = intervals || matrix
+        final input = text
+            ? 'std::string'
+            : intervals || matrix
             ? 'std::vector<std::vector<int>>'
             : 'std::vector<int>';
-        return '#include <vector>\n#include <stdexcept>\n\n$result solve(const $input& $array${scalar == null ? '' : ', int $scalar'}) {\n    // TODO: implement your approach.\n    throw std::logic_error("TODO");\n}\n';
+        final scalarType = text ? 'const std::string&' : 'int';
+        return '#include <string>\n#include <vector>\n#include <stdexcept>\n\n$result solve(const $input& $array${scalar == null ? '' : ', $scalarType $scalar'}) {\n    // TODO: implement your approach.\n    throw std::logic_error("TODO");\n}\n';
       case CodeLanguage.python:
-        final result = intervals
+        final result = booleanResult
+            ? 'bool'
+            : intervals
             ? 'list[list[int]]'
             : returnsList
             ? 'list[int]'
             : 'int';
-        final input = intervals || matrix ? 'list[list[int]]' : 'list[int]';
-        return 'def solve($array: $input${scalar == null ? '' : ', $scalar: int'}) -> $result:\n    # TODO: implement your approach.\n    raise NotImplementedError("TODO")\n';
+        final input = text
+            ? 'str'
+            : intervals || matrix
+            ? 'list[list[int]]'
+            : 'list[int]';
+        final scalarType = text ? 'str' : 'int';
+        return 'def solve($array: $input${scalar == null ? '' : ', $scalar: $scalarType'}) -> $result:\n    # TODO: implement your approach.\n    raise NotImplementedError("TODO")\n';
       case CodeLanguage.javascript:
         return 'function solve($array${scalar == null ? '' : ', $scalar'}) {\n    // TODO: implement your approach.\n    throw new Error("TODO");\n}\n';
       case CodeLanguage.typescript:
-        final result = intervals
+        final result = booleanResult
+            ? 'boolean'
+            : intervals
             ? 'Array<[number, number]>'
             : returnsList
             ? 'number[]'
             : 'number';
-        final input = intervals
+        final input = text
+            ? 'string'
+            : intervals
             ? 'ReadonlyArray<readonly [number, number]>'
             : matrix
             ? 'ReadonlyArray<readonly number[]>'
             : 'readonly number[]';
-        return 'function solve($array: $input${scalar == null ? '' : ', $scalar: number'}): $result {\n    // TODO: implement your approach.\n    throw new Error("TODO");\n}\n';
+        final scalarType = text ? 'string' : 'number';
+        return 'function solve($array: $input${scalar == null ? '' : ', $scalar: $scalarType'}): $result {\n    // TODO: implement your approach.\n    throw new Error("TODO");\n}\n';
     }
   }
 }
@@ -318,5 +337,47 @@ const codeSpecs = <String, CodeSpec>{
       ReferenceCase('Empty graph', 'neighbors = []', '0'),
     ],
     matrix: true,
+  ),
+  'first-signal-v1': CodeSpec(
+    ['signal'],
+    false,
+    false,
+    [
+      ReferenceCase('First unique character', 'signal = "swiss"', '1'),
+      ReferenceCase('Every character repeats', 'signal = "aabb"', '-1'),
+      ReferenceCase('Empty signal', 'signal = ""', '-1'),
+    ],
+    text: true,
+  ),
+  'anagram-pair-v1': CodeSpec(
+    ['first', 'second'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Rearranged labels',
+        'first = "listen", second = "silent"',
+        'true',
+      ),
+      ReferenceCase(
+        'Different character counts',
+        'first = "rat", second = "car"',
+        'false',
+      ),
+      ReferenceCase('Two empty labels', 'first = "", second = ""', 'true'),
+    ],
+    text: true,
+    booleanResult: true,
+  ),
+  'distinct-letter-window-v1': CodeSpec(
+    ['signal'],
+    false,
+    false,
+    [
+      ReferenceCase('Repeating block', 'signal = "abcabcbb"', '3'),
+      ReferenceCase('One repeated letter', 'signal = "bbbbb"', '1'),
+      ReferenceCase('Empty signal', 'signal = ""', '0'),
+    ],
+    text: true,
   ),
 };

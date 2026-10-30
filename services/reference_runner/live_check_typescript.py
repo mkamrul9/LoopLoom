@@ -19,6 +19,9 @@ SOLUTIONS = {
     'max-subarray-v1': 'function solve(a: readonly number[]): number {let ending=a[0],best=a[0];for(let i=1;i<a.length;i++){ending=Math.max(a[i],ending+a[i]);best=Math.max(best,ending);}return best;}',
     'single-trade-v1': 'function solve(a: readonly number[]): number {let min=Infinity,best=0;for(const p of a){if(min!==Infinity)best=Math.max(best,p-min);min=Math.min(min,p);}return best;}',
     'graph-components-v1': 'function solve(g: ReadonlyArray<readonly number[]>): number {const seen=Array(g.length).fill(false);let count=0;for(let start=0;start<g.length;start++){if(seen[start])continue;count++;seen[start]=true;const q=[start];for(let i=0;i<q.length;i++)for(const v of g[q[i]])if(!seen[v]){seen[v]=true;q.push(v);}}return count;}',
+    'first-signal-v1': 'function solve(s: string): number {const counts=Array(26).fill(0);for(const c of s)counts[c.charCodeAt(0)-97]++;for(let i=0;i<s.length;i++)if(counts[s.charCodeAt(i)-97]===1)return i;return -1;}',
+    'anagram-pair-v1': 'function solve(a: string,b: string): boolean {if(a.length!==b.length)return false;const counts=Array(26).fill(0);for(const c of a)counts[c.charCodeAt(0)-97]++;for(const c of b)counts[c.charCodeAt(0)-97]--;return counts.every(x=>x===0);}',
+    'distinct-letter-window-v1': 'function solve(s: string): number {const last=Array(26).fill(-1);let left=0,best=0;for(let right=0;right<s.length;right++){const c=s.charCodeAt(right)-97;left=Math.max(left,last[c]+1);last[c]=right;best=Math.max(best,right-left+1);}return best;}',
 }
 
 

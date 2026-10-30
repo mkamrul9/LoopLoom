@@ -19,6 +19,9 @@ SOLUTIONS = {
     'max-subarray-v1': 'def solve(a):\n ending=best=a[0]\n for x in a[1:]:ending=max(x,ending+x);best=max(best,ending)\n return best',
     'single-trade-v1': 'def solve(a):\n low=float("inf");best=0\n for p in a:\n  if low!=float("inf"):best=max(best,p-low)\n  low=min(low,p)\n return best',
     'graph-components-v1': 'def solve(g):\n seen=set();count=0\n for start in range(len(g)):\n  if start in seen:continue\n  count+=1;seen.add(start);q=[start];head=0\n  while head<len(q):\n   node=q[head];head+=1\n   for v in g[node]:\n    if v not in seen:seen.add(v);q.append(v)\n return count',
+    'first-signal-v1': 'def solve(s):\n counts=[0]*26\n for c in s:counts[ord(c)-97]+=1\n for i,c in enumerate(s):\n  if counts[ord(c)-97]==1:return i\n return -1',
+    'anagram-pair-v1': 'def solve(a,b):\n if len(a)!=len(b):return False\n counts=[0]*26\n for c in a:counts[ord(c)-97]+=1\n for c in b:counts[ord(c)-97]-=1\n return all(x==0 for x in counts)',
+    'distinct-letter-window-v1': 'def solve(s):\n last=[-1]*26;left=best=0\n for right,c in enumerate(s):\n  x=ord(c)-97;left=max(left,last[x]+1);last[x]=right;best=max(best,right-left+1)\n return best',
 }
 
 def main():

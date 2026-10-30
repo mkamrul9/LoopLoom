@@ -73,5 +73,20 @@
     {"label":"Connected groups and an isolate","args":[[[1],[0,2],[1],[4],[3],[]]],"expected":3},
     {"label":"Every node is isolated","args":[[[],[],[]]],"expected":3},
     {"label":"Empty graph","args":[[]],"expected":0}
+  ],
+  "first-signal-v1": [
+    {"label":"First unique character","args":["swiss"],"expected":1},
+    {"label":"Every character repeats","args":["aabb"],"expected":-1},
+    {"label":"Empty signal","args":[""],"expected":-1}
+  ],
+  "anagram-pair-v1": [
+    {"label":"Rearranged labels","args":["listen","silent"],"expected":true},
+    {"label":"Different character counts","args":["rat","car"],"expected":false},
+    {"label":"Two empty labels","args":["",""],"expected":true}
+  ],
+  "distinct-letter-window-v1": [
+    {"label":"Repeating block","args":["abcabcbb"],"expected":3},
+    {"label":"One repeated letter","args":["bbbbb"],"expected":1},
+    {"label":"Empty signal","args":[""],"expected":0}
   ]
 }

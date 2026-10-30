@@ -77,6 +77,18 @@ RUBRICS = {
         "task": "Count connected components in an undirected graph represented by symmetric adjacency lists. No self-edges or duplicate neighbors; isolated nodes count. Empty graph returns 0; n<=1000. Do not modify input.",
         "pitfalls": "Counting edges instead of components, missing isolated nodes, marking visited too late, treating the graph as directed, or revisiting nodes.",
     },
+    "first-signal-v1": {
+        "task": "Return the index of the first lowercase character with frequency one, or -1 when none exists. Empty input returns -1; length<=10000.",
+        "pitfalls": "Returning the first character seen once so far, returning the character instead of its index, losing original order, or treating all-repeated input as a valid position.",
+    },
+    "anagram-pair-v1": {
+        "task": "Return whether two lowercase strings contain exactly the same character counts, ignoring order. Empty strings match; lengths<=10000.",
+        "pitfalls": "Checking only shared character presence, ignoring multiplicity, forgetting the length check, or rejecting equal empty strings.",
+    },
+    "distinct-letter-window-v1": {
+        "task": "Return the maximum length of a contiguous substring with no repeated lowercase character. Empty input returns 0; length<=10000.",
+        "pitfalls": "Using a subsequence instead of a substring, moving the left boundary backward, counting a repeated character twice, or returning the window endpoint instead of its length.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",

@@ -19,6 +19,9 @@ SOLUTIONS = {
     'max-subarray-v1': 'int solve(const vector<int>& a){int ending=a[0],best=a[0];for(int i=1;i<(int)a.size();++i){ending=max(a[i],ending+a[i]);best=max(best,ending);}return best;}',
     'single-trade-v1': 'int solve(const vector<int>& a){int low=INT_MAX,best=0;for(int p:a){if(low!=INT_MAX)best=max(best,p-low);low=min(low,p);}return best;}',
     'graph-components-v1': 'int solve(const vector<vector<int>>& g){vector<char> seen(g.size());int count=0;for(int start=0;start<(int)g.size();++start){if(seen[start])continue;++count;seen[start]=1;queue<int> q;q.push(start);while(!q.empty()){int node=q.front();q.pop();for(int v:g[node])if(!seen[v]){seen[v]=1;q.push(v);}}}return count;}',
+    'first-signal-v1': 'int solve(const string& s){int counts[26]={};for(char c:s)++counts[c-\'a\'];for(int i=0;i<(int)s.size();++i)if(counts[s[i]-\'a\']==1)return i;return -1;}',
+    'anagram-pair-v1': 'bool solve(const string& a,const string& b){if(a.size()!=b.size())return false;int counts[26]={};for(char c:a)++counts[c-\'a\'];for(char c:b)--counts[c-\'a\'];for(int n:counts)if(n)return false;return true;}',
+    'distinct-letter-window-v1': 'int solve(const string& s){vector<int> last(26,-1);int left=0,best=0;for(int i=0;i<(int)s.size();++i){int c=s[i]-\'a\';left=max(left,last[c]+1);last[c]=i;best=max(best,i-left+1);}return best;}',
 }
 
 
