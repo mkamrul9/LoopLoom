@@ -31,6 +31,9 @@ SOLUTIONS = {
     'list-middle-v1': 'int solve(const vector<vector<int>>& n){if(n.empty())return -1;int slow=0,fast=0;while(fast!=-1&&n[fast][1]!=-1){slow=n[slow][1];fast=n[n[fast][1]][1];}return slow;}',
     'list-cycle-v1': 'bool solve(const vector<vector<int>>& n){if(n.empty())return false;int slow=0,fast=0;while(fast!=-1&&n[fast][1]!=-1){slow=n[slow][1];fast=n[n[fast][1]][1];if(slow==fast)return true;}return false;}',
     'list-nth-from-end-v1': 'int solve(const vector<vector<int>>& n,int k){int fast=0,slow=0;for(int i=0;i<k;++i)fast=n[fast][1];while(fast!=-1){fast=n[fast][1];slow=n[slow][1];}return slow;}',
+    'subset-sum-v1': 'bool solve(const vector<int>& a,int target){function<bool(int,int)> search=[&](int i,int r){if(r==0)return true;if(i==(int)a.size())return false;return search(i+1,r)||search(i+1,r-a[i]);};return search(0,target);}',
+    'combination-count-v1': 'int solve(const vector<int>& a,int target){function<int(int,int)> search=[&](int i,int r){if(r==0)return 1;if(r<0||i==(int)a.size())return 0;return search(i,r-a[i])+search(i+1,r);};return search(0,target);}',
+    'target-sum-ways-v1': 'int solve(const vector<int>& a,int target){function<int(int,int)> search=[&](int i,int r){if(i==(int)a.size())return r==0?1:0;return search(i+1,r-a[i])+search(i+1,r+a[i]);};return search(0,target);}',
 }
 
 

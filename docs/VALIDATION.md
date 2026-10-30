@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview catalog expansion — batch 8 — 30 October 2026
+
+Added three backtracking lessons: one-use subset feasibility, order-independent combinations with reuse, and counting signed target assignments. The draft catalog now has thirty original lessons: three warm-ups and twenty-seven intermediate. The new contracts specify reuse, ordering, duplicate positions, zero behavior, and input preservation; all have four-language fixtures and local-coach rubrics.
+
+Tests and live-container checks were not run for this batch. The complete 30-problem draft catalog still needs independent editorial review and tested solutions; the 75/300 roadmaps remain incomplete and AI feedback remains disabled by default.
+
 ## Interview catalog expansion — batch 7 — 30 October 2026
 
 Added three linked-list lessons: finding the middle, cycle detection, and locating the nth node from the end. The catalog now has twenty-seven lessons: three warm-ups and twenty-four intermediate foundations. The node-table format uses rows `[value, nextIndex]` with row 0 as head; the existing matrix/scalar starters and runner cover C++, Python, JavaScript, and TypeScript. Coach rubrics and immutable-input reporting were updated.

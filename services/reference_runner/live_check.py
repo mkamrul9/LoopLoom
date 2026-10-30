@@ -31,6 +31,9 @@ SOLUTIONS = {
     'list-middle-v1':'function solve(n){if(!n.length)return -1;let slow=0,fast=0;while(fast!==-1&&n[fast][1]!==-1){slow=n[slow][1];fast=n[n[fast][1]][1];}return slow;}',
     'list-cycle-v1':'function solve(n){if(!n.length)return false;let slow=0,fast=0;while(fast!==-1&&n[fast][1]!==-1){slow=n[slow][1];fast=n[n[fast][1]][1];if(slow===fast)return true;}return false;}',
     'list-nth-from-end-v1':'function solve(n,k){let fast=0,slow=0;for(let i=0;i<k;i++)fast=n[fast][1];while(fast!==-1){fast=n[fast][1];slow=n[slow][1];}return slow;}',
+    'subset-sum-v1':'function solve(a,t){function search(i,r){if(r===0)return true;if(i===a.length)return false;return search(i+1,r)||search(i+1,r-a[i]);}return search(0,t);}',
+    'combination-count-v1':'function solve(a,t){function search(i,r){if(r===0)return 1;if(r<0||i===a.length)return 0;return search(i,r-a[i])+search(i+1,r);}return search(0,t);}',
+    'target-sum-ways-v1':'function solve(a,t){function search(i,r){if(i===a.length)return r===0?1:0;return search(i+1,r-a[i])+search(i+1,r+a[i]);}return search(0,t);}',
 }
 
 def main():

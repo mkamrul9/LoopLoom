@@ -31,6 +31,9 @@ SOLUTIONS = {
     'list-middle-v1': 'def solve(n):\n if not n:return -1\n slow=fast=0\n while fast!=-1 and n[fast][1]!=-1:\n  slow=n[slow][1];fast=n[n[fast][1]][1]\n return slow',
     'list-cycle-v1': 'def solve(n):\n if not n:return False\n slow=fast=0\n while fast!=-1 and n[fast][1]!=-1:\n  slow=n[slow][1];fast=n[n[fast][1]][1]\n  if slow==fast:return True\n return False',
     'list-nth-from-end-v1': 'def solve(n,k):\n fast=slow=0\n for _ in range(k):fast=n[fast][1]\n while fast!=-1:\n  fast=n[fast][1];slow=n[slow][1]\n return slow',
+    'subset-sum-v1': 'def solve(a,target):\n def search(i,remaining):\n  if remaining==0:return True\n  if i==len(a):return False\n  return search(i+1,remaining) or search(i+1,remaining-a[i])\n return search(0,target)',
+    'combination-count-v1': 'def solve(a,target):\n def search(i,remaining):\n  if remaining==0:return 1\n  if remaining<0 or i==len(a):return 0\n  return search(i,remaining-a[i])+search(i+1,remaining)\n return search(0,target)',
+    'target-sum-ways-v1': 'def solve(a,target):\n def search(i,remaining):\n  if i==len(a):return int(remaining==0)\n  return search(i+1,remaining-a[i])+search(i+1,remaining+a[i])\n return search(0,target)',
 }
 
 def main():

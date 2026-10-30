@@ -555,4 +555,59 @@ const codeSpecs = <String, CodeSpec>{
     ],
     matrix: true,
   ),
+  'subset-sum-v1': CodeSpec(
+    ['values', 'target'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Choose two values',
+        'values = [3, 4, 5, 6], target = 9',
+        'true',
+      ),
+      ReferenceCase(
+        'No subset reaches the target',
+        'values = [2, 4, 8], target = 7',
+        'false',
+      ),
+      ReferenceCase('Empty subset', 'values = [], target = 0', 'true'),
+    ],
+    booleanResult: true,
+  ),
+  'combination-count-v1': CodeSpec(
+    ['candidates', 'target'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Two combinations',
+        'candidates = [2, 3, 6, 7], target = 7',
+        '2',
+      ),
+      ReferenceCase(
+        'Order does not create another combination',
+        'candidates = [2, 3, 5], target = 8',
+        '3',
+      ),
+      ReferenceCase('Choose nothing', 'candidates = [4], target = 0', '1'),
+    ],
+  ),
+  'target-sum-ways-v1': CodeSpec(
+    ['values', 'target'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Five sign assignments',
+        'values = [1, 1, 1, 1, 1], target = 3',
+        '5',
+      ),
+      ReferenceCase(
+        'Each zero has two sign choices',
+        'values = [0, 0, 1], target = 1',
+        '4',
+      ),
+      ReferenceCase('Empty input', 'values = [], target = 0', '1'),
+    ],
+  ),
 };

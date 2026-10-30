@@ -788,6 +788,102 @@ const interviewLessons = <Lesson>[
     explanation:
         'Set fast and slow to row 0, then advance fast n links. Move both pointers one link at a time while fast is not -1. When fast reaches the end, slow is at the node n from the end because the gap stayed n links. Return slow’s index. The contract guarantees n is valid and the list is nonempty, so slow identifies a node. The method takes O(n) time and O(1) extra space and leaves the links unchanged.',
   ),
+  Lesson(
+    id: 'subset-sum-v1',
+    title: 'Choose items to reach a target',
+    pattern: 'Backtracking · include or skip',
+    summary: 'Explore each choice once, while keeping track of what remains.',
+    statement:
+        'Return true if some subset of the given positive values sums exactly to target. Each array position may be used at most once, including when values repeat. An empty subset is allowed, so target = 0 returns true.',
+    example: 'values = [3, 4, 5, 6], target = 9\nAnswer: true, using 3 and 6.',
+    constraints:
+        '0–20 values, each 1–100. Target is 0–1,000. Do not modify input.',
+    questions: [
+      'Does each value represent one reusable number or one particular array position? Can the empty subset solve target 0?',
+      'At each position, what are the two choices? What information should a recursive call remember?',
+      'Trace target 9 for [3, 4, 5, 6]. Which branch finds 3 + 6, and when may a branch stop?',
+      codeQuestion,
+      'What is the worst-case number of decision paths? How does the positive-value constraint permit pruning?',
+    ],
+    checks: [
+      'I use each input position at most once and treat target 0 as reachable by the empty subset.',
+      'At each position I branch into take or skip, then advance to the next position.',
+      'I return true for the example and do not reuse a value or mutate the input.',
+      codeCheck,
+      'I gave O(2^n) worst-case time and O(n) recursion space, and only prune using the positive-value contract.',
+    ],
+    hints: [
+      'Ask whether the remaining target can be made using positions i and later.',
+      'For position i, try excluding it and including it once; both choices continue at i + 1.',
+      'Return true when the remainder is zero. If positions are exhausted first, return false. Positive values also let you stop when the remainder becomes negative.',
+    ],
+    explanation:
+        'Define a search state by the next position i and remaining target r. If r is zero, a subset has been found. If no positions remain, the branch fails. Otherwise try skipping values[i] and taking it once, then continue at i + 1. Because values are positive, a negative remainder can be pruned. There can be O(2^n) branches and O(n) recursion depth. A dynamic-programming table can reduce repeated work, but the decision tree makes the include/skip choices explicit.',
+  ),
+  Lesson(
+    id: 'combination-count-v1',
+    title: 'Count combinations with reusable values',
+    pattern: 'Backtracking · choose or reuse',
+    summary: 'Keep a starting position so a combination is counted only once.',
+    statement:
+        'Return the number of combinations that sum to target using the distinct positive candidate values. A candidate may be reused any number of times, but different orders of the same values count as one combination. target = 0 has one combination: choose nothing.',
+    example: 'candidates = [2, 3, 6, 7], target = 7\nAnswer: 2: [2, 2, 3] and [7].',
+    constraints:
+        '0–12 distinct candidates, each 1–50. Target is 0–50. The answer fits a signed 32-bit integer. Do not modify input.',
+    questions: [
+      'May a candidate be reused? Do [2, 3] and [3, 2] count as one combination or two?',
+      'How can a recursive call remember the earliest candidate it may choose next?',
+      'Trace target 7 with [2, 3, 6, 7]. Why does choosing 2 leave 2 available for the next step?',
+      codeQuestion,
+      'What are your base cases for remainder 0, a negative remainder, and candidates exhausted?',
+    ],
+    checks: [
+      'I count combinations without treating different orderings as separate answers, and a chosen value can be reused.',
+      'My search keeps a start index and recurses with the same index after choosing a candidate.',
+      'I return 2 for the example: [2, 2, 3] and [7].',
+      codeCheck,
+      'I return 1 for target 0 and 0 when a positive remainder cannot be formed.',
+    ],
+    hints: [
+      'Use a start index to keep choices in a consistent order and avoid counting permutations.',
+      'When you choose candidate i, recurse from i again to allow reuse. When you skip it, continue from i + 1.',
+      'Return 1 when the remainder is zero, 0 when it is negative or no candidates remain, and add the counts from choose and skip branches.',
+    ],
+    explanation:
+        'Search with a candidate start index and remaining target. Choosing candidate i reduces the remainder and keeps i as the next start, allowing reuse. Skipping it moves to i + 1. This fixed nondecreasing choice order counts each combination once, regardless of how its values could be permuted. Return one completed combination when the remainder reaches zero, and zero when it becomes negative or candidates run out. The worst case is exponential in the target/candidate choices, with recursion depth bounded by target divided by the smallest candidate. A one-dimensional dynamic-programming count is another valid optimization.',
+  ),
+  Lesson(
+    id: 'target-sum-ways-v1',
+    title: 'Assign signs to reach the target',
+    pattern: 'Backtracking · two choices per value',
+    summary: 'Try plus and minus for each position, then combine the counts.',
+    statement:
+        'Return the number of ways to put either a plus or a minus sign before every value so the signed total equals target. Every input position receives a sign; equal values at different positions are still distinct choices. A zero has two sign choices.',
+    example: 'values = [1, 1, 1, 1, 1], target = 3\nAnswer: 5.',
+    constraints:
+        '0–20 values, each 0–20. Target is −1,000 to 1,000. The answer fits a signed 32-bit integer. Do not modify input.',
+    questions: [
+      'How many choices does each position create? If two values are equal, do their positions remain separate choices?',
+      'What state would let you count all completions without constructing every signed expression?',
+      'For [1, 1, 1, 1, 1] and target 3, how many values must receive a minus sign?',
+      codeQuestion,
+      'Why does a zero double the number of sign assignments for the same remaining total?',
+    ],
+    checks: [
+      'I assign one sign to every position and count different position choices separately, including both signs for zero.',
+      'For each value I sum the ways from choosing plus and choosing minus.',
+      'I return 5 for the example and 1 for an empty input with target 0.',
+      codeCheck,
+      'I gave O(2^n) worst-case time and O(n) recursion depth, and explained zero handling.',
+    ],
+    hints: [
+      'At each position, the next total can add the value or subtract it.',
+      'Define a recursive count by the current index and the remaining target.',
+      'At the end of the array return 1 only when the remaining target is zero. Otherwise add the counts from remaining − value and remaining + value.',
+    ],
+    explanation:
+        'Let search(i, remaining) count assignments from position i onward that reach the remaining total. Recurse twice: assign plus and reduce remaining by values[i], or assign minus and increase remaining by values[i]. At the end return one if remaining is zero, otherwise zero. Add the two branch counts because they represent distinct sign choices at this position. A zero creates two separate branches with the same numeric remainder, so it doubles the count. The search takes O(2^n) time and O(n) recursion space; memoization by index and remaining total can reuse repeated states.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

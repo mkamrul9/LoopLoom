@@ -134,6 +134,21 @@ RUBRICS = {
         "accepted": "Advance a fast pointer n links, then advance fast and slow together; O(n) time/O(1) space. A length pass followed by an indexed traversal is also correct O(n)/O(1).",
         "pitfalls": "Returning a value rather than index, using an off-by-one gap, mishandling n equal to length, reading past -1, or mutating links.",
     },
+    "subset-sum-v1": {
+        "task": "Return whether a subset of positive values sums to target, using each position at most once. The empty subset is allowed; target=0 is true. Input is immutable.",
+        "accepted": "Include/exclude DFS is valid O(2^n)/O(n). A subset-sum dynamic-programming table is also valid; pruning a negative remainder is safe because values are positive.",
+        "pitfalls": "Reusing an index, losing duplicate positions, rejecting the empty subset, mutating input, or applying positive-only pruning to negative values.",
+    },
+    "combination-count-v1": {
+        "task": "Count order-independent combinations summing to target from distinct positive candidates; candidates may be reused. target=0 has one empty combination. Input is immutable.",
+        "accepted": "Choose/skip recursion with a start index counts each combination once. Unbounded combination-count dynamic programming is also valid. Return a count, not a list of combinations.",
+        "pitfalls": "Counting permutations separately, advancing past a chosen candidate and disallowing reuse, looping on a zero/negative candidate, or returning zero for target=0.",
+    },
+    "target-sum-ways-v1": {
+        "task": "Count sign assignments that make the signed sum equal target. Every position receives plus or minus; equal values remain distinct and each zero has two choices. Input is immutable.",
+        "accepted": "Two-branch recursion or memoized index/remainder search is valid. Sum counts from plus and minus branches; O(2^n) is acceptable for n<=20.",
+        "pitfalls": "Treating equal values as one choice, skipping a position, counting a zero only once, or returning a boolean instead of the number of assignments.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",
