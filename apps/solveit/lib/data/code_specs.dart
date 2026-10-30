@@ -435,4 +435,62 @@ const codeSpecs = <String, CodeSpec>{
     ],
     matrix: true,
   ),
+  'tree-depth-v1': CodeSpec(
+    ['nodes'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Leaves on the third level',
+        'nodes = [[1, 1, 2], [2, 3, 4], [3, -1, -1], [4, -1, -1], [5, -1, -1]]',
+        '3',
+      ),
+      ReferenceCase(
+        'Right-leaning tree',
+        'nodes = [[1, -1, 1], [2, -1, 2], [3, -1, -1]]',
+        '3',
+      ),
+      ReferenceCase('Empty tree', 'nodes = []', '0'),
+    ],
+    matrix: true,
+  ),
+  'tree-width-v1': CodeSpec(
+    ['nodes'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Three nodes on one level',
+        'nodes = [[1, 1, 2], [2, 3, 4], [3, 5, -1], [4, -1, -1], [5, -1, -1], [6, -1, -1]]',
+        '3',
+      ),
+      ReferenceCase(
+        'Single-node tree',
+        'nodes = [[9, -1, -1]]',
+        '1',
+      ),
+      ReferenceCase('Empty tree', 'nodes = []', '0'),
+    ],
+    matrix: true,
+  ),
+  'tree-path-sum-v1': CodeSpec(
+    ['nodes', 'target'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Matching path ends at a leaf',
+        'nodes = [[5, 1, 2], [4, 3, -1], [8, 4, 5], [11, 6, 7], [13, -1, -1], [4, -1, 8], [7, -1, -1], [2, -1, -1], [1, -1, -1]], target = 22',
+        'true',
+      ),
+      ReferenceCase(
+        'Internal prefix is not a leaf path',
+        'nodes = [[1, 1, 2], [2, -1, -1], [3, -1, -1]], target = 1',
+        'false',
+      ),
+      ReferenceCase('Empty tree', 'nodes = [], target = 0', 'false'),
+    ],
+    matrix: true,
+    booleanResult: true,
+  ),
 };

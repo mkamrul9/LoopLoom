@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview catalog expansion — batch 6 — 30 October 2026
+
+Added three original tree lessons: maximum depth, widest level by real-node count, and root-to-leaf path sum. The catalog now has twenty-four lessons: three warm-ups and twenty-one intermediate foundations. The indexed node-row representation uses the shared matrix starter and C++ harness; all three problems have four-language runner fixtures, immutable-input reporting, and local-coach rubrics.
+
+Tests and live-container checks were not run for this batch. Tree references and fixtures need independent editorial review; the 30/75/300 roadmaps remain incomplete and AI feedback remains disabled by default.
+
 ## Interview catalog expansion — batch 5 — 30 October 2026
 
 Added three original intermediate heap lessons: kth-largest ranking, top-frequency selection with a defined tie rule, and merging sorted streams. The catalog now has twenty-one lessons: three warm-ups and eighteen intermediate foundations. Typed array/matrix starters, visible cases, local-runner fixtures in four languages, input-preservation reporting, and local-coach rubrics cover the new lessons.

@@ -25,6 +25,9 @@ SOLUTIONS = {
     'kth-score-v1': 'def solve(a,k):\n return sorted(a,reverse=True)[k-1]',
     'top-frequency-v1': 'def solve(a,k):\n from collections import Counter\n return sorted(x for x,n in sorted(Counter(a).items(),key=lambda p:(-p[1],p[0]))[:k])',
     'merge-streams-v1': 'def solve(a):\n import heapq\n return list(heapq.merge(*a))',
+    'tree-depth-v1': 'def solve(t):\n if not t:return 0\n q=[(0,1)];head=0;best=0\n while head<len(q):\n  i,d=q[head];head+=1;best=max(best,d)\n  for child in t[i][1:]:\n   if child!=-1:q.append((child,d+1))\n return best',
+    'tree-width-v1': 'def solve(t):\n if not t:return 0\n q=[0];head=0;best=0\n while head<len(q):\n  end=len(q);best=max(best,end-head)\n  while head<end:\n   i=q[head];head+=1\n   for child in t[i][1:]:\n    if child!=-1:q.append(child)\n return best',
+    'tree-path-sum-v1': 'def solve(t,target):\n if not t:return False\n stack=[(0,t[0][0])]\n while stack:\n  i,total=stack.pop();left,right=t[i][1:]\n  if left==-1 and right==-1 and total==target:return True\n  if left!=-1:stack.append((left,total+t[left][0]))\n  if right!=-1:stack.append((right,total+t[right][0]))\n return False',
 }
 
 def main():

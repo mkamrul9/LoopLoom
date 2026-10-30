@@ -590,6 +590,105 @@ const interviewLessons = <Lesson>[
     explanation:
         'Create a min-heap containing the first value from each nonempty stream, along with that stream’s index and next position. Repeatedly remove the smallest candidate, append its value, and insert the next value from the same stream if available. The heap never needs more than one candidate per nonempty stream. If there are m streams, N total values, and k nonempty streams, the method takes O(m + N log(k + 1)) time and O(k) heap space, excluding the output. Empty streams contribute no heap entries. A flatten-and-sort solution is also correct but takes O(m + N log(N + 1)) time.',
   ),
+  Lesson(
+    id: 'tree-depth-v1',
+    title: 'Measure the tree height',
+    pattern: 'Trees · depth-first and breadth-first search',
+    summary: 'Track the level as you visit each child.',
+    statement:
+        'Return the maximum number of nodes on a root-to-leaf path. The tree is given as rows [value, leftIndex, rightIndex]; row 0 is the root and -1 means no child. An empty list represents an empty tree.',
+    example:
+        'nodes = [[1, 1, 2], [2, 3, 4], [3, -1, -1], [4, -1, -1], [5, -1, -1]]\nAnswer: 3.',
+    constraints:
+        'A valid binary tree with 0–1,000 nodes. Child indices are valid, each non-root node has one parent, and all nodes are reachable from row 0. Values are integers from −1,000,000 to 1,000,000. Do not modify the input.',
+    questions: [
+      'Which row is the root? How does -1 differ from a child index?',
+      'How would a depth-first or breadth-first traversal carry the depth of the current node?',
+      'Trace the example. What depth do the two leaf nodes below node 2 reach?',
+      codeQuestion,
+      'Why is the maximum over all visited nodes the tree height? Give time and auxiliary-space costs.',
+    ],
+    checks: [
+      'I start from row 0, follow only nonnegative child indices, and return 0 for an empty tree.',
+      'I count nodes on a path, so the root has depth 1 rather than depth 0 in the returned height.',
+      'I return 3 for the example and do not count missing children as levels.',
+      codeCheck,
+      'I gave O(n) time and explained the traversal’s stack or queue space.',
+    ],
+    hints: [
+      'Start at root index 0 with depth 1. What depth should each child receive?',
+      'Visit each real child at parent depth + 1 and keep the largest depth seen.',
+      'Use DFS with a stack or BFS with a queue of (nodeIndex, depth). Return the largest depth, or 0 if there is no root.',
+    ],
+    explanation:
+        'Start at row 0 with depth 1. For each visited row, update the maximum and visit each child whose index is not -1 with depth one greater. DFS uses a stack or recursion; BFS uses a queue. Every node is reached once, so the time is O(n). The auxiliary stack, recursion, or queue uses O(h) for depth-first traversal or O(w) for breadth-first traversal, where h is tree height and w is maximum level size. The empty tree has height zero.',
+  ),
+  Lesson(
+    id: 'tree-width-v1',
+    title: 'Find the widest tree level',
+    pattern: 'Trees · level-order traversal',
+    summary: 'Count a level before moving on to its children.',
+    statement:
+        'Return the largest number of real nodes found at any one depth. Missing children do not count as positions. The tree uses rows [value, leftIndex, rightIndex], with row 0 as root and -1 for a missing child. An empty tree returns 0.',
+    example:
+        'nodes = [[1, 1, 2], [2, 3, 4], [3, 5, -1], [4, -1, -1], [5, -1, -1], [6, -1, -1]]\nAnswer: 3.',
+    constraints:
+        'A valid binary tree with 0–1,000 nodes. Child indices are valid, each non-root node has one parent, and all nodes are reachable from row 0. Do not modify the input.',
+    questions: [
+      'What makes two nodes belong to the same level? Do missing child slots affect this count?',
+      'How can a queue tell you where the current level ends before you start processing the next one?',
+      'Trace the example one level at a time. Which level contains three real nodes?',
+      codeQuestion,
+      'Why must you capture the current queue size before adding children? Give time and auxiliary-space costs.',
+    ],
+    checks: [
+      'I count real nodes at each depth and return 0 for an empty tree.',
+      'I process exactly the nodes that were in the queue at the start of a level.',
+      'I return 3 for the example and ignore absent children.',
+      codeCheck,
+      'I gave O(n) time and O(w) queue space, where w is the widest level.',
+    ],
+    hints: [
+      'Use breadth-first search. The number of entries currently in the queue is the size of the next level to process.',
+      'Save that queue size before the level loop. Count those nodes while appending their real children for the next level.',
+      'After each level, update the best count. The maximum of these counts is the answer.',
+    ],
+    explanation:
+        'Use breadth-first search starting with root index 0. At the start of each level, save the queue length. Process exactly that many entries, counting each real node and appending its non-missing children. Update the maximum level count after the loop. Each node is enqueued once, so time is O(n), and the queue uses O(w) auxiliary space for maximum level width w. This definition counts real nodes only; it does not measure gaps between the leftmost and rightmost positions.',
+  ),
+  Lesson(
+    id: 'tree-path-sum-v1',
+    title: 'Check a root-to-leaf total',
+    pattern: 'Trees · path search',
+    summary: 'A target is reached only when a complete root-to-leaf path matches.',
+    statement:
+        'Return true if any path from the root to a leaf has values summing to target. A leaf has no children. The tree uses rows [value, leftIndex, rightIndex], with row 0 as root and -1 for a missing child. An empty tree returns false.',
+    example:
+        'nodes = [[5, 1, 2], [4, 3, -1], [8, 4, 5], [11, 6, 7], [13, -1, -1], [4, -1, 8], [7, -1, -1], [2, -1, -1], [1, -1, -1]], target = 22\nAnswer: true, from 5 → 4 → 11 → 2.',
+    constraints:
+        'A valid binary tree with 0–1,000 nodes. Child indices are valid, each non-root node has one parent, and all nodes are reachable from row 0. Values and target are integers from −1,000,000 to 1,000,000. Do not modify the input.',
+    questions: [
+      'What qualifies as a complete path? Is reaching an internal node with the target sum enough?',
+      'What running information can a DFS carry from the root to each child?',
+      'Trace the example. Why does reaching node 11 not finish the check until you reach its leaf child?',
+      codeQuestion,
+      'How do negative values affect pruning? Give time and auxiliary-space costs.',
+    ],
+    checks: [
+      'I check the sum only at a leaf, and an empty tree returns false.',
+      'My DFS carries the accumulated root-to-current-node sum and visits both existing children.',
+      'I return true for target 22 using the path 5 → 4 → 11 → 2.',
+      codeCheck,
+      'I avoid pruning based on current sum because node values may be negative, and gave O(n) time.',
+    ],
+    hints: [
+      'Begin with the root value in a running sum. What should happen when you reach a missing child?',
+      'At a real node, add its value. If it is a leaf, compare the sum with target; otherwise continue into its real children.',
+      'Use a stack of (nodeIndex, sum) pairs or recursive DFS. Return true only for a matching leaf path.',
+    ],
+    explanation:
+        'Run DFS from root index 0 while carrying the sum from the root through the current node. At a leaf, compare that sum with target. For an internal node, continue to each existing child with the updated sum. The check must happen at leaves; an internal prefix that equals target may still extend to a different total. Because values can be negative, do not prune solely because the running sum exceeds target. Each node is visited once for O(n) time; a DFS stack or recursion uses O(h) auxiliary space for tree height h. An empty tree has no root-to-leaf path.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

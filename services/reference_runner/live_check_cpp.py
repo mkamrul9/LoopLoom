@@ -25,6 +25,9 @@ SOLUTIONS = {
     'kth-score-v1': 'int solve(const vector<int>& a,int k){auto copy=a;sort(copy.rbegin(),copy.rend());return copy[k-1];}',
     'top-frequency-v1': 'vector<int> solve(const vector<int>& a,int k){unordered_map<int,int> count;for(int x:a)++count[x];vector<pair<int,int>> ranked;for(auto [x,n]:count)ranked.push_back({x,n});sort(ranked.begin(),ranked.end(),[](auto x,auto y){return x.second!=y.second?x.second>y.second:x.first<y.first;});vector<int> out;for(int i=0;i<k;++i)out.push_back(ranked[i].first);sort(out.begin(),out.end());return out;}',
     'merge-streams-v1': 'vector<int> solve(const vector<vector<int>>& a){using Item=tuple<int,int,int>;priority_queue<Item,vector<Item>,greater<Item>> q;for(int r=0;r<(int)a.size();++r)if(!a[r].empty())q.push({a[r][0],r,0});vector<int> out;while(!q.empty()){auto [x,r,i]=q.top();q.pop();out.push_back(x);if(++i<(int)a[r].size())q.push({a[r][i],r,i});}return out;}',
+    'tree-depth-v1': 'int solve(const vector<vector<int>>& t){if(t.empty())return 0;queue<pair<int,int>> q;q.push({0,1});int best=0;while(!q.empty()){auto [i,d]=q.front();q.pop();best=max(best,d);if(t[i][1]!=-1)q.push({t[i][1],d+1});if(t[i][2]!=-1)q.push({t[i][2],d+1});}return best;}',
+    'tree-width-v1': 'int solve(const vector<vector<int>>& t){if(t.empty())return 0;queue<int> q;q.push(0);int best=0;while(!q.empty()){int n=q.size();best=max(best,n);while(n--){int i=q.front();q.pop();if(t[i][1]!=-1)q.push(t[i][1]);if(t[i][2]!=-1)q.push(t[i][2]);}}return best;}',
+    'tree-path-sum-v1': 'bool solve(const vector<vector<int>>& t,int target){if(t.empty())return false;stack<pair<int,int>> q;q.push({0,t[0][0]});while(!q.empty()){auto [i,sum]=q.top();q.pop();int l=t[i][1],r=t[i][2];if(l==-1&&r==-1&&sum==target)return true;if(l!=-1)q.push({l,sum+t[l][0]});if(r!=-1)q.push({r,sum+t[r][0]});}return false;}',
 }
 
 

@@ -104,6 +104,21 @@ RUBRICS = {
         "accepted": "A min-heap of one current candidate per nonempty stream gives O(m + N log(k+1)) time and O(k) heap space, where m is the number of streams and k counts nonempty streams. Flattening and sorting is correct O(m + N log(N+1)).",
         "pitfalls": "Inserting every value into the heap at once, advancing the wrong stream, dropping duplicates, assuming no empty streams, or mutating input.",
     },
+    "tree-depth-v1": {
+        "task": "Return the number of nodes on the longest root-to-leaf path in a valid indexed binary tree. Row 0 is root; child columns use -1 for missing. Empty input returns 0; do not mutate input.",
+        "accepted": "DFS with a stack/recursion or BFS with node-depth pairs is valid O(n) time. DFS auxiliary space is O(h); BFS is O(w).",
+        "pitfalls": "Returning edge count instead of node count, counting missing children, skipping the root, failing on empty input, or mutating nodes.",
+    },
+    "tree-width-v1": {
+        "task": "Return the maximum number of real nodes at any depth in a valid indexed binary tree; do not count missing slots. Empty input returns 0 and input is immutable.",
+        "accepted": "Level-order traversal that snapshots the queue size before processing a level is O(n) time/O(w) queue space. DFS with depth counts is also valid O(n) time/O(h) space.",
+        "pitfalls": "Counting gaps as width, mixing nodes from adjacent levels, reading queue size after adding children, failing on an empty tree, or mutating input.",
+    },
+    "tree-path-sum-v1": {
+        "task": "Return whether a root-to-leaf path in a valid indexed binary tree sums exactly to target. Check sums at leaves only; empty input returns false. Values may be negative; do not mutate input.",
+        "accepted": "DFS carrying the accumulated sum is O(n) time/O(h) stack space. BFS carrying index and sum is also valid O(n) time/O(w) queue space.",
+        "pitfalls": "Accepting an internal prefix, checking only one child, assuming positive values to prune, ignoring negative values, or treating the empty tree as a match.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",
