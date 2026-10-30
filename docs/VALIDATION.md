@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview catalog expansion — 30 October 2026
+
+Added three original intermediate lessons for rotated binary search, products except self, and longest consecutive runs. The catalog now has nine lessons: three warm-ups and six intermediate foundations. Each new lesson has five guided checkpoints, three hints, an explicit explanation, four language starters, visible reference cases, local runner fixtures, and an optional local-coach rubric. Existing lesson IDs and stored session schemas were left intact.
+
+The three new lessons' reference implementations and fixtures have not yet been run through the test or live-container validation scripts. Their content remains pending independent editorial review. The 30/75/300 roadmaps are still incomplete, and the AI models remain disabled by default.
+
 ## C++17 reference execution follow-up — 30 October 2026
 
 C++ now uses the Docker Official GCC 13.5 image pinned by digest. The compiler builds one harness for the selected problem, then evaluates all three authored examples together; each learner request remains in its own local disposable container. A compiler error is distinct from an execution error. C++ extends the same local reference-run flow and never marks a lesson solved.

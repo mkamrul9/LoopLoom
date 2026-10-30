@@ -10,6 +10,9 @@ SOLUTIONS = {
     'signal-ranges-v1':'function solve(a,t){let count=0;for(let i=0;i<a.length;i++){let s=0;for(let j=i;j<a.length;j++){s+=a[j];if(s===t)count++;}}return count;}',
     'warmer-readings-v1':'function solve(a){return a.map((x,i)=>{for(let j=i+1;j<a.length;j++)if(a[j]>x)return j-i;return 0;});}',
     'busy-periods-v1':'function solve(a){const b=a.map(x=>[...x]).sort((x,y)=>x[0]-y[0]),r=[];for(const x of b){if(!r.length||x[0]>=r[r.length-1][1])r.push(x);else r[r.length-1][1]=Math.max(r[r.length-1][1],x[1]);}return r;}',
+    'rotated-index-v1':'function solve(a,t){let l=0,r=a.length-1;while(l<=r){const m=(l+r)>>1;if(a[m]===t)return m;if(a[l]<=a[m]){if(a[l]<=t&&t<a[m])r=m-1;else l=m+1;}else{if(a[m]<t&&t<=a[r])l=m+1;else r=m-1;}}return -1;}',
+    'products-except-self-v1':'function solve(a){const out=Array(a.length).fill(1);let p=1;for(let i=0;i<a.length;i++){out[i]=p;p*=a[i];}p=1;for(let i=a.length-1;i>=0;i--){out[i]*=p;p*=a[i];}return out;}',
+    'longest-run-v1':'function solve(a){const s=new Set(a);let best=0;for(const x of s){if(!s.has(x-1)){let n=1;while(s.has(x+n))n++;best=Math.max(best,n);}}return best;}',
 }
 
 def main():

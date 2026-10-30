@@ -1,9 +1,9 @@
 # Build backlog
 
-## Current slice: coaching interaction prototype
+## Current slice: guided practice pilot
 
 - Responsive Flutter shell with Learn, Roadmaps, and History.
-- Six original lessons across warm-up and intermediate tracks, with a gradual hint ladder.
+- Nine original lessons across warm-up and intermediate tracks, with a gradual hint ladder.
 - Self-check learning stages, explicit solution reveal, and assistance tracking.
 - C++, Python, JavaScript, and TypeScript drafts.
 - Clear distinction between self-reviewed and verified solved.
@@ -13,7 +13,7 @@
 
 Implemented after the interaction prototype: versioned local persistence, unsent draft recovery, resume card, save status/retry, stale-tab write protection, and an optional local-only AI client/gateway. Portable Ollama, repeatable start/stop scripts, and two local models are installed. Three 16-case smoke runs exposed poor coaching quality; no model is enabled by default. See [results](LOCAL_AI_VALIDATION.md) and [local development](LOCAL_DEVELOPMENT.md).
 
-1. The working pilot has six original lessons and a per-track roadmap. Grow this into a reviewed 30-problem interview starter path, add an interview diagnostic, and finalize identity/package name and target devices within strict zero-spend development.
+1. The working pilot has nine original lessons and a per-track roadmap. Grow this into a reviewed 30-problem interview starter path, add an interview diagnostic, and finalize identity/package name and target devices within strict zero-spend development.
 2. Copy/paste JSON backup and restore are implemented with validation, preview, duplicate preservation, and atomic imports. Validate recovery on physical Android devices; add native file pickers/downloads and broader accessibility coverage.
 3. Stand up the application API with a versioned published-content endpoint and ownership checks.
 4. Find a model/configuration that clears independent correctness, teaching, injection, and latency review on available hardware. The initial small-model experiments failed. Keep guided practice until a candidate qualifies; hosted adapters are deferred under the zero-spend constraint.

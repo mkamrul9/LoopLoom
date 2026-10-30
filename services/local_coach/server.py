@@ -41,6 +41,18 @@ RUBRICS = {
         "task": "Merge overlapping half-open bookings [start,end), sorted by start, without mutating input. Touching intervals stay separate. Duplicates and nested intervals allowed, start<end, n<=10000. Empty input returns [].",
         "pitfalls": "Merging touching endpoints, shortening an end for a nested interval, assuming sorted input, forgetting the last period, changing the input.",
     },
+    "rotated-index-v1": {
+        "task": "Return the index of target or -1 in a strictly increasing array that may be rotated once. Values are distinct; the array may be empty or unrotated. Do not modify input; n<=10000.",
+        "pitfalls": "Treating the array as fully sorted, discarding the half that may contain the target, mishandling inclusive endpoints, assuming a rotation must exist, failing to return -1.",
+    },
+    "products-except-self-v1": {
+        "task": "For every position return the product of all other values, without division. Values may be negative or zero; n<=12 and values -2..2. Empty input returns []. Do not modify input.",
+        "pitfalls": "Using division, omitting the one-element result [1], special-casing one zero but failing with two, including the current value, or returning the total product.",
+    },
+    "longest-run-v1": {
+        "task": "Return the length of the longest set of consecutive integer values in an unordered list. Duplicates count once; positions do not matter. Empty input returns 0; n<=10000 and values -1000000..1000000. Do not modify input.",
+        "pitfalls": "Counting adjacent input positions instead of values, counting duplicates repeatedly, extending every value and repeating work, or returning the endpoint instead of the run length.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",

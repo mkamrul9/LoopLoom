@@ -10,6 +10,9 @@ SOLUTIONS = {
     'signal-ranges-v1': 'def solve(a,t):\n count=0\n for i in range(len(a)):\n  s=0\n  for j in range(i,len(a)):\n   s+=a[j]\n   if s==t:count+=1\n return count',
     'warmer-readings-v1': 'def solve(a):\n out=[0]*len(a)\n for i in range(len(a)):\n  for j in range(i+1,len(a)):\n   if a[j]>a[i]:\n    out[i]=j-i\n    break\n return out',
     'busy-periods-v1': 'def solve(a):\n out=[]\n for start,end in sorted(a):\n  if not out or start>=out[-1][1]:out.append([start,end])\n  else:out[-1][1]=max(out[-1][1],end)\n return out',
+    'rotated-index-v1': 'def solve(a,t):\n l,r=0,len(a)-1\n while l<=r:\n  m=(l+r)//2\n  if a[m]==t:return m\n  if a[l]<=a[m]:\n   if a[l]<=t<a[m]:r=m-1\n   else:l=m+1\n  elif a[m]<t<=a[r]:l=m+1\n  else:r=m-1\n return -1',
+    'products-except-self-v1': 'def solve(a):\n out=[1]*len(a)\n p=1\n for i,x in enumerate(a):out[i]=p;p*=x\n p=1\n for i in range(len(a)-1,-1,-1):out[i]*=p;p*=a[i]\n return out',
+    'longest-run-v1': 'def solve(a):\n s=set(a);best=0\n for x in s:\n  if x-1 not in s:\n   n=1\n   while x+n in s:n+=1\n   best=max(best,n)\n return best',
 }
 
 def main():

@@ -150,4 +150,58 @@ const codeSpecs = <String, CodeSpec>{
       ReferenceCase('Empty input', 'bookings = []', '[]'),
     ],
   ),
+  'rotated-index-v1': CodeSpec(
+    ['values', 'target'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Value after the rotation',
+        'values = [6, 7, 9, 1, 3, 5], target = 3',
+        '4',
+      ),
+      ReferenceCase(
+        'Target is absent',
+        'values = [4, 5, 6, 7, 0, 1, 2], target = 8',
+        '-1',
+      ),
+      ReferenceCase('Empty shelf', 'values = [], target = 4', '-1'),
+    ],
+  ),
+  'products-except-self-v1': CodeSpec(
+    ['values'],
+    true,
+    false,
+    [
+      ReferenceCase(
+        'A zero in the middle',
+        'values = [1, 2, 0, 4]',
+        '[0, 0, 8, 0]',
+      ),
+      ReferenceCase(
+        'Two zeros',
+        'values = [0, 2, 0]',
+        '[0, 0, 0]',
+      ),
+      ReferenceCase('Empty input', 'values = []', '[]'),
+    ],
+  ),
+  'longest-run-v1': CodeSpec(
+    ['values'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Unordered consecutive values',
+        'values = [100, 4, 200, 1, 3, 2]',
+        '4',
+      ),
+      ReferenceCase(
+        'Duplicates count once',
+        'values = [5, 5, 6, 7]',
+        '3',
+      ),
+      ReferenceCase('Empty input', 'values = []', '0'),
+    ],
+  ),
 };

@@ -101,6 +101,105 @@ const interviewLessons = <Lesson>[
     explanation:
         'Copy the bookings, then sort the copy by start. For nonempty input, initialize a current period from the first booking. If the next start is strictly smaller than the current end, the bookings overlap: update the end to the maximum of both ends. Otherwise output the current period and begin the next. Output the last period too. Start order ensures that after a nonoverlapping next start, no later interval can overlap the period just finalized. Using max prevents a nested booking from shortening coverage. Equality stays separate for half-open intervals under this task’s policy. Sorting dominates at O(n log n) time. Copying and output require O(n) space; sorting may require additional implementation-dependent working memory. Empty input returns [].',
   ),
+  Lesson(
+    id: 'rotated-index-v1',
+    title: 'Find a value in the shifted shelf',
+    pattern: 'Binary search',
+    summary: 'Use the sorted half to shrink a rotated search range.',
+    statement:
+        'A shelf contains distinct numbers in increasing order, then it may have been rotated at one position. Return the index of target, or -1 when it is absent. The array may be empty or unrotated.',
+    example:
+        'values = [6, 7, 9, 1, 3, 5], target = 3\nAnswer: 4.',
+    constraints:
+        '0–10,000 distinct integers from −1,000,000 to 1,000,000. Do not modify the input. Return -1 when target is not present.',
+    questions: [
+      'What does the result mean when the value is absent? Can the array be empty or unrotated?',
+      'Start with a correct linear search. In a rotated array with distinct values, what can you infer about one side of the midpoint?',
+      'Trace [4, 5, 6, 7, 0, 1, 2] for target 0. Show how you choose the next range and give the time and space costs.',
+      codeQuestion,
+      'What invariant keeps the target, if present, inside your remaining range? Why do distinct values help?',
+    ],
+    checks: [
+      'I return the matching index or -1 and account for empty, unrotated, and rotated inputs.',
+      'My search is correct for a baseline and then uses the ordered half to discard only values that cannot contain the target.',
+      'I return index 4 for the trace, keep the target in the remaining range, and explain logarithmic time.',
+      codeCheck,
+      'I described the range invariant, termination, and why equality at a boundary is handled correctly.',
+    ],
+    hints: [
+      'Compare the left, middle, and right values. What does that tell you about a half of the range?',
+      'At least one half is increasing. Check whether the target lies between that half’s endpoints.',
+      'If the left half is ordered and left ≤ target < middle, keep it; otherwise discard it. If the right half is ordered, keep it only when middle < target ≤ right. Check middle before narrowing.',
+    ],
+    explanation:
+        'A linear scan is a correct O(n) baseline. To use binary search, keep inclusive bounds left and right. Check the midpoint first. With distinct values, at least one side is increasing: if values[left] ≤ values[mid], the left side is ordered. Keep it only when values[left] ≤ target < values[mid]; otherwise search right. If the right side is ordered, keep it only when values[mid] < target ≤ values[right]; otherwise search left. The bounds shrink each iteration, so the search takes O(log n) time and O(1) extra space. Return -1 after the range becomes empty. Distinct values avoid an ambiguous equal-endpoint case.',
+  ),
+  Lesson(
+    id: 'products-except-self-v1',
+    title: 'Multiply everything except this one',
+    pattern: 'Prefix and suffix products',
+    summary: 'Build each answer from the values on both sides.',
+    statement:
+        'For every position, return the product of all input values except the value at that position. Do not use division. Zeros are allowed. Return an empty list for empty input.',
+    example:
+        'values = [1, 2, 0, 4]\nAnswer: [0, 0, 8, 0].',
+    constraints:
+        '0–12 integers, each from −2 to 2. Products fit a signed 32-bit integer. Do not modify the input.',
+    questions: [
+      'What should the output contain for each position? How does a zero affect the other answers?',
+      'For one position, separate the values before it from the values after it. What summaries would let you combine them?',
+      'Trace [1, 2, 0, 4]. Show the prefix contribution and suffix contribution at every index. Give time and extra space costs.',
+      codeQuestion,
+      'How does your method work with two zeros or a one-element input, and why does it not need division?',
+    ],
+    checks: [
+      'I produce one product per position, exclude that position, avoid division, and handle zeros and empty input.',
+      'I combine information from the left and right of each index without recomputing every product.',
+      'I get [0, 0, 8, 0], account for both sides at each index, and state O(n) time.',
+      codeCheck,
+      'I checked zero counts and a one-element input, and separated output space from auxiliary space.',
+    ],
+    hints: [
+      'For index i, what product comes from indices before i, and what comes from indices after i?',
+      'Write left products into the output first. Then scan from the right while carrying one running product.',
+      'Initialize a running product to 1 and write the product-before-i for each index. Scan backward, multiply output[i] by the product-after-i, then include values[i] in the running product.',
+    ],
+    explanation:
+        'For each index i, the desired value is the product before i times the product after i. A left-to-right pass writes the product before each position into the output, updating a running product afterward. A right-to-left pass multiplies each output entry by the product after that position, then updates the suffix product. Starting both running products at 1 handles the boundaries and a one-element array. Zeros need no special case: they naturally make products on the side that contains them zero. This is O(n) time and O(1) auxiliary space beyond the O(n) output. No division or input mutation is needed.',
+  ),
+  Lesson(
+    id: 'longest-run-v1',
+    title: 'Measure the longest consecutive run',
+    pattern: 'Hash sets & sequence starts',
+    summary: 'Begin counting only where a run can start.',
+    statement:
+        'Given an unordered list of integers, return the length of its longest sequence of consecutive values. Duplicates count once, and consecutive values differ by exactly one. Return 0 for empty input.',
+    example:
+        'values = [100, 4, 200, 1, 3, 2]\nAnswer: 4, from [1, 2, 3, 4].',
+    constraints:
+        '0–10,000 integers from −1,000,000 to 1,000,000. The input is unordered and may contain duplicates. Do not modify it.',
+    questions: [
+      'Do duplicates extend a run? Does the sequence have to appear in adjacent input positions?',
+      'A set makes membership checks possible. Which values can begin a run rather than continue one?',
+      'Trace [9, 1, 4, 7, 3, -1, 0, 5, 8, -1, 6]. Identify the longest run and give time and extra space costs.',
+      codeQuestion,
+      'Why does starting only at a value with no predecessor avoid repeatedly counting the same run?',
+    ],
+    checks: [
+      'I count distinct consecutive values regardless of input order and return 0 for empty input.',
+      'My method recognizes a run start and counts upward while values remain present.',
+      'I find the run from 3 through 9 with length 7 and explain expected linear time.',
+      codeCheck,
+      'I justified why a value is counted only as part of one forward scan and accounted for the set.',
+    ],
+    hints: [
+      'Would sorting solve the task? What would it cost, and can you use membership instead?',
+      'A value x is the start of a run when x − 1 is absent. Only extend a run from those starts.',
+      'Put values in a set. For each start x with no predecessor, count x, x+1, and so on while present; retain the largest count.',
+    ],
+    explanation:
+        'A sorted copy gives a correct O(n log n) baseline, skipping duplicates while measuring adjacent values. For expected O(n), put the values in a set. For each value x, begin a scan only if x − 1 is absent. Count x, x + 1, and subsequent values while they are in the set, then update the maximum. Every value belongs to at most one such forward scan: a value inside a run has a predecessor, so it cannot start another scan. Return 0 for an empty set. This takes expected O(n) time and O(n) extra space; hash operations have implementation-dependent worst cases.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

@@ -22,7 +22,7 @@ Compact screens use a bottom bar; wide screens use a rail. The coach and problem
 
 ## First session
 
-The first release targets intermediate interview candidates. Lead with Interview 75, tradeoffs, invariants, edge cases, and interview follow-ups. Use a short diagnostic to offer refreshers rather than assuming the learner needs syntax lessons. The current six-lesson pilot spans warm-up and intermediate foundations; the paid MVP needs the reviewed medium-difficulty interview starter set described in the roadmap.
+The first release targets intermediate interview candidates. Lead with Interview 75, tradeoffs, invariants, edge cases, and interview follow-ups. Use a short diagnostic to offer refreshers rather than assuming the learner needs syntax lessons. The current nine-lesson pilot spans warm-up and intermediate foundations; the paid MVP needs the reviewed medium-difficulty interview starter set described in the roadmap.
 
 Allow guest start. Ask preferred language, experience level, and daily time budget without a long form. Recommend one small lesson. Introduce the teaching contract: "Explain your idea. I will help you improve it before you code."
 

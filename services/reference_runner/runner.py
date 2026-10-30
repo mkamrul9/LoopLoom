@@ -24,6 +24,9 @@ SUITE_VERSION = 'reference-v1'
 OUTPUT_LIMIT = 32768
 WALL_SECONDS = 4
 CPP_WALL_SECONDS = 12
+IMMUTABLE_INPUT_LESSONS = {
+    'busy-periods-v1', 'rotated-index-v1', 'products-except-self-v1', 'longest-run-v1',
+}
 DOCKER = ['docker', '--context', 'desktop-linux']
 
 
@@ -290,7 +293,7 @@ def review(payload, execute=None, check=None):
             status = result['status']
             if status == 'returned':
                 status = 'matched' if matches(payload['lesson_id'], case, result.get('result')) else 'wrong_answer'
-                if payload['lesson_id'] == 'busy-periods-v1' and result.get('mutated') is not False:
+                if payload['lesson_id'] in IMMUTABLE_INPUT_LESSONS and result.get('mutated') is not False:
                     status = 'input_modified'
             rows.append({'label': case['label'], 'status': status})
         return {'suite': SUITE_VERSION, 'language': language, 'passed': sum(r['status'] == 'matched' for r in rows),
@@ -303,7 +306,7 @@ def review(payload, execute=None, check=None):
         status = result['status']
         if status == 'returned':
             status = 'matched' if matches(payload['lesson_id'], case, result.get('result')) else 'wrong_answer'
-            if payload['lesson_id'] == 'busy-periods-v1' and result.get('mutated') is not False:
+            if payload['lesson_id'] in IMMUTABLE_INPUT_LESSONS and result.get('mutated') is not False:
                 status = 'input_modified'
         rows.append({'label': case['label'], 'status': status})
     return {'suite': SUITE_VERSION, 'language': language, 'passed': sum(r['status'] == 'matched' for r in rows),

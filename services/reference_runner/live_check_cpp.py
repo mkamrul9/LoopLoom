@@ -10,6 +10,9 @@ SOLUTIONS = {
     'signal-ranges-v1': 'int solve(const vector<int>& a,int t){int count=0;for(int i=0;i<(int)a.size();++i){int s=0;for(int j=i;j<(int)a.size();++j){s+=a[j];if(s==t)++count;}}return count;}',
     'warmer-readings-v1': 'vector<int> solve(const vector<int>& a){vector<int> out(a.size());for(int i=0;i<(int)a.size();++i)for(int j=i+1;j<(int)a.size();++j)if(a[j]>a[i]){out[i]=j-i;break;}return out;}',
     'busy-periods-v1': 'vector<vector<int>> solve(const vector<vector<int>>& a){auto b=a;sort(b.begin(),b.end());vector<vector<int>> out;for(auto x:b){if(out.empty()||x[0]>=out.back()[1])out.push_back(x);else out.back()[1]=max(out.back()[1],x[1]);}return out;}',
+    'rotated-index-v1': 'int solve(const vector<int>& a,int t){int l=0,r=(int)a.size()-1;while(l<=r){int m=l+(r-l)/2;if(a[m]==t)return m;if(a[l]<=a[m]){if(a[l]<=t&&t<a[m])r=m-1;else l=m+1;}else{if(a[m]<t&&t<=a[r])l=m+1;else r=m-1;}}return -1;}',
+    'products-except-self-v1': 'vector<int> solve(const vector<int>& a){vector<int> out(a.size(),1);int p=1;for(int i=0;i<(int)a.size();++i){out[i]=p;p*=a[i];}p=1;for(int i=(int)a.size()-1;i>=0;--i){out[i]*=p;p*=a[i];}return out;}',
+    'longest-run-v1': 'int solve(const vector<int>& a){unordered_set<int> s(a.begin(),a.end());int best=0;for(int x:s){if(!s.count(x-1)){int n=1;while(s.count(x+n))++n;best=max(best,n);}}return best;}',
 }
 
 

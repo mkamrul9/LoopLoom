@@ -463,7 +463,7 @@ class _LearningHomeState extends State<LearningHome> {
       Text(
         track == 0
             ? 'Build confidence with lookup, sorted search, and fixed windows.'
-            : 'Practice in order: count ranges, resolve waiting positions, then merge intervals. Each lesson builds a different invariant.',
+            : 'Practice range counting, monotonic stacks, interval merging, binary search, prefix and suffix products, and set-based sequences.',
         style: const TextStyle(
           fontSize: 13,
           height: 1.65,
