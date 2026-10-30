@@ -493,6 +493,103 @@ const interviewLessons = <Lesson>[
     explanation:
         'For each right endpoint, remember the most recent index of its character. Keep a left boundary for a window with no duplicates. If the repeated character’s previous index is at or after left, advance left to one position past that index; taking max with the current left prevents moving backward. Record the current index and update the maximum window length. Each position is processed once, so this is O(n) time. A 26-entry last-seen table gives O(1) extra space. An empty input naturally returns zero.',
   ),
+  Lesson(
+    id: 'kth-score-v1',
+    title: 'Find the kth-highest score',
+    pattern: 'Heaps · keep only the best k',
+    summary: 'A small min-heap can track the ranking without sorting everything.',
+    statement:
+        'Given a list of scores and a valid rank k, return the kth-largest score. Equal scores each occupy a rank; for example, the second-largest score can equal the largest score.',
+    example: 'scores = [3, 2, 1, 5, 6, 4], k = 2\nAnswer: 5.',
+    constraints:
+        '1–10,000 integer scores, each −1,000,000 to 1,000,000. 1 ≤ k ≤ scores.length. Do not modify the input.',
+    questions: [
+      'Does k count distinct score values or list entries? What happens when scores repeat?',
+      'How could sorting answer this directly? If you only need one rank, what information can a size-k min-heap discard?',
+      'Trace [3, 2, 1, 5, 6, 4] with k = 2. What does the heap root mean after each insertion?',
+      codeQuestion,
+      'Compare full sorting with keeping only k candidates. Give the time and extra-space costs of your chosen method.',
+    ],
+    checks: [
+      'I return the kth value in descending order, counting duplicate entries as separate ranks.',
+      'My method works for any valid k and does not change the input.',
+      'For the example I return 5; I explained what the heap root represents or how sorting establishes the rank.',
+      codeCheck,
+      'I gave accurate complexity for my method and considered k = 1, k = n, and duplicate scores.',
+    ],
+    hints: [
+      'If the scores were sorted from largest to smallest, which index would contain the answer?',
+      'Keep at most k values in a min-heap. When it grows beyond k, remove its smallest value.',
+      'After processing all scores, the heap contains the k largest entries and its minimum is the kth-largest score.',
+    ],
+    explanation:
+        'Sorting a copy in descending order and taking index k − 1 is a direct O(n log n) solution with O(n) extra space. To retain only the needed candidates, keep a min-heap of at most k entries. Insert each score and remove the root whenever the heap exceeds k. The root is then the smallest of the k largest values, which is the kth-largest score. This takes O(n log(k + 1)) time and O(k) extra space. Duplicate values remain separate entries and therefore occupy separate ranks.',
+  ),
+  Lesson(
+    id: 'top-frequency-v1',
+    title: 'Choose the most frequent values',
+    pattern: 'Heaps · frequency ranking',
+    summary: 'Count first, then retain only the strongest frequency candidates.',
+    statement:
+        'Return the k values with the greatest frequencies. If values tie at the cutoff, choose the smaller numeric values first. Return the chosen values in ascending numeric order. k is between zero and the number of distinct input values.',
+    example: 'values = [3, 2, 3, 2, 1], k = 2\nAnswer: [2, 3].',
+    constraints:
+        '0–10,000 integer values, each −1,000,000 to 1,000,000. Do not modify the input.',
+    questions: [
+      'Why is frequency counting a separate step from choosing the top k values? What rule breaks ties at the cutoff?',
+      'Once you have counts, how can a size-k heap avoid sorting every distinct value?',
+      'Trace [3, 2, 3, 2, 1] with k = 2. Which value wins the tie, and what order must the result use?',
+      codeQuestion,
+      'How do you handle k = 0, all values distinct, and k equal to the number of distinct values?',
+    ],
+    checks: [
+      'I select by descending frequency and use smaller numeric value to break a tie at the cutoff.',
+      'I return exactly k distinct values in ascending numeric order.',
+      'For the example I return [2, 3], and I separate selection order from required output order.',
+      codeCheck,
+      'I described frequency-map and selection costs and handle k = 0 without special invalid output.',
+    ],
+    hints: [
+      'First build a map from each value to its count. How should two map entries be ranked?',
+      'Rank higher counts first; for equal counts, rank smaller values first. A bounded heap can retain the best k entries.',
+      'Select the first k values under that ranking rule, then sort those chosen values numerically before returning them.',
+    ],
+    explanation:
+        'If k is zero, return an empty list. Otherwise count values in a frequency map. Rank entries by greater frequency first, then smaller numeric value. A size-k heap can keep the best k entries while processing the distinct values, using O(u log(k + 1)) selection time after counting, where u is the number of distinct values. Sort the selected k values in ascending numeric order for the required output. Counting takes O(n) expected time and O(u) space. Sorting all distinct entries is a simpler O(u log u) alternative.',
+  ),
+  Lesson(
+    id: 'merge-streams-v1',
+    title: 'Merge the sorted reading streams',
+    pattern: 'Heaps · k-way merge',
+    summary: 'Only the next unread value from each stream can be the next result.',
+    statement:
+        'Given several individually sorted integer streams, return every value in one globally sorted list. Streams may be empty. Preserve duplicates and leave the input unchanged.',
+    example:
+        'streams = [[1, 4, 7], [2, 5], [3, 6, 8]]\nAnswer: [1, 2, 3, 4, 5, 6, 7, 8].',
+    constraints:
+        'At most 1,000 streams and 10,000 total values. Each stream is nondecreasing. Values are between −1,000,000 and 1,000,000.',
+    questions: [
+      'If each stream is sorted, which value from a stream is eligible to be emitted next? How many candidates are there?',
+      'How can a min-heap combine the candidates without comparing every value against every other value?',
+      'Trace the first few outputs for [[1, 4, 7], [2, 5], [3, 6, 8]]. After emitting 1, what replaces it in the heap?',
+      codeQuestion,
+      'If m streams contain N values and k streams are nonempty, state the heap size, time, and extra space. What does the method do with empty streams?',
+    ],
+    checks: [
+      'I return all values in nondecreasing order and preserve duplicate values.',
+      'My heap stores the current unread candidate from each nonempty stream and advances only the stream that supplied the minimum.',
+      'I get [1, 2, 3, 4, 5, 6, 7, 8] and skip empty streams safely.',
+      codeCheck,
+      'I gave O(m + N log(k + 1)) time and described the O(k) heap apart from the output.',
+    ],
+    hints: [
+      'The next value from a sorted stream is its first unread value. Keep one such candidate per nonempty stream.',
+      'Put candidates in a min-heap with their stream and position. Remove the smallest candidate next.',
+      'Append the minimum value, then insert the next value from that same stream if one remains. Continue until the heap is empty.',
+    ],
+    explanation:
+        'Create a min-heap containing the first value from each nonempty stream, along with that stream’s index and next position. Repeatedly remove the smallest candidate, append its value, and insert the next value from the same stream if available. The heap never needs more than one candidate per nonempty stream. If there are m streams, N total values, and k nonempty streams, the method takes O(m + N log(k + 1)) time and O(k) heap space, excluding the output. Empty streams contribute no heap entries. A flatten-and-sort solution is also correct but takes O(m + N log(N + 1)) time.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

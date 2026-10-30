@@ -380,4 +380,59 @@ const codeSpecs = <String, CodeSpec>{
     ],
     text: true,
   ),
+  'kth-score-v1': CodeSpec(
+    ['scores', 'k'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Second largest',
+        'scores = [3, 2, 1, 5, 6, 4], k = 2',
+        '5',
+      ),
+      ReferenceCase(
+        'Duplicate values occupy separate ranks',
+        'scores = [3, 2, 3, 1, 2, 4], k = 4',
+        '2',
+      ),
+      ReferenceCase('Single score', 'scores = [7], k = 1', '7'),
+    ],
+  ),
+  'top-frequency-v1': CodeSpec(
+    ['values', 'k'],
+    true,
+    false,
+    [
+      ReferenceCase(
+        'Most frequent values',
+        'values = [3, 2, 3, 2, 1], k = 2',
+        '[2, 3]',
+      ),
+      ReferenceCase(
+        'Frequency breaks a numeric tie',
+        'values = [-1, -1, 2, 2, 2, 3], k = 2',
+        '[-1, 2]',
+      ),
+      ReferenceCase('Choose none', 'values = [4, 4, 5], k = 0', '[]'),
+    ],
+  ),
+  'merge-streams-v1': CodeSpec(
+    ['streams'],
+    true,
+    false,
+    [
+      ReferenceCase(
+        'Three sorted streams',
+        'streams = [[1, 4, 7], [2, 5], [3, 6, 8]]',
+        '[1, 2, 3, 4, 5, 6, 7, 8]',
+      ),
+      ReferenceCase(
+        'Empty streams and negative values',
+        'streams = [[], [-2, 0], []]',
+        '[-2, 0]',
+      ),
+      ReferenceCase('No streams', 'streams = []', '[]'),
+    ],
+    matrix: true,
+  ),
 };

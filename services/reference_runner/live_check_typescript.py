@@ -22,6 +22,9 @@ SOLUTIONS = {
     'first-signal-v1': 'function solve(s: string): number {const counts=Array(26).fill(0);for(const c of s)counts[c.charCodeAt(0)-97]++;for(let i=0;i<s.length;i++)if(counts[s.charCodeAt(i)-97]===1)return i;return -1;}',
     'anagram-pair-v1': 'function solve(a: string,b: string): boolean {if(a.length!==b.length)return false;const counts=Array(26).fill(0);for(const c of a)counts[c.charCodeAt(0)-97]++;for(const c of b)counts[c.charCodeAt(0)-97]--;return counts.every(x=>x===0);}',
     'distinct-letter-window-v1': 'function solve(s: string): number {const last=Array(26).fill(-1);let left=0,best=0;for(let right=0;right<s.length;right++){const c=s.charCodeAt(right)-97;left=Math.max(left,last[c]+1);last[c]=right;best=Math.max(best,right-left+1);}return best;}',
+    'kth-score-v1': 'function solve(a: readonly number[],k: number): number {return [...a].sort((x,y)=>y-x)[k-1];}',
+    'top-frequency-v1': 'function solve(a: readonly number[],k: number): number[] {const count=new Map<number,number>();for(const x of a)count.set(x,(count.get(x)||0)+1);return [...count].sort((x,y)=>y[1]-x[1]||x[0]-y[0]).slice(0,k).map(x=>x[0]).sort((x,y)=>x-y);}',
+    'merge-streams-v1': 'function solve(a: ReadonlyArray<readonly number[]>): number[] {return a.flat().sort((x,y)=>x-y);}',
 }
 
 

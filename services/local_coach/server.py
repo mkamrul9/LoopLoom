@@ -89,6 +89,21 @@ RUBRICS = {
         "task": "Return the maximum length of a contiguous substring with no repeated lowercase character. Empty input returns 0; length<=10000.",
         "pitfalls": "Using a subsequence instead of a substring, moving the left boundary backward, counting a repeated character twice, or returning the window endpoint instead of its length.",
     },
+    "kth-score-v1": {
+        "task": "Return the kth-largest score, counting duplicate entries as separate ranks. k is valid and the input must remain unchanged.",
+        "accepted": "Sorting a copy and taking index k-1 is valid O(n log n)/O(n). A min-heap of size k gives O(n log(k+1))/O(k); selection algorithms are also valid. Do not treat k as a distinct-value rank.",
+        "pitfalls": "Counting only distinct scores, using ascending rank k, returning the heap root before processing all values, mutating the input, or mishandling k=1/k=n.",
+    },
+    "top-frequency-v1": {
+        "task": "Return k distinct values with greatest frequency, breaking cutoff ties by smaller numeric value, in ascending numeric output order. k may be zero; input remains unchanged.",
+        "accepted": "For k>0, a frequency map plus a bounded heap is valid O(n + u log(k+1) + k log(k+1)) when sorting the output; k=0 can return immediately. Sorting all distinct entries is also valid O(n + u log u).",
+        "pitfalls": "Ranking by numeric value before frequency, nondeterministic cutoff ties, returning repeated values, forgetting ascending output order, or mishandling k=0.",
+    },
+    "merge-streams-v1": {
+        "task": "Merge up to 1000 sorted integer streams (10,000 values total), preserving duplicates and input. Streams may be empty.",
+        "accepted": "A min-heap of one current candidate per nonempty stream gives O(m + N log(k+1)) time and O(k) heap space, where m is the number of streams and k counts nonempty streams. Flattening and sorting is correct O(m + N log(N+1)).",
+        "pitfalls": "Inserting every value into the heap at once, advancing the wrong stream, dropping duplicates, assuming no empty streams, or mutating input.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",

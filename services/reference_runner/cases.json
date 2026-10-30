@@ -88,5 +88,20 @@
     {"label":"Repeating block","args":["abcabcbb"],"expected":3},
     {"label":"One repeated letter","args":["bbbbb"],"expected":1},
     {"label":"Empty signal","args":[""],"expected":0}
+  ],
+  "kth-score-v1": [
+    {"label":"Second largest","args":[[3,2,1,5,6,4],2],"expected":5},
+    {"label":"Duplicate values occupy separate ranks","args":[[3,2,3,1,2,4],4],"expected":2},
+    {"label":"Single score","args":[[7],1],"expected":7}
+  ],
+  "top-frequency-v1": [
+    {"label":"Most frequent values","args":[[3,2,3,2,1],2],"expected":[2,3]},
+    {"label":"Frequency breaks a numeric tie","args":[[-1,-1,2,2,2,3],2],"expected":[-1,2]},
+    {"label":"Choose none","args":[[4,4,5],0],"expected":[]}
+  ],
+  "merge-streams-v1": [
+    {"label":"Three sorted streams","args":[[[1,4,7],[2,5],[3,6,8]]],"expected":[1,2,3,4,5,6,7,8]},
+    {"label":"Empty streams and negative values","args":[[[],[-2,0],[]]],"expected":[-2,0]},
+    {"label":"No streams","args":[[]],"expected":[]}
   ]
 }

@@ -22,6 +22,9 @@ SOLUTIONS = {
     'first-signal-v1': 'int solve(const string& s){int counts[26]={};for(char c:s)++counts[c-\'a\'];for(int i=0;i<(int)s.size();++i)if(counts[s[i]-\'a\']==1)return i;return -1;}',
     'anagram-pair-v1': 'bool solve(const string& a,const string& b){if(a.size()!=b.size())return false;int counts[26]={};for(char c:a)++counts[c-\'a\'];for(char c:b)--counts[c-\'a\'];for(int n:counts)if(n)return false;return true;}',
     'distinct-letter-window-v1': 'int solve(const string& s){vector<int> last(26,-1);int left=0,best=0;for(int i=0;i<(int)s.size();++i){int c=s[i]-\'a\';left=max(left,last[c]+1);last[c]=i;best=max(best,i-left+1);}return best;}',
+    'kth-score-v1': 'int solve(const vector<int>& a,int k){auto copy=a;sort(copy.rbegin(),copy.rend());return copy[k-1];}',
+    'top-frequency-v1': 'vector<int> solve(const vector<int>& a,int k){unordered_map<int,int> count;for(int x:a)++count[x];vector<pair<int,int>> ranked;for(auto [x,n]:count)ranked.push_back({x,n});sort(ranked.begin(),ranked.end(),[](auto x,auto y){return x.second!=y.second?x.second>y.second:x.first<y.first;});vector<int> out;for(int i=0;i<k;++i)out.push_back(ranked[i].first);sort(out.begin(),out.end());return out;}',
+    'merge-streams-v1': 'vector<int> solve(const vector<vector<int>>& a){using Item=tuple<int,int,int>;priority_queue<Item,vector<Item>,greater<Item>> q;for(int r=0;r<(int)a.size();++r)if(!a[r].empty())q.push({a[r][0],r,0});vector<int> out;while(!q.empty()){auto [x,r,i]=q.top();q.pop();out.push_back(x);if(++i<(int)a[r].size())q.push({a[r][i],r,i});}return out;}',
 }
 
 

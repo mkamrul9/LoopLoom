@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview catalog expansion — batch 5 — 30 October 2026
+
+Added three original intermediate heap lessons: kth-largest ranking, top-frequency selection with a defined tie rule, and merging sorted streams. The catalog now has twenty-one lessons: three warm-ups and eighteen intermediate foundations. Typed array/matrix starters, visible cases, local-runner fixtures in four languages, input-preservation reporting, and local-coach rubrics cover the new lessons.
+
+Tests and live-container checks were not run for this batch. The new references and fixtures need independent editorial review; the 30/75/300 roadmaps remain incomplete and AI feedback remains disabled by default.
+
 ## Interview catalog expansion — batch 4 — 30 October 2026
 
 Added three original intermediate string lessons: first unique character, anagram matching, and longest substring without repeats. The catalog now has eighteen lessons: three warm-ups and fifteen intermediate foundations. Typed string starters support C++, Python, JavaScript, and TypeScript; the anagram lesson also returns a boolean. Visible cases, local-runner fixtures, and local-coach rubrics cover all three.

@@ -22,6 +22,9 @@ SOLUTIONS = {
     'first-signal-v1': 'def solve(s):\n counts=[0]*26\n for c in s:counts[ord(c)-97]+=1\n for i,c in enumerate(s):\n  if counts[ord(c)-97]==1:return i\n return -1',
     'anagram-pair-v1': 'def solve(a,b):\n if len(a)!=len(b):return False\n counts=[0]*26\n for c in a:counts[ord(c)-97]+=1\n for c in b:counts[ord(c)-97]-=1\n return all(x==0 for x in counts)',
     'distinct-letter-window-v1': 'def solve(s):\n last=[-1]*26;left=best=0\n for right,c in enumerate(s):\n  x=ord(c)-97;left=max(left,last[x]+1);last[x]=right;best=max(best,right-left+1)\n return best',
+    'kth-score-v1': 'def solve(a,k):\n return sorted(a,reverse=True)[k-1]',
+    'top-frequency-v1': 'def solve(a,k):\n from collections import Counter\n return sorted(x for x,n in sorted(Counter(a).items(),key=lambda p:(-p[1],p[0]))[:k])',
+    'merge-streams-v1': 'def solve(a):\n import heapq\n return list(heapq.merge(*a))',
 }
 
 def main():
