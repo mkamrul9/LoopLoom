@@ -43,5 +43,20 @@
     {"label":"Unordered consecutive values","args":[[100,4,200,1,3,2]],"expected":4},
     {"label":"Duplicates count once","args":[[5,5,6,7]],"expected":3},
     {"label":"Empty input","args":[[]],"expected":0}
+  ],
+  "budget-window-v1": [
+    {"label":"Longest affordable block","args":[[2,1,1,1,4],5],"expected":4},
+    {"label":"Only zero-cost days fit","args":[[0,0,3,0],0],"expected":2},
+    {"label":"Empty input","args":[[],3],"expected":0}
+  ],
+  "lower-bound-v1": [
+    {"label":"First duplicate","args":[[1,3,3,8],3],"expected":1},
+    {"label":"Between values","args":[[1,3,5,8],4],"expected":2},
+    {"label":"Empty input","args":[[],7],"expected":0}
+  ],
+  "island-count-v1": [
+    {"label":"Four-direction groups","args":[[[1,1,0],[0,1,0],[1,0,1]]],"expected":3},
+    {"label":"Diagonal contact stays separate","args":[[[1,0],[0,1]]],"expected":2},
+    {"label":"Empty map","args":[[]],"expected":0}
   ]
 }

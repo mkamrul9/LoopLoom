@@ -1,6 +1,12 @@
 # Pilot validation
 
-## Interview catalog expansion — 30 October 2026
+## Interview catalog expansion — batch 2 — 30 October 2026
+
+Added three original intermediate lessons for variable-size windows, lower-bound search, and four-direction grid traversal. The catalog now has twelve lessons: three warm-ups and nine intermediate foundations. The grid problem adds typed matrix input to the C++/Python/TypeScript starter generation and C++ reference harness. The local runner is configured to flag input mutation for the new problem contracts.
+
+This content batch includes four-language reference fixtures and local-coach rubrics, but tests and live-container checks were not run. These additions still need independent editorial review. The 30/75/300 roadmaps remain incomplete and AI feedback remains disabled by default.
+
+## Interview catalog expansion — batch 1 — 30 October 2026
 
 Added three original intermediate lessons for rotated binary search, products except self, and longest consecutive runs. The catalog now has nine lessons: three warm-ups and six intermediate foundations. Each new lesson has five guided checkpoints, three hints, an explicit explanation, four language starters, visible reference cases, local runner fixtures, and an optional local-coach rubric. Existing lesson IDs and stored session schemas were left intact.
 

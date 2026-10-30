@@ -13,6 +13,9 @@ SOLUTIONS = {
     'rotated-index-v1':'function solve(a,t){let l=0,r=a.length-1;while(l<=r){const m=(l+r)>>1;if(a[m]===t)return m;if(a[l]<=a[m]){if(a[l]<=t&&t<a[m])r=m-1;else l=m+1;}else{if(a[m]<t&&t<=a[r])l=m+1;else r=m-1;}}return -1;}',
     'products-except-self-v1':'function solve(a){const out=Array(a.length).fill(1);let p=1;for(let i=0;i<a.length;i++){out[i]=p;p*=a[i];}p=1;for(let i=a.length-1;i>=0;i--){out[i]*=p;p*=a[i];}return out;}',
     'longest-run-v1':'function solve(a){const s=new Set(a);let best=0;for(const x of s){if(!s.has(x-1)){let n=1;while(s.has(x+n))n++;best=Math.max(best,n);}}return best;}',
+    'budget-window-v1':'function solve(a,k){let left=0,sum=0,best=0;for(let right=0;right<a.length;right++){sum+=a[right];while(sum>k){sum-=a[left++];}best=Math.max(best,right-left+1);}return best;}',
+    'lower-bound-v1':'function solve(a,t){let left=0,right=a.length;while(left<right){const mid=left+Math.floor((right-left)/2);if(a[mid]<t)left=mid+1;else right=mid;}return left;}',
+    'island-count-v1':'function solve(g){const rows=g.length,cols=rows?g[0].length:0,seen=Array.from({length:rows},()=>Array(cols).fill(false));let count=0;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){if(!g[r][c]||seen[r][c])continue;count++;const q=[[r,c]];seen[r][c]=true;for(let i=0;i<q.length;i++){const [y,x]=q[i];for(const [dy,dx] of [[1,0],[-1,0],[0,1],[0,-1]]){const ny=y+dy,nx=x+dx;if(ny>=0&&ny<rows&&nx>=0&&nx<cols&&g[ny][nx]&&!seen[ny][nx]){seen[ny][nx]=true;q.push([ny,nx]);}}}}return count;}',
 }
 
 def main():

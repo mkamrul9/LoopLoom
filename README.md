@@ -4,7 +4,7 @@ A Flutter problem-solving coach: understand the problem, explain an approach, tr
 
 Android first, with a responsive Flutter web application from the same codebase. **SolveIt is a working name**, pending brand and store availability checks.
 
-Confirmed direction: intermediate developers preparing for interviews; strict zero-spend development. Interview 75 is the main planned path. The nine original pilot lessons cover warm-up and intermediate foundations. Default builds use guided practice; optional AI requests go only through a local development gateway.
+Confirmed direction: intermediate developers preparing for interviews; strict zero-spend development. Interview 75 is the main planned path. The twelve original pilot lessons cover warm-up and intermediate foundations. Default builds use guided practice; optional AI requests go only through a local development gateway.
 
 ## Start here
 
@@ -19,7 +19,7 @@ Confirmed direction: intermediate developers preparing for interviews; strict ze
 
 ## Project status
 
-The pilot now has nine original problems across warm-up and intermediate tracks, progressive hints, separate language drafts, durable local history, restart recovery, and an optional experimental local-coach connection. A portable local runtime and two free models have been installed and evaluated. Neither met the coaching quality bar; the app stays in guided mode. AI feedback does not approve checkpoints or establish verified solves. Production AI quality, secure code execution, accounts, cloud sync, and billing remain subsequent milestones. See the [model results](docs/LOCAL_AI_VALIDATION.md) and [app validation notes](docs/VALIDATION.md).
+The pilot now has twelve original problems across warm-up and intermediate tracks, progressive hints, separate language drafts, durable local history, restart recovery, and an optional experimental local-coach connection. A portable local runtime and two free models have been installed and evaluated. Neither met the coaching quality bar; the app stays in guided mode. AI feedback does not approve checkpoints or establish verified solves. Production AI quality, secure code execution, accounts, cloud sync, and billing remain subsequent milestones. See the [model results](docs/LOCAL_AI_VALIDATION.md) and [app validation notes](docs/VALIDATION.md).
 
 The teaching rule is simple: **feedback should help the learner take the next step, without revealing the complete solution by default**. Users can still explicitly choose to reveal a solution; that attempt is recorded as assisted.
 
@@ -31,7 +31,7 @@ An opt-in local C++/JavaScript/Python/TypeScript reference runner executes visib
 
 The Code checkpoint includes lesson-specific starter signatures in all four languages, an indentation control, and folded reference cases with expected results. Drafts save locally; opt-in execution is available only in the local development preview and never marks a problem solved. [Workspace details](docs/CODE_WORKSPACE.md).
 
-The available Intermediate foundations track covers prefix sums, monotonic stacks, interval merging, binary search, prefix/suffix products, and set-based sequences. Warm-ups remain available. Both tracks have independent self-review counts and lesson resume states. [Content and validation details](docs/INTERMEDIATE_LESSONS.md).
+The available Intermediate foundations track covers prefix sums, monotonic stacks, intervals, binary search, prefix/suffix products, set-based sequences, variable-size windows, and grid traversal. Warm-ups remain available. Both tracks have independent self-review counts and lesson resume states. [Content and validation details](docs/INTERMEDIATE_LESSONS.md).
 
 `apps/solveit/` contains the Flutter app. Documentation lives in `docs/`. Keep problem content and coaching rules versioned independently from UI code as the catalog grows.
 

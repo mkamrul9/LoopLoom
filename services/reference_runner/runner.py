@@ -25,8 +25,9 @@ OUTPUT_LIMIT = 32768
 WALL_SECONDS = 4
 CPP_WALL_SECONDS = 12
 IMMUTABLE_INPUT_LESSONS = {
-    'busy-periods-v1', 'rotated-index-v1', 'products-except-self-v1', 'longest-run-v1',
+    'busy-periods-v1', 'rotated-index-v1', 'products-except-self-v1', 'longest-run-v1', 'island-count-v1',
 }
+NESTED_INPUT_LESSONS = {'busy-periods-v1', 'island-count-v1'}
 DOCKER = ['docker', '--context', 'desktop-linux']
 
 
@@ -178,7 +179,7 @@ def _cpp_translation_unit(source, cases, lesson):
              '}', 'int main() {', '  ostringstream result;', '  result << "__SOLVEIT_CPP__:{\\"cases\\":[";',
              '  bool first = true;']
     for index, case in enumerate(cases):
-        nested = lesson == 'busy-periods-v1'
+        nested = lesson in NESTED_INPUT_LESSONS
         array_type = 'vector<vector<int>>' if nested else 'vector<int>'
         args = case['args']
         lines += [f'  {array_type} input_{index}{_cpp_literal(args[0])};',

@@ -6,9 +6,16 @@ class ReferenceCase {
 }
 
 class CodeSpec {
-  const CodeSpec(this.names, this.returnsList, this.intervals, this.cases);
+  const CodeSpec(
+    this.names,
+    this.returnsList,
+    this.intervals,
+    this.cases, {
+    this.matrix = false,
+  });
   final List<String> names;
   final bool returnsList, intervals;
+  final bool matrix;
   final List<ReferenceCase> cases;
 
   String starter(CodeLanguage language) {
@@ -21,7 +28,7 @@ class CodeSpec {
             : returnsList
             ? 'std::vector<int>'
             : 'int';
-        final input = intervals
+        final input = intervals || matrix
             ? 'std::vector<std::vector<int>>'
             : 'std::vector<int>';
         return '#include <vector>\n#include <stdexcept>\n\n$result solve(const $input& $array${scalar == null ? '' : ', int $scalar'}) {\n    // TODO: implement your approach.\n    throw std::logic_error("TODO");\n}\n';
@@ -31,7 +38,7 @@ class CodeSpec {
             : returnsList
             ? 'list[int]'
             : 'int';
-        final input = intervals ? 'list[list[int]]' : 'list[int]';
+        final input = intervals || matrix ? 'list[list[int]]' : 'list[int]';
         return 'def solve($array: $input${scalar == null ? '' : ', $scalar: int'}) -> $result:\n    # TODO: implement your approach.\n    raise NotImplementedError("TODO")\n';
       case CodeLanguage.javascript:
         return 'function solve($array${scalar == null ? '' : ', $scalar'}) {\n    // TODO: implement your approach.\n    throw new Error("TODO");\n}\n';
@@ -43,6 +50,8 @@ class CodeSpec {
             : 'number';
         final input = intervals
             ? 'ReadonlyArray<readonly [number, number]>'
+            : matrix
+            ? 'ReadonlyArray<readonly number[]>'
             : 'readonly number[]';
         return 'function solve($array: $input${scalar == null ? '' : ', $scalar: number'}): $result {\n    // TODO: implement your approach.\n    throw new Error("TODO");\n}\n';
     }
@@ -203,5 +212,60 @@ const codeSpecs = <String, CodeSpec>{
       ),
       ReferenceCase('Empty input', 'values = []', '0'),
     ],
+  ),
+  'budget-window-v1': CodeSpec(
+    ['costs', 'budget'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Longest affordable block',
+        'costs = [2, 1, 1, 1, 4], budget = 5',
+        '4',
+      ),
+      ReferenceCase(
+        'Only zero-cost days fit',
+        'costs = [0, 0, 3, 0], budget = 0',
+        '2',
+      ),
+      ReferenceCase('Empty input', 'costs = [], budget = 3', '0'),
+    ],
+  ),
+  'lower-bound-v1': CodeSpec(
+    ['values', 'target'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'First duplicate',
+        'values = [1, 3, 3, 8], target = 3',
+        '1',
+      ),
+      ReferenceCase(
+        'Between values',
+        'values = [1, 3, 5, 8], target = 4',
+        '2',
+      ),
+      ReferenceCase('Empty input', 'values = [], target = 7', '0'),
+    ],
+  ),
+  'island-count-v1': CodeSpec(
+    ['map'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Four-direction groups',
+        'map = [[1, 1, 0], [0, 1, 0], [1, 0, 1]]',
+        '3',
+      ),
+      ReferenceCase(
+        'Diagonal contact stays separate',
+        'map = [[1, 0], [0, 1]]',
+        '2',
+      ),
+      ReferenceCase('Empty map', 'map = []', '0'),
+    ],
+    matrix: true,
   ),
 };

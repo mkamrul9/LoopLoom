@@ -200,6 +200,104 @@ const interviewLessons = <Lesson>[
     explanation:
         'A sorted copy gives a correct O(n log n) baseline, skipping duplicates while measuring adjacent values. For expected O(n), put the values in a set. For each value x, begin a scan only if x − 1 is absent. Count x, x + 1, and subsequent values while they are in the set, then update the maximum. Every value belongs to at most one such forward scan: a value inside a run has a predecessor, so it cannot start another scan. Return 0 for an empty set. This takes expected O(n) time and O(n) extra space; hash operations have implementation-dependent worst cases.',
   ),
+  Lesson(
+    id: 'budget-window-v1',
+    title: 'Fit the longest block under budget',
+    pattern: 'Variable-size sliding window',
+    summary: 'Shrink only when a nonnegative window exceeds its limit.',
+    statement:
+        'Given nonnegative daily costs and a budget, return the maximum length of a nonempty consecutive block whose total cost is at most the budget. Return 0 for empty input. Zero-cost days are allowed.',
+    example:
+        'costs = [2, 1, 1, 1, 4], budget = 5\nAnswer: 4, from [2, 1, 1, 1].',
+    constraints:
+        '0–10,000 costs, each from 0 to 1,000. Budget: 0–10,000,000. The input is not modified.',
+    questions: [
+      'What makes a block valid? Can a zero-cost day extend it, and what should an empty input return?',
+      'Start with a correct method that tries each start. Under what condition can you safely move the left edge forward?',
+      'Trace [2, 1, 1, 1, 4] with budget 5. Show each shrink and state the time and extra space costs.',
+      codeQuestion,
+      'Why does this shrinking rule depend on nonnegative costs? Would it still be safe with negative values?',
+    ],
+    checks: [
+      'I maximize the length of a consecutive nonempty block with total at most the budget; empty input returns 0.',
+      'My baseline checks all starts. My window method restores validity by removing leftmost costs only when the total is too large.',
+      'I find length 4, handle zero costs, and explain why each index moves at most once.',
+      codeCheck,
+      'I used nonnegativity to justify shrinking, and I identified why negative values break that argument.',
+    ],
+    hints: [
+      'Could you extend a valid block one day at a time and keep its running total?',
+      'When the total exceeds the budget, what happens to it as you remove a nonnegative value from the left?',
+      'Add each new cost to the right. While the sum is too large, subtract costs[left] and advance left. Update the best length after the window is valid.',
+    ],
+    explanation:
+        'Trying every start and extending while tracking the sum is a correct O(n²) baseline. With nonnegative costs, maintain a window and its sum. For each right endpoint, add the new cost. While the sum exceeds the budget, remove costs[left] and advance left; removing a nonnegative value cannot increase the sum. Once valid, update the best length. Each index enters once and leaves at most once, so the scan is O(n) time and O(1) extra space. Zero-cost values can extend a valid block. With negative costs, extending or shrinking no longer changes the sum monotonically, so this window rule is not generally correct.',
+  ),
+  Lesson(
+    id: 'lower-bound-v1',
+    title: 'Find the first place a value belongs',
+    pattern: 'Binary search boundaries',
+    summary: 'Search for a boundary, not just an equal value.',
+    statement:
+        'Given values sorted in nondecreasing order and a target, return the first index whose value is at least the target. If every value is smaller, return the array length. Duplicates are allowed.',
+    example: 'values = [1, 3, 3, 8], target = 3\nAnswer: 1.',
+    constraints:
+        '0–10,000 sorted integers from −1,000,000 to 1,000,000. The input is not modified.',
+    questions: [
+      'What does the returned index mean if the target is absent? What if the input is empty?',
+      'A linear scan is a baseline. How can sorted order let you locate the first qualifying position without scanning every value?',
+      'Trace [1, 3, 3, 8] with target 3. Why must the search continue left after it finds an equal value?',
+      codeQuestion,
+      'State what is known about positions before and after your remaining search range. How does that prove the final boundary?',
+    ],
+    checks: [
+      'I return the first index with value ≥ target, including the array length when no such value exists.',
+      'My search keeps the earliest possible qualifying position rather than stopping at any equal value.',
+      'I return index 1 for the trace, handle duplicates and empty input, and explain logarithmic time.',
+      codeCheck,
+      'I described a boundary invariant and showed why the final lower edge is the first valid position.',
+    ],
+    hints: [
+      'Imagine dividing positions into values below target and values at least target. Where does that boundary lie?',
+      'Use a half-open range [left, right). If values[mid] is below target, the boundary must be after mid; otherwise it can be at mid or before.',
+      'Start with left = 0 and right = n. While left < right, set mid between them. Move left to mid + 1 if values[mid] < target; otherwise move right to mid. Return left.',
+    ],
+    explanation:
+        'A linear scan returns the first index with value at least target in O(n) time. Binary search keeps a half-open candidate range [left, right), starting at [0, n). Every position before left is known to be smaller than target; every position at or after right is known to be at least target. If values[mid] < target, the boundary is strictly after mid, so set left = mid + 1. Otherwise the boundary is at mid or earlier, so set right = mid. When the bounds meet, left is the first qualifying index, or n if none qualifies. This takes O(log n) time and O(1) extra space and naturally returns the first duplicate.',
+  ),
+  Lesson(
+    id: 'island-count-v1',
+    title: 'Count the connected garden plots',
+    pattern: 'Grid traversal · BFS/DFS',
+    summary: 'Visit each four-direction land component once.',
+    statement:
+        'A rectangular map uses 1 for land and 0 for water. Count connected land groups. Cells connect only up, down, left, or right; diagonal contact does not connect them. Do not modify the map. An empty map contains zero groups.',
+    example:
+        'map = [[1, 1, 0], [0, 1, 0], [1, 0, 1]]\nAnswer: 3.',
+    constraints:
+        '0–50 rows and 0–50 columns, all rows have the same length, and each cell is 0 or 1. Return 0 for an empty or all-water map.',
+    questions: [
+      'Which neighboring cells connect land? Do diagonals count? What should an all-water map return?',
+      'How could a flood fill find one group? What must you remember so the same land cell is not counted again?',
+      'Trace [[1, 1, 0], [0, 1, 0], [1, 0, 1]]. Which cells belong to each group?',
+      codeQuestion,
+      'Why is the total work linear in the number of cells, and what extra storage does your traversal need?',
+    ],
+    checks: [
+      'I count four-direction connected components; diagonal-only contact makes separate groups.',
+      'I start a traversal at unseen land and mark every reached land cell so no group is counted twice.',
+      'I find three groups in the example, ignore water, and handle empty or all-water maps.',
+      codeCheck,
+      'I account for every cell at most once and explain the visited storage or safe in-place marking choice.',
+    ],
+    hints: [
+      'Scan every cell. What should happen when you encounter land that has not belonged to a traversal yet?',
+      'Start a queue or stack there, count one group, and visit only in-bounds four-direction land neighbors.',
+      'Keep a visited grid. Each unseen land cell starts one BFS/DFS; mark cells when they are added, not when removed, to avoid duplicate queue entries.',
+    ],
+    explanation:
+        'Scan the map. Whenever an unvisited land cell appears, increment the group count and flood-fill its four-direction neighbors with BFS or DFS. Mark a land cell visited when it is added to the worklist, then add only in-bounds, unvisited land neighbors. This prevents duplicate work and keeps diagonal cells separate. Water is skipped. Empty dimensions return zero. Each cell is visited at most once, giving O(rows × columns) time and O(rows × columns) extra space for visited state and the worklist. The input remains unchanged.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

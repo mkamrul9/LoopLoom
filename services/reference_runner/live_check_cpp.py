@@ -13,6 +13,9 @@ SOLUTIONS = {
     'rotated-index-v1': 'int solve(const vector<int>& a,int t){int l=0,r=(int)a.size()-1;while(l<=r){int m=l+(r-l)/2;if(a[m]==t)return m;if(a[l]<=a[m]){if(a[l]<=t&&t<a[m])r=m-1;else l=m+1;}else{if(a[m]<t&&t<=a[r])l=m+1;else r=m-1;}}return -1;}',
     'products-except-self-v1': 'vector<int> solve(const vector<int>& a){vector<int> out(a.size(),1);int p=1;for(int i=0;i<(int)a.size();++i){out[i]=p;p*=a[i];}p=1;for(int i=(int)a.size()-1;i>=0;--i){out[i]*=p;p*=a[i];}return out;}',
     'longest-run-v1': 'int solve(const vector<int>& a){unordered_set<int> s(a.begin(),a.end());int best=0;for(int x:s){if(!s.count(x-1)){int n=1;while(s.count(x+n))++n;best=max(best,n);}}return best;}',
+    'budget-window-v1': 'int solve(const vector<int>& a,int k){int left=0,sum=0,best=0;for(int right=0;right<(int)a.size();++right){sum+=a[right];while(sum>k)sum-=a[left++];best=max(best,right-left+1);}return best;}',
+    'lower-bound-v1': 'int solve(const vector<int>& a,int t){int left=0,right=a.size();while(left<right){int mid=left+(right-left)/2;if(a[mid]<t)left=mid+1;else right=mid;}return left;}',
+    'island-count-v1': 'int solve(const vector<vector<int>>& g){int rows=g.size(),cols=rows?g[0].size():0,count=0;vector<vector<char>> seen(rows,vector<char>(cols));int d[4][2]={{1,0},{-1,0},{0,1},{0,-1}};for(int r=0;r<rows;++r)for(int c=0;c<cols;++c){if(!g[r][c]||seen[r][c])continue;++count;queue<pair<int,int>> q;q.push({r,c});seen[r][c]=1;while(!q.empty()){auto [y,x]=q.front();q.pop();for(auto& step:d){int ny=y+step[0],nx=x+step[1];if(ny>=0&&ny<rows&&nx>=0&&nx<cols&&g[ny][nx]&&!seen[ny][nx]){seen[ny][nx]=1;q.push({ny,nx});}}}}return count;}',
 }
 
 

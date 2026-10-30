@@ -13,6 +13,9 @@ SOLUTIONS = {
     'rotated-index-v1': 'def solve(a,t):\n l,r=0,len(a)-1\n while l<=r:\n  m=(l+r)//2\n  if a[m]==t:return m\n  if a[l]<=a[m]:\n   if a[l]<=t<a[m]:r=m-1\n   else:l=m+1\n  elif a[m]<t<=a[r]:l=m+1\n  else:r=m-1\n return -1',
     'products-except-self-v1': 'def solve(a):\n out=[1]*len(a)\n p=1\n for i,x in enumerate(a):out[i]=p;p*=x\n p=1\n for i in range(len(a)-1,-1,-1):out[i]*=p;p*=a[i]\n return out',
     'longest-run-v1': 'def solve(a):\n s=set(a);best=0\n for x in s:\n  if x-1 not in s:\n   n=1\n   while x+n in s:n+=1\n   best=max(best,n)\n return best',
+    'budget-window-v1': 'def solve(a,k):\n left=total=best=0\n for right,x in enumerate(a):\n  total+=x\n  while total>k:total-=a[left];left+=1\n  best=max(best,right-left+1)\n return best',
+    'lower-bound-v1': 'def solve(a,t):\n left,right=0,len(a)\n while left<right:\n  mid=left+(right-left)//2\n  if a[mid]<t:left=mid+1\n  else:right=mid\n return left',
+    'island-count-v1': 'def solve(g):\n rows=len(g);cols=len(g[0]) if rows else 0;seen=set();count=0\n for r in range(rows):\n  for c in range(cols):\n   if not g[r][c] or (r,c) in seen:continue\n   count+=1;seen.add((r,c));q=[(r,c)];head=0\n   while head<len(q):\n    y,x=q[head];head+=1\n    for dy,dx in ((1,0),(-1,0),(0,1),(0,-1)):\n     ny,nx=y+dy,x+dx\n     if 0<=ny<rows and 0<=nx<cols and g[ny][nx] and (ny,nx) not in seen:seen.add((ny,nx));q.append((ny,nx))\n return count',
 }
 
 def main():

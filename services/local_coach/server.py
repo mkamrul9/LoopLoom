@@ -53,6 +53,18 @@ RUBRICS = {
         "task": "Return the length of the longest set of consecutive integer values in an unordered list. Duplicates count once; positions do not matter. Empty input returns 0; n<=10000 and values -1000000..1000000. Do not modify input.",
         "pitfalls": "Counting adjacent input positions instead of values, counting duplicates repeatedly, extending every value and repeating work, or returning the endpoint instead of the run length.",
     },
+    "budget-window-v1": {
+        "task": "Return the maximum length of a nonempty consecutive block of nonnegative costs with sum at most budget. Empty input returns 0; costs 0..1000 and n<=10000.",
+        "pitfalls": "Using a variable window with negative values, shrinking only once when over budget, losing zero-cost extensions, or returning a maximum sum instead of a length.",
+    },
+    "lower-bound-v1": {
+        "task": "In a nondecreasing array, return the first index with value >= target, or n if none exists. Duplicates and empty input are allowed; do not modify input.",
+        "pitfalls": "Stopping at any duplicate instead of the first, treating equality as strictly smaller, returning -1 when all entries are smaller, or mishandling an empty array.",
+    },
+    "island-count-v1": {
+        "task": "Count 4-direction connected components of 1s in a rectangular 0/1 grid. Diagonal cells do not connect. Empty or all-water grids return 0. Do not modify input; dimensions are at most 50x50.",
+        "pitfalls": "Counting diagonal contact, incrementing once per land cell, revisiting already reached cells, stepping outside the grid, or changing the input.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",
