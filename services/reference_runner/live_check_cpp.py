@@ -28,6 +28,9 @@ SOLUTIONS = {
     'tree-depth-v1': 'int solve(const vector<vector<int>>& t){if(t.empty())return 0;queue<pair<int,int>> q;q.push({0,1});int best=0;while(!q.empty()){auto [i,d]=q.front();q.pop();best=max(best,d);if(t[i][1]!=-1)q.push({t[i][1],d+1});if(t[i][2]!=-1)q.push({t[i][2],d+1});}return best;}',
     'tree-width-v1': 'int solve(const vector<vector<int>>& t){if(t.empty())return 0;queue<int> q;q.push(0);int best=0;while(!q.empty()){int n=q.size();best=max(best,n);while(n--){int i=q.front();q.pop();if(t[i][1]!=-1)q.push(t[i][1]);if(t[i][2]!=-1)q.push(t[i][2]);}}return best;}',
     'tree-path-sum-v1': 'bool solve(const vector<vector<int>>& t,int target){if(t.empty())return false;stack<pair<int,int>> q;q.push({0,t[0][0]});while(!q.empty()){auto [i,sum]=q.top();q.pop();int l=t[i][1],r=t[i][2];if(l==-1&&r==-1&&sum==target)return true;if(l!=-1)q.push({l,sum+t[l][0]});if(r!=-1)q.push({r,sum+t[r][0]});}return false;}',
+    'list-middle-v1': 'int solve(const vector<vector<int>>& n){if(n.empty())return -1;int slow=0,fast=0;while(fast!=-1&&n[fast][1]!=-1){slow=n[slow][1];fast=n[n[fast][1]][1];}return slow;}',
+    'list-cycle-v1': 'bool solve(const vector<vector<int>>& n){if(n.empty())return false;int slow=0,fast=0;while(fast!=-1&&n[fast][1]!=-1){slow=n[slow][1];fast=n[n[fast][1]][1];if(slow==fast)return true;}return false;}',
+    'list-nth-from-end-v1': 'int solve(const vector<vector<int>>& n,int k){int fast=0,slow=0;for(int i=0;i<k;++i)fast=n[fast][1];while(fast!=-1){fast=n[fast][1];slow=n[slow][1];}return slow;}',
 }
 
 

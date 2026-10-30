@@ -1,8 +1,10 @@
 # Intermediate foundations
 
-Twenty-one original intermediate lessons extend the pilot to twenty-four problems across two available tracks. Intermediate foundations is selected by default for the confirmed interview-preparation audience. Warm-ups remain accessible from the track chips on Learn and Roadmaps. The 30/75/300 paths remain planned; the app does not claim their catalogs are complete.
+Twenty-four original intermediate lessons extend the pilot to twenty-seven problems across two available tracks. Intermediate foundations is selected by default for the confirmed interview-preparation audience. Warm-ups remain accessible from the track chips on Learn and Roadmaps. The 30/75/300 paths remain planned; the app does not claim their catalogs are complete.
 
 The three tree exercises share an indexed representation: each row is `[value, leftIndex, rightIndex]`, row 0 is the root, and `-1` means a missing child. Their inputs are valid trees and must remain unchanged.
+
+The linked-list exercises use rows `[value, nextIndex]`, with row 0 as the head and `-1` as the end marker. The cycle task may link back to any valid row; other node values can repeat and do not identify nodes. Inputs remain unchanged.
 
 **Count the signal ranges** introduces prefix totals and frequency maps. Learners count nonempty, potentially overlapping consecutive ranges with a target sum, including zeros and negative values. The trace checks six ranges in three zeros. A nested-loop baseline is accepted; the explanation discusses query-before-insert ordering and why a positive-only window rule fails.
 
@@ -46,14 +48,20 @@ The three tree exercises share an indexed representation: each row is `[value, l
 
 **Check a root-to-leaf total** searches paths with a running sum and checks the target only at leaves; negative node values prevent unsafe sum-based pruning.
 
+**Find the middle node** uses slow/fast pointers and returns the second middle index for even-length chains.
+
+**Check for a loop in the chain** detects a repeated node index with Floyd’s cycle algorithm; equal values alone do not indicate a cycle.
+
+**Locate the nth node from the end** keeps a fixed gap between two pointers and returns the target node index without changing links.
+
 Each lesson includes five checkpoints, self-checks, three progressive hints, and an explicit explanation reveal. The same C++/Python/JavaScript/TypeScript draft workflow is available. Arbitrary explanations are not semantically graded. The opt-in local development runner checks only the visible examples and never awards a verified solve; default Android builds leave it disabled.
 
 Roadmap counts use distinct self-reviewed lesson IDs within the selected track. Multiple attempts cannot inflate the count. Tiles show Start, Resume, or Self-reviewed, and every lesson is available without a prerequisite lock. Existing unfinished work stays on the resume card. Track choice is currently view state and resets to Intermediate after restarting the app.
 
-The production bootstrap and backup screen use the combined versioned catalog. Existing lesson IDs and snapshot schemas are unchanged. New drafts can reopen and import through the same storage and backup system. Local coach rubrics and visible runner cases now include all twenty-four lessons; the models remain unapproved and disabled by default. The prior live-model benchmark covered only the original three lessons.
+The production bootstrap and backup screen use the combined versioned catalog. Existing lesson IDs and snapshot schemas are unchanged. New drafts can reopen and import through the same storage and backup system. Local coach rubrics and visible runner cases now include all twenty-seven lessons; the models remain unapproved and disabled by default. The prior live-model benchmark covered only the original three lessons.
 
 ## Content validation
 
-The original three foundation lessons have trusted Dart authoring references: prefix counting and next-warmer results are compared against brute-force baselines on every array of length 0–5 over −1, 0, and 1; interval fixtures cover overlap chains, nesting, duplicates, adjacency, sorted output, empty input, and input preservation. The eighteen lessons added later include visible fixtures and runner references in all four languages, but those fixtures have not yet been independently reviewed or run through the validation scripts. Existing tests check versioned IDs, checkpoint structure, four-language draft backup recovery, no early solution message, and progress scoped to each track.
+The original three foundation lessons have trusted Dart authoring references: prefix counting and next-warmer results are compared against brute-force baselines on every array of length 0–5 over −1, 0, and 1; interval fixtures cover overlap chains, nesting, duplicates, adjacency, sorted output, empty input, and input preservation. The twenty-one lessons added later include visible fixtures and runner references in all four languages, but those fixtures have not yet been independently reviewed or run through the validation scripts. Existing tests check versioned IDs, checkpoint structure, four-language draft backup recovery, no early solution message, and progress scoped to each track.
 
 This is internal content verification, not independent editorial approval, a four-language solution suite, or a learner-code judge. Those remain release requirements.

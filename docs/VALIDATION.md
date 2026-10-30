@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview catalog expansion — batch 7 — 30 October 2026
+
+Added three linked-list lessons: finding the middle, cycle detection, and locating the nth node from the end. The catalog now has twenty-seven lessons: three warm-ups and twenty-four intermediate foundations. The node-table format uses rows `[value, nextIndex]` with row 0 as head; the existing matrix/scalar starters and runner cover C++, Python, JavaScript, and TypeScript. Coach rubrics and immutable-input reporting were updated.
+
+Tests and live-container checks were not run for this batch. The new references and fixtures need independent editorial review; the 30/75/300 roadmaps remain incomplete and AI feedback remains disabled by default.
+
 ## Interview catalog expansion — batch 6 — 30 October 2026
 
 Added three original tree lessons: maximum depth, widest level by real-node count, and root-to-leaf path sum. The catalog now has twenty-four lessons: three warm-ups and twenty-one intermediate foundations. The indexed node-row representation uses the shared matrix starter and C++ harness; all three problems have four-language runner fixtures, immutable-input reporting, and local-coach rubrics.

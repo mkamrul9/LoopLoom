@@ -27,11 +27,12 @@ CPP_WALL_SECONDS = 12
 IMMUTABLE_INPUT_LESSONS = {
     'busy-periods-v1', 'rotated-index-v1', 'products-except-self-v1', 'longest-run-v1', 'island-count-v1',
     'graph-components-v1', 'kth-score-v1', 'top-frequency-v1', 'merge-streams-v1', 'tree-depth-v1',
-    'tree-width-v1', 'tree-path-sum-v1',
+    'tree-width-v1', 'tree-path-sum-v1', 'list-middle-v1', 'list-cycle-v1', 'list-nth-from-end-v1',
 }
 NESTED_INPUT_LESSONS = {
     'busy-periods-v1', 'island-count-v1', 'graph-components-v1', 'merge-streams-v1',
-    'tree-depth-v1', 'tree-width-v1', 'tree-path-sum-v1',
+    'tree-depth-v1', 'tree-width-v1', 'tree-path-sum-v1', 'list-middle-v1', 'list-cycle-v1',
+    'list-nth-from-end-v1',
 }
 CPP_STRING_INPUT_LESSONS = {'first-signal-v1', 'anagram-pair-v1', 'distinct-letter-window-v1'}
 DOCKER = ['docker', '--context', 'desktop-linux']

@@ -119,6 +119,21 @@ RUBRICS = {
         "accepted": "DFS carrying the accumulated sum is O(n) time/O(h) stack space. BFS carrying index and sum is also valid O(n) time/O(w) queue space.",
         "pitfalls": "Accepting an internal prefix, checking only one child, assuming positive values to prune, ignoring negative values, or treating the empty tree as a match.",
     },
+    "list-middle-v1": {
+        "task": "Return the index of the middle node in a finite acyclic indexed singly linked list. Row 0 is head; for even lengths choose the second middle; empty input returns -1. Input is immutable.",
+        "accepted": "Slow/fast pointers find the middle in O(n) time/O(1) space. A two-pass length count is also correct O(n)/O(1).",
+        "pitfalls": "Returning a node value instead of its index, choosing the first middle for even lengths, advancing fast without checking its next link, or changing links.",
+    },
+    "list-cycle-v1": {
+        "task": "Return whether following next indices from row 0 revisits a node. Only reachable nodes matter; empty input is false. Values may repeat and input is immutable.",
+        "accepted": "Floyd slow/fast pointers give O(n) time/O(1) space. A visited-index set is also correct O(n)/O(n). Compare indices, not values.",
+        "pitfalls": "Confusing duplicate values with a cycle, dereferencing -1, overlooking a self-loop, or treating an empty chain as cyclic.",
+    },
+    "list-nth-from-end-v1": {
+        "task": "Return the index of the nth node from the end of a nonempty acyclic indexed singly linked list. n is valid; input is immutable.",
+        "accepted": "Advance a fast pointer n links, then advance fast and slow together; O(n) time/O(1) space. A length pass followed by an indexed traversal is also correct O(n)/O(1).",
+        "pitfalls": "Returning a value rather than index, using an off-by-one gap, mishandling n equal to length, reading past -1, or mutating links.",
+    },
     "supply-pair-v1": {
         "task": "Return any two distinct zero-based indices of nonnegative prices summing to budget, or []. Duplicates allowed. At most 10000 entries; prices and budget <= 1000000.",
         "accepted": "A scan of all distinct pairs is correct O(n^2) time/O(1) extra space. A map of earlier price to index supports expected O(n) time/O(n) space; check complement before insert. Sorting with original indices is another valid approach. Do not reject a valid slower method.",

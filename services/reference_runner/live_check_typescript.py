@@ -28,6 +28,9 @@ SOLUTIONS = {
     'tree-depth-v1': 'function solve(t: ReadonlyArray<readonly number[]>): number {if(!t.length)return 0;const q: Array<[number,number]>=[[0,1]];let best=0;for(let h=0;h<q.length;h++){const [i,d]=q[h];best=Math.max(best,d);if(t[i][1]!==-1)q.push([t[i][1],d+1]);if(t[i][2]!==-1)q.push([t[i][2],d+1]);}return best;}',
     'tree-width-v1': 'function solve(t: ReadonlyArray<readonly number[]>): number {if(!t.length)return 0;const q=[0];let head=0,best=0;while(head<q.length){const end=q.length;best=Math.max(best,end-head);while(head<end){const i=q[head++];if(t[i][1]!==-1)q.push(t[i][1]);if(t[i][2]!==-1)q.push(t[i][2]);}}return best;}',
     'tree-path-sum-v1': 'function solve(t: ReadonlyArray<readonly number[]>,target: number): boolean {if(!t.length)return false;const stack: Array<[number,number]>=[[0,t[0][0]]];while(stack.length){const [i,total]=stack.pop()!,left=t[i][1],right=t[i][2];if(left===-1&&right===-1&&total===target)return true;if(left!==-1)stack.push([left,total+t[left][0]]);if(right!==-1)stack.push([right,total+t[right][0]]);}return false;}',
+    'list-middle-v1': 'function solve(n: ReadonlyArray<readonly number[]>): number {if(!n.length)return -1;let slow=0,fast=0;while(fast!==-1&&n[fast][1]!==-1){slow=n[slow][1];fast=n[n[fast][1]][1];}return slow;}',
+    'list-cycle-v1': 'function solve(n: ReadonlyArray<readonly number[]>): boolean {if(!n.length)return false;let slow=0,fast=0;while(fast!==-1&&n[fast][1]!==-1){slow=n[slow][1];fast=n[n[fast][1]][1];if(slow===fast)return true;}return false;}',
+    'list-nth-from-end-v1': 'function solve(n: ReadonlyArray<readonly number[]>,k: number): number {let fast=0,slow=0;for(let i=0;i<k;i++)fast=n[fast][1];while(fast!==-1){fast=n[fast][1];slow=n[slow][1];}return slow;}',
 }
 
 

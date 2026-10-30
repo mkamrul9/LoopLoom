@@ -28,6 +28,9 @@ SOLUTIONS = {
     'tree-depth-v1': 'def solve(t):\n if not t:return 0\n q=[(0,1)];head=0;best=0\n while head<len(q):\n  i,d=q[head];head+=1;best=max(best,d)\n  for child in t[i][1:]:\n   if child!=-1:q.append((child,d+1))\n return best',
     'tree-width-v1': 'def solve(t):\n if not t:return 0\n q=[0];head=0;best=0\n while head<len(q):\n  end=len(q);best=max(best,end-head)\n  while head<end:\n   i=q[head];head+=1\n   for child in t[i][1:]:\n    if child!=-1:q.append(child)\n return best',
     'tree-path-sum-v1': 'def solve(t,target):\n if not t:return False\n stack=[(0,t[0][0])]\n while stack:\n  i,total=stack.pop();left,right=t[i][1:]\n  if left==-1 and right==-1 and total==target:return True\n  if left!=-1:stack.append((left,total+t[left][0]))\n  if right!=-1:stack.append((right,total+t[right][0]))\n return False',
+    'list-middle-v1': 'def solve(n):\n if not n:return -1\n slow=fast=0\n while fast!=-1 and n[fast][1]!=-1:\n  slow=n[slow][1];fast=n[n[fast][1]][1]\n return slow',
+    'list-cycle-v1': 'def solve(n):\n if not n:return False\n slow=fast=0\n while fast!=-1 and n[fast][1]!=-1:\n  slow=n[slow][1];fast=n[n[fast][1]][1]\n  if slow==fast:return True\n return False',
+    'list-nth-from-end-v1': 'def solve(n,k):\n fast=slow=0\n for _ in range(k):fast=n[fast][1]\n while fast!=-1:\n  fast=n[fast][1];slow=n[slow][1]\n return slow',
 }
 
 def main():

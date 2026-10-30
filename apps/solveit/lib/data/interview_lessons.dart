@@ -689,6 +689,105 @@ const interviewLessons = <Lesson>[
     explanation:
         'Run DFS from root index 0 while carrying the sum from the root through the current node. At a leaf, compare that sum with target. For an internal node, continue to each existing child with the updated sum. The check must happen at leaves; an internal prefix that equals target may still extend to a different total. Because values can be negative, do not prune solely because the running sum exceeds target. Each node is visited once for O(n) time; a DFS stack or recursion uses O(h) auxiliary space for tree height h. An empty tree has no root-to-leaf path.',
   ),
+  Lesson(
+    id: 'list-middle-v1',
+    title: 'Find the middle node',
+    pattern: 'Linked lists · fast and slow pointers',
+    summary: 'Move one pointer twice as quickly to find the midpoint in one pass.',
+    statement:
+        'Return the node index at the middle of a finite singly linked list. For an even number of nodes, return the second middle. Each row is [value, nextIndex], row 0 is the head, and -1 ends the list. An empty list returns -1.',
+    example:
+        'nodes = [[10, 1], [20, 2], [30, 3], [40, 4], [50, -1]]\nAnswer: 2.',
+    constraints:
+        '0–10,000 nodes. The list is acyclic, every row is reachable from row 0 when nonempty, and each next index is valid or -1. Values may repeat. Do not modify input.',
+    questions: [
+      'Does the answer ask for a node value or its index? Which middle should you choose when the length is even?',
+      'How can a slow pointer advance one link while a fast pointer advances two links?',
+      'Trace both pointers through the five-node example. Where is slow when fast reaches the end?',
+      codeQuestion,
+      'Why does the fast pointer’s stopping condition produce the second middle for even lengths? Give complexity.',
+    ],
+    checks: [
+      'I return the node index, choose the second middle for an even list, and return -1 for an empty list.',
+      'Fast advances twice for every one slow step and stops safely at -1.',
+      'I return index 2 for the example and do not change any next link.',
+      codeCheck,
+      'I gave O(n) time and O(1) extra space.',
+    ],
+    hints: [
+      'For a nonempty list, start both pointers at row 0. Let slow move one link for each iteration.',
+      'Before moving fast twice, check that fast and fast.next both exist.',
+      'Continue while two fast steps are possible. Slow then identifies the second middle when the length is even.',
+    ],
+    explanation:
+        'For a nonempty list, initialize slow and fast to row 0. While fast and its next node exist, move slow one link and fast two links. When the loop ends, slow is at the middle; with an even number of nodes it is the second middle. Return its index, or -1 for an empty list. Each node is traversed at most once, so time is O(n) and extra space is O(1). The fast-pointer guards prevent reading past the end.',
+  ),
+  Lesson(
+    id: 'list-cycle-v1',
+    title: 'Check for a loop in the chain',
+    pattern: 'Linked lists · cycle detection',
+    summary: 'Two pointers moving at different speeds reveal a repeated node.',
+    statement:
+        'Return true if following next links from row 0 eventually visits a node again. Each row is [value, nextIndex]; -1 ends a chain. An empty list has no cycle. Only nodes reachable from row 0 matter.',
+    example:
+        'nodes = [[3, 1], [2, 2], [0, 1]]\nAnswer: true, because the last node links back to index 1.',
+    constraints:
+        '0–10,000 rows. Each next index is -1 or a valid row index; input may contain a cycle. Values may repeat and do not identify nodes. Do not modify input.',
+    questions: [
+      'Why can equal values not prove a cycle? What must be equal for two pointers to meet?',
+      'How do slow and fast move through the next links? What happens if the chain ends?',
+      'Trace the example after slow and fast first enter the loop. Why will they eventually meet at the same index?',
+      codeQuestion,
+      'What are the time and extra-space costs of slow/fast detection compared with a visited-index set?',
+    ],
+    checks: [
+      'I detect revisiting a node index, not merely seeing a repeated value.',
+      'I advance slow one link and fast two, checking for -1 before dereferencing.',
+      'I return true for the example, false for an acyclic chain, and false for an empty list.',
+      codeCheck,
+      'I gave O(n) time and O(1) extra space, and do not mutate links.',
+    ],
+    hints: [
+      'A visited set can detect a repeated index. Can you use less extra space?',
+      'Move slow by one link and fast by two. If fast reaches -1, there is no cycle.',
+      'If the pointers enter a cycle, fast gains one node on slow each turn and must eventually meet it.',
+    ],
+    explanation:
+        'If the list is nonempty, start slow and fast at row 0. Move slow by one next link and fast by two, returning true if their node indices meet. Before moving, handle -1 so an acyclic chain returns false without invalid indexing. If fast reaches the end, no node repeats. If both enter a cycle, fast gains one position per iteration relative to slow and eventually catches it. The traversal is O(n) time and O(1) extra space. A visited-index set is another correct method with O(n) extra space. Compare indices rather than values, since different nodes may hold equal values.',
+  ),
+  Lesson(
+    id: 'list-nth-from-end-v1',
+    title: 'Locate the nth node from the end',
+    pattern: 'Linked lists · two-pointer gap',
+    summary: 'Keep a fixed distance between two pointers in one pass.',
+    statement:
+        'Return the node index that is nth from the end of a nonempty acyclic singly linked list. Each row is [value, nextIndex], row 0 is the head, and -1 ends the list. n is valid and between 1 and the list length. Do not remove the node.',
+    example:
+        'nodes = [[10, 1], [20, 2], [30, 3], [40, 4], [50, -1]], n = 2\nAnswer: 3.',
+    constraints:
+        '1–10,000 nodes. Every row is reachable from row 0, each next index is valid or -1, and the list has no cycle. Values may repeat. Do not modify input.',
+    questions: [
+      'What does nth from the end mean when n = 1? Why should the result be a node index rather than its possibly repeated value?',
+      'How can you create a gap of n links between fast and slow before moving them together?',
+      'Trace n = 2 in the example. Where is slow when fast steps past the last node?',
+      codeQuestion,
+      'Why does the fixed gap make slow stop at the requested index in one pass? Give complexity.',
+    ],
+    checks: [
+      'I return the requested node index and respect the valid n range.',
+      'I move fast forward n links, then advance fast and slow together until fast is -1.',
+      'I return index 3 for n = 2 in the example, and handle n equal to the full list length.',
+      codeCheck,
+      'I gave O(n) time and O(1) extra space without changing the chain.',
+    ],
+    hints: [
+      'Advance fast n links before moving slow. Then the pointers are separated by n nodes.',
+      'Move both pointers one link at a time until fast reaches -1.',
+      'Because fast is n links ahead, slow is at the nth node from the end when fast passes the tail.',
+    ],
+    explanation:
+        'Set fast and slow to row 0, then advance fast n links. Move both pointers one link at a time while fast is not -1. When fast reaches the end, slow is at the node n from the end because the gap stayed n links. Return slow’s index. The contract guarantees n is valid and the list is nonempty, so slow identifies a node. The method takes O(n) time and O(1) extra space and leaves the links unchanged.',
+  ),
 ];
 
 const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

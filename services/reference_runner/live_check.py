@@ -28,6 +28,9 @@ SOLUTIONS = {
     'tree-depth-v1':'function solve(t){if(!t.length)return 0;const q=[[0,1]];let best=0;for(let h=0;h<q.length;h++){const [i,d]=q[h];best=Math.max(best,d);if(t[i][1]!==-1)q.push([t[i][1],d+1]);if(t[i][2]!==-1)q.push([t[i][2],d+1]);}return best;}',
     'tree-width-v1':'function solve(t){if(!t.length)return 0;const q=[0];let head=0,best=0;while(head<q.length){const end=q.length;best=Math.max(best,end-head);while(head<end){const i=q[head++];if(t[i][1]!==-1)q.push(t[i][1]);if(t[i][2]!==-1)q.push(t[i][2]);}}return best;}',
     'tree-path-sum-v1':'function solve(t,target){if(!t.length)return false;const s=[[0,t[0][0]]];while(s.length){const [i,total]=s.pop(),l=t[i][1],r=t[i][2];if(l===-1&&r===-1&&total===target)return true;if(l!==-1)s.push([l,total+t[l][0]]);if(r!==-1)s.push([r,total+t[r][0]]);}return false;}',
+    'list-middle-v1':'function solve(n){if(!n.length)return -1;let slow=0,fast=0;while(fast!==-1&&n[fast][1]!==-1){slow=n[slow][1];fast=n[n[fast][1]][1];}return slow;}',
+    'list-cycle-v1':'function solve(n){if(!n.length)return false;let slow=0,fast=0;while(fast!==-1&&n[fast][1]!==-1){slow=n[slow][1];fast=n[n[fast][1]][1];if(slow===fast)return true;}return false;}',
+    'list-nth-from-end-v1':'function solve(n,k){let fast=0,slow=0;for(let i=0;i<k;i++)fast=n[fast][1];while(fast!==-1){fast=n[fast][1];slow=n[slow][1];}return slow;}',
 }
 
 def main():

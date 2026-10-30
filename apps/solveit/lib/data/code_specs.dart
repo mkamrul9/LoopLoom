@@ -493,4 +493,66 @@ const codeSpecs = <String, CodeSpec>{
     matrix: true,
     booleanResult: true,
   ),
+  'list-middle-v1': CodeSpec(
+    ['nodes'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Odd-length chain',
+        'nodes = [[10, 1], [20, 2], [30, 3], [40, 4], [50, -1]]',
+        '2',
+      ),
+      ReferenceCase(
+        'Even-length chain uses the second middle',
+        'nodes = [[1, 1], [2, 2], [3, 3], [4, -1]]',
+        '2',
+      ),
+      ReferenceCase('Empty chain', 'nodes = []', '-1'),
+    ],
+    matrix: true,
+  ),
+  'list-cycle-v1': CodeSpec(
+    ['nodes'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Tail links into the chain',
+        'nodes = [[3, 1], [2, 2], [0, 1]]',
+        'true',
+      ),
+      ReferenceCase(
+        'Acyclic chain',
+        'nodes = [[1, 1], [2, 2], [3, -1]]',
+        'false',
+      ),
+      ReferenceCase('Empty chain', 'nodes = []', 'false'),
+    ],
+    matrix: true,
+    booleanResult: true,
+  ),
+  'list-nth-from-end-v1': CodeSpec(
+    ['nodes', 'n'],
+    false,
+    false,
+    [
+      ReferenceCase(
+        'Second node from the end',
+        'nodes = [[10, 1], [20, 2], [30, 3], [40, 4], [50, -1]], n = 2',
+        '3',
+      ),
+      ReferenceCase(
+        'First node from the end',
+        'nodes = [[5, 1], [6, -1]], n = 1',
+        '1',
+      ),
+      ReferenceCase(
+        'N equals the list length',
+        'nodes = [[8, 1], [9, -1]], n = 2',
+        '0',
+      ),
+    ],
+    matrix: true,
+  ),
 };

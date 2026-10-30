@@ -463,7 +463,7 @@ class _LearningHomeState extends State<LearningHome> {
       Text(
         track == 0
             ? 'Build confidence with lookup, sorted search, and fixed windows.'
-            : 'Practice windows, search boundaries, string frequencies, heaps, tree and graph traversal, prefix/suffix products, set-based sequences, dynamic programming, and greedy scans.',
+            : 'Practice windows, search boundaries, strings, heaps, trees, linked lists, graphs, prefix/suffix products, dynamic programming, and greedy scans.',
         style: const TextStyle(
           fontSize: 13,
           height: 1.65,
