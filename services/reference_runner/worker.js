@@ -1,6 +1,8 @@
 // Trusted protocol wrapper. Docker, not JavaScript evaluation, is the boundary.
 const fs = require('node:fs');
 const request = JSON.parse(fs.readFileSync(0, 'utf8'));
+// Keep ordinary debug logs out of the result protocol; stderr stays bounded.
+global.console = new (require('node:console').Console)({stdout:process.stderr, stderr:process.stderr});
 let solve;
 try {
   solve = new Function(request.source + '\n; return solve;')();

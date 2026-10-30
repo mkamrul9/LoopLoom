@@ -25,22 +25,35 @@ class ReferenceRunnerClient {
   }
   final http.Client client;
   late final Uri endpoint;
-  Future<ReferenceRun> run(String lesson, String source) async {
-    if (!codeSpecs.containsKey(lesson) ||
+  Future<ReferenceRun> run(
+    String lesson,
+    String source, {
+    String language = 'javascript',
+  }) async {
+    if (!{'javascript', 'python'}.contains(language) ||
+        !codeSpecs.containsKey(lesson) ||
         utf8.encode(source).length > 32000 ||
         source.trim().isEmpty) {
       throw const FormatException('Use a draft of at most 32000 bytes.');
     }
-    return _request(lesson, source).timeout(const Duration(seconds: 35));
+    return _request(
+      lesson,
+      source,
+      language,
+    ).timeout(const Duration(seconds: 35));
   }
 
-  Future<ReferenceRun> _request(String lesson, String source) async {
+  Future<ReferenceRun> _request(
+    String lesson,
+    String source,
+    String language,
+  ) async {
     final request = http.Request('POST', endpoint)
       ..followRedirects = false
       ..headers['Content-Type'] = 'application/json'
       ..body = jsonEncode({
         'lesson_id': lesson,
-        'language': 'javascript',
+        'language': language,
         'source': source,
       });
     final response = await client.send(request);
@@ -68,7 +81,7 @@ class ReferenceRunnerClient {
       'input_modified',
     };
     if (data['suite'] != 'reference-v1' ||
-        data['language'] != 'javascript' ||
+        data['language'] != language ||
         data['verified_solve'] != false ||
         data['total'] != expected.length ||
         cases is! List ||

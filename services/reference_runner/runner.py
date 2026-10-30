@@ -10,6 +10,11 @@ ROOT = Path(__file__).resolve().parent
 IMAGE = 'node@sha256:c86ecead9e55a5210ac1727de38a4ca840bf03dcaf34dc9749addbf383b1920c'
 CASES = json.loads((ROOT / 'cases.json').read_text())
 WORKER = (ROOT / 'worker.js').read_text()
+RUNTIMES = {
+    'javascript': (IMAGE, ['node', '--jitless', '-e', WORKER]),
+    'python': ('python@sha256:516b51cb9db2ef061e465c803e50f64361b82cefd91e525b889b967b83e83527',
+               ['python', '-I', '-B', '-u', '-c', (ROOT / 'worker.py').read_text()]),
+}
 SUITE_VERSION = 'reference-v1'
 OUTPUT_LIMIT = 32768
 WALL_SECONDS = 4
@@ -24,17 +29,30 @@ def docker(*args, timeout=5):
     return subprocess.run([*DOCKER, *args], capture_output=True, timeout=timeout, check=True).stdout.decode().strip()
 
 
-def preflight():
+def preflight(language='javascript'):
+    if language not in RUNTIMES:
+        raise RunnerUnavailable('Unsupported runtime')
     try:
-        endpoint = docker('context', 'inspect', '--format', '{{.Endpoints.docker.Host}}')
+        endpoint = docker('context', 'inspect', 'desktop-linux', '--format', '{{.Endpoints.docker.Host}}')
         if not endpoint.startswith(('npipe://', 'unix://')):
             raise RunnerUnavailable('Only a local Docker engine is supported')
         info = json.loads(docker('info', '--format', '{{json .}}'))
         if info.get('OSType') != 'linux' or not any('seccomp' in x for x in info.get('SecurityOptions', [])):
             raise RunnerUnavailable('Linux Docker with seccomp is required')
-        docker('image', 'inspect', IMAGE, '--format', '{{.Id}}')
+        docker('image', 'inspect', RUNTIMES[language][0], '--format', '{{.Id}}')
     except (OSError, subprocess.SubprocessError, ValueError) as error:
-        raise RunnerUnavailable('Local Docker or the pinned Node image is unavailable') from error
+        raise RunnerUnavailable('Local Docker or the selected pinned image is unavailable') from error
+
+
+def available_languages():
+    available = []
+    for language in RUNTIMES:
+        try:
+            preflight(language)
+            available.append(language)
+        except RunnerUnavailable:
+            pass
+    return available
 
 
 def validate(payload):
@@ -42,22 +60,23 @@ def validate(payload):
         raise ValueError('Invalid request')
     if not isinstance(payload['lesson_id'], str) or payload['lesson_id'] not in CASES:
         raise ValueError('Unknown lesson')
-    if payload['language'] != 'javascript':
-        raise ValueError('This development runner supports JavaScript only')
+    if not isinstance(payload['language'], str) or payload['language'] not in RUNTIMES:
+        raise ValueError('This development runner supports JavaScript and Python')
     if not isinstance(payload['source'], str) or not 1 <= len(payload['source'].encode('utf-8')) <= 32000:
         raise ValueError('Source must be between 1 and 32000 bytes')
 
 
-def command(name):
+def command(name, language='javascript'):
+    image, entrypoint = RUNTIMES[language]
     return [*DOCKER, 'run', '--pull=never', '--name', name, '--label', 'dev.solveit.reference=true',
             '--network=none', '--read-only', '--user=65534:65534', '--cap-drop=ALL',
             '--security-opt=no-new-privileges', '--pids-limit=32', '--memory=128m',
             '--memory-swap=128m', '--cpus=0.5', '--ulimit=nofile=64:64', '--ulimit=core=0',
             '--log-driver=none', '--tmpfs=/tmp:rw,noexec,nosuid,size=16m',
-            '-i', IMAGE, 'node', '--jitless', '-e', WORKER]
+            '-i', image, *entrypoint]
 
 
-def run_case(source, args):
+def run_case(source, args, language='javascript'):
     name = 'solveit-reference-' + uuid.uuid4().hex
     process = None
     readers = []
@@ -75,7 +94,7 @@ def run_case(source, args):
                 overflow.set()
 
     try:
-        process = subprocess.Popen(command(name), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(command(name, language), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         for stream, target in zip((process.stdout, process.stderr), chunks):
             thread = threading.Thread(target=read, args=(stream, target), daemon=True)
             thread.start()
@@ -100,7 +119,7 @@ def run_case(source, args):
             return {'status': 'memory_limit' if oom == 'true' else 'runtime_error'}
         try:
             result = json.loads(chunks[0])
-            if not isinstance(result, dict) or result.get('status') not in ('returned', 'syntax_error', 'runtime_error'):
+            if not isinstance(result, dict) or result.get('status') not in ('returned', 'syntax_error', 'runtime_error', 'memory_limit'):
                 raise ValueError()
             return result
         except (ValueError, UnicodeError):
@@ -135,9 +154,15 @@ def matches(lesson, case, actual):
     return type(actual) is type(expected) and json.dumps(actual, separators=(',', ':')) == json.dumps(expected, separators=(',', ':'))
 
 
-def review(payload, execute=run_case, check=preflight):
+def review(payload, execute=None, check=None):
     validate(payload)
-    check()
+    language = payload['language']
+    if check is None:
+        preflight(language)
+    else:
+        check()
+    if execute is None:
+        execute = lambda source, args: run_case(source, args, language)
     rows = []
     for case in CASES[payload['lesson_id']]:
         result = execute(payload['source'], case['args'])
@@ -147,5 +172,5 @@ def review(payload, execute=run_case, check=preflight):
             if payload['lesson_id'] == 'busy-periods-v1' and result.get('mutated') is not False:
                 status = 'input_modified'
         rows.append({'label': case['label'], 'status': status})
-    return {'suite': SUITE_VERSION, 'language': 'javascript', 'passed': sum(r['status'] == 'matched' for r in rows),
+    return {'suite': SUITE_VERSION, 'language': language, 'passed': sum(r['status'] == 'matched' for r in rows),
             'total': len(rows), 'cases': rows, 'verified_solve': False}

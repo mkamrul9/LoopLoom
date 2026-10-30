@@ -75,6 +75,15 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
   }
 
   Future<void> run() async {
+    if (busy ||
+        !widget.enabled ||
+        client == null ||
+        !{
+          CodeLanguage.javascript,
+          CodeLanguage.python,
+        }.contains(widget.language)) {
+      return;
+    }
     final source = widget.editor.text,
         lesson = widget.lessonId,
         language = widget.language;
@@ -84,7 +93,11 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
       note = null;
     });
     try {
-      final response = await client!.run(lesson, source);
+      final response = await client!.run(
+        lesson,
+        source,
+        language: language.name,
+      );
       if (!mounted) return;
       setState(() {
         if (source == widget.editor.text &&
@@ -120,7 +133,10 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
       );
     }
     final spec = codeSpecs[widget.lessonId]!;
-    final supported = widget.language == CodeLanguage.javascript;
+    final supported = {
+      CodeLanguage.javascript,
+      CodeLanguage.python,
+    }.contains(widget.language);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -128,7 +144,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
         Text(
           supported
               ? 'Local development execution · reference cases only. This does not establish a verified solve.'
-              : 'Reference execution currently supports JavaScript. You can keep drafting in any language.',
+              : 'Reference execution currently supports JavaScript and Python. You can keep drafting in any language.',
           style: const TextStyle(
             fontSize: 12,
             height: 1.6,

@@ -14,7 +14,10 @@ class HttpTests(unittest.TestCase):
             validate(payload)
             self.calls.append(payload)
             return {'verified_solve':False,'passed':0}
-        def offline(): raise RunnerUnavailable('offline')
+        self.ready_languages=None
+        def offline():
+            if self.ready_languages is None: raise RunnerUnavailable('offline')
+            return self.ready_languages
         self.server=ThreadingHTTPServer(('127.0.0.1',0),handler(fake,offline))
         self.thread=threading.Thread(target=self.server.serve_forever,daemon=True)
         self.thread.start()
@@ -30,6 +33,14 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(self.request('POST','/run',body,{'Content-Type':'application/json'})[0],200)
         self.assertEqual(len(self.calls),1)
         self.assertFalse(self.request('GET','/health')[1]['ready'])
+    def test_health_and_submission_support_python_independently(self):
+        self.ready_languages=['python']
+        health=self.request('GET','/health')[1]
+        self.assertTrue(health['ready'])
+        self.assertEqual(health['languages'],['python'])
+        body=json.dumps({'lesson_id':'signal-ranges-v1','language':'python','source':'def solve(a,t):return 0'})
+        self.assertEqual(self.request('POST','/run',body,{'Content-Type':'application/json'})[0],200)
+        self.assertEqual(self.calls[0]['language'],'python')
     def test_cross_origin_and_rebound_hosts_do_not_reach_runner(self):
         self.assertEqual(self.request('GET','/health',headers={'Origin':'https://external.invalid'})[0],403)
         self.assertEqual(self.request('GET','/health',headers={'Host':'rebound.invalid'})[0],403)

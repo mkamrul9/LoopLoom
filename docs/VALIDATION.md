@@ -1,5 +1,15 @@
 # Pilot validation
 
+## Python reference execution follow-up — 30 October 2026
+
+Python now uses the same restricted-container reference runner as JavaScript. The official Python 3.14 slim Bookworm image was explicitly downloaded and pinned by digest. Requests never download images or fall back to a host interpreter. Health reports installed usable runtimes independently; a missing Python image leaves JavaScript available. The client sends the selected language, rejects mismatched replies, and discards a result when the language changes mid-run. Duplicate in-flight button actions are guarded.
+
+Validation: clean Flutter analysis, 41 Flutter tests, 13 runner unit/HTTP tests, 16 live Python checks, and 14 live JavaScript checks passed. The Python checks cover all six lessons, syntax/runtime/time/output/memory failures, actual non-root/read-only/no-network behavior, debug-print separation, boolean-versus-integer answers, input mutation reporting, and cleanup. Both workers redirect ordinary debug prints to bounded stderr and keep the result protocol separate. Reports: `PYTHON_RUNNER_VALIDATION.json` and `REFERENCE_RUNNER_VALIDATION.json`.
+
+The web preview and debug APK built successfully using the existing development toolchain/NDK override. Execution is enabled only in the explicit local preview, with JavaScript and Python ready at the service's health endpoint. The default APK remains guided unless configured for the emulator; no physical-device execution test or production release was performed.
+
+Browser verification resumed the separate localhost development workbook's Code checkpoint, selected Python, and ran an authored range-count implementation with a debug print. The UI reported 3/3 matches and remained at Code without completing reflection or granting a verified solve. The test tab was closed. Reloading the main 127.0.0.1 preview recovered the existing supply-pair Approach checkpoint unchanged. No changes to the focus palette, subscriptions, paid AI, public hosting, or Git remotes were made.
+
 ## Local reference execution follow-up — 30 October 2026
 
 Added opt-in JavaScript execution for the visible reference cases in all six lessons. Each case runs in a fresh restricted local Docker container with no host bind mount or network, non-root UID, read-only runtime, limits, bounded output, and per-case cleanup. Source is never executed on the host. The default APK leaves execution disabled; the loopback web preview explicitly enables it. This is a development experiment, not hardened production judging. [Setup, boundary, and limitations](REFERENCE_RUNNER.md).

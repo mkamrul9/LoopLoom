@@ -3,12 +3,12 @@ import argparse
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from runner import RunnerUnavailable, preflight, review
+from runner import RunnerUnavailable, available_languages, review
 
 ORIGINS = {'http://127.0.0.1:8123', 'http://localhost:8123'}
 
 
-def handler(reviewer=review, readiness=preflight):
+def handler(reviewer=review, readiness=available_languages):
     slot = threading.BoundedSemaphore(1)
 
     class Handler(BaseHTTPRequestHandler):
@@ -45,10 +45,10 @@ def handler(reviewer=review, readiness=preflight):
             if self.path != '/health':
                 return self.reply(404, {'error':'Not found'})
             try:
-                readiness()
-                return self.reply(200, {'ready':True,'languages':['javascript'],'development_only':True})
+                languages = readiness()
+                return self.reply(200, {'ready':bool(languages),'languages':languages,'development_only':True})
             except Exception:
-                return self.reply(200, {'ready':False,'languages':['javascript'],'development_only':True})
+                return self.reply(200, {'ready':False,'languages':[],'development_only':True})
 
         def do_POST(self):
             self.connection.settimeout(5)
@@ -80,9 +80,10 @@ if __name__ == '__main__':
     parser.add_argument('--development', action='store_true', required=True,
                         help='Acknowledge this local experiment is not a public arbitrary-code service')
     args = parser.parse_args()
-    preflight()
+    if not available_languages():
+        raise RunnerUnavailable('No local runtime is ready')
     service = ThreadingHTTPServer(('127.0.0.1', 8766), handler())
-    print('Development JavaScript reference runner on 127.0.0.1:8766', flush=True)
+    print('Development reference runner on 127.0.0.1:8766', flush=True)
     try:
         service.serve_forever()
     except KeyboardInterrupt:

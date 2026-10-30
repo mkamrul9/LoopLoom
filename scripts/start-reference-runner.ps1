@@ -1,6 +1,6 @@
 param([switch]$Development)
 $ErrorActionPreference = 'Stop'
-if (-not $Development) { throw 'Use -Development to start this local-only experimental JavaScript reference runner.' }
+if (-not $Development) { throw 'Use -Development to start this local-only experimental reference runner.' }
 $solveItRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $solveItLogs = Join-Path $solveItRoot '.local/logs'
 New-Item -ItemType Directory -Path $solveItLogs -Force | Out-Null
@@ -14,7 +14,7 @@ for ($solveItAttempt=0; $solveItAttempt -lt 20; $solveItAttempt++) {
     Start-Sleep -Milliseconds 500
     try {
         $solveItHealth = Invoke-RestMethod -Uri 'http://127.0.0.1:8766/health' -TimeoutSec 8
-        if ($solveItHealth.ready) { Write-Output 'Local development JavaScript runner ready on 127.0.0.1:8766.'; exit 0 }
+        if ($solveItHealth.ready) { Write-Output "Local development runner ready on 127.0.0.1:8766. Available languages: $($solveItHealth.languages -join ', ')."; exit 0 }
     } catch { }
     if ($solveItProcess.HasExited) { break }
 }

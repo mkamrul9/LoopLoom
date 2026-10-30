@@ -1,7 +1,7 @@
 {
   "kind": "local_development_authored_fixtures_not_security_certification",
-  "passed": 13,
-  "total": 13,
+  "passed": 14,
+  "total": 14,
   "checks": [
     {
       "check": "supply-pair-v1",
@@ -200,6 +200,15 @@
             "lo"
           ]
         },
+        "mutated": false
+      }
+    },
+    {
+      "check": "debug_print_keeps_result_protocol",
+      "passed": true,
+      "result": {
+        "status": "returned",
+        "result": 42,
         "mutated": false
       }
     },

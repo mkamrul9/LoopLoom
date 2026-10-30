@@ -33,6 +33,8 @@ def main():
     probe=run_case('function solve(){let writable=true;try{require("fs").writeFileSync("/forbidden","x");}catch(e){writable=false;}return {uid:process.getuid(),writable,interfaces:Object.keys(require("os").networkInterfaces())};}',[])
     value=probe.get('result',{})
     rows.append({'check':'uid_root_filesystem_and_network','passed':value.get('uid')==65534 and value.get('writable') is False and value.get('interfaces')==['lo'],'result':probe})
+    debug=run_case('function solve(){console.log("debug");return 42;}',[])
+    rows.append({'check':'debug_print_keeps_result_protocol','passed':debug.get('result')==42,'result':debug})
     remaining=docker('ps','-a','--filter','label=dev.solveit.reference=true','--format','{{.Names}}')
     rows.append({'check':'container_cleanup','passed':not remaining})
     report={'kind':'local_development_authored_fixtures_not_security_certification','passed':sum(r['passed'] for r in rows),'total':len(rows),'checks':rows}

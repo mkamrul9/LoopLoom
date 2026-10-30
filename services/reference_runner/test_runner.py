@@ -1,12 +1,35 @@
 import json
 import unittest
-from runner import CASES, RunnerUnavailable, command, matches, review, validate
+from unittest.mock import patch
+from runner import CASES, RunnerUnavailable, available_languages, command, matches, review, validate
 
 
 class RunnerTests(unittest.TestCase):
+    def test_available_languages_excludes_only_missing_runtime(self):
+        def selected(language):
+            if language=='python': raise RunnerUnavailable('missing')
+        with patch('runner.preflight',side_effect=selected):
+            self.assertEqual(available_languages(),['javascript'])
+
+    def test_python_request_keeps_language_and_never_falls_back(self):
+        payload={'lesson_id':'signal-ranges-v1','language':'python','source':'def solve(a,t):return 0'}
+        result=review(payload,execute=lambda *_:{'status':'returned','result':0},check=lambda:None)
+        self.assertEqual(result['language'],'python')
+        self.assertIs(result['verified_solve'],False)
+        def missing(): raise RunnerUnavailable('missing selected image')
+        with self.assertRaises(RunnerUnavailable):
+            review(payload,execute=lambda *_:self.fail('must not fall back'),check=missing)
+
+    def test_python_command_uses_the_same_restrictions_and_isolated_interpreter_flags(self):
+        python=command('solveit-reference-test','python')
+        javascript=command('solveit-reference-test','javascript')
+        self.assertEqual(python[:python.index('-i')],javascript[:javascript.index('-i')])
+        self.assertIn('-I',python)
+        self.assertIn('-B',python)
+        self.assertTrue(any(arg.startswith('python@sha256:') for arg in python))
     def test_validation_rejects_unknown_fields_and_unsupported_language_before_execution(self):
         valid = {'lesson_id':'signal-ranges-v1','language':'javascript','source':'function solve(){return 0;}'}
-        for changed in ({'language':'python'},{'lesson_id':[]},{'source':'x'*32001},{'image':'remote:latest'}):
+        for changed in ({'language':'cpp'},{'language':[]},{'lesson_id':[]},{'source':'x'*32001},{'image':'remote:latest'}):
             with self.assertRaises(ValueError):
                 review({**valid,**changed}, execute=lambda *_: self.fail('executed invalid input'), check=lambda:None)
 

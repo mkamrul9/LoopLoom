@@ -22,6 +22,91 @@ Map<String, Object?> goodReply() => {
 };
 
 void main() {
+  test(
+    'Python submissions carry their language and reject another runtime reply',
+    () async {
+      for (final responseLanguage in ['python', 'javascript']) {
+        final client = ReferenceRunnerClient(
+          'http://localhost:8766',
+          client: MockClient((request) async {
+            expect(jsonDecode(request.body)['language'], 'python');
+            return http.Response(
+              jsonEncode({...goodReply(), 'language': responseLanguage}),
+              200,
+            );
+          }),
+        );
+        if (responseLanguage == 'python') {
+          expect(
+            (await client.run(
+              'signal-ranges-v1',
+              'def solve(a,t):return 0',
+              language: 'python',
+            )).passed,
+            3,
+          );
+        } else {
+          await expectLater(
+            client.run(
+              'signal-ranges-v1',
+              'def solve(a,t):return 0',
+              language: 'python',
+            ),
+            throwsFormatException,
+          );
+        }
+        client.close();
+      }
+      final client = ReferenceRunnerClient(
+        'http://localhost:8766',
+        client: MockClient(
+          (_) async => throw StateError('unsupported language reached HTTP'),
+        ),
+      );
+      await expectLater(
+        client.run('signal-ranges-v1', 'draft', language: 'cpp'),
+        throwsFormatException,
+      );
+      client.close();
+    },
+  );
+  testWidgets(
+    'changing from Python to JavaScript discards an in-flight Python result',
+    (tester) async {
+      final pending = Completer<http.Response>();
+      final client = ReferenceRunnerClient(
+        'http://localhost:8766',
+        client: MockClient((request) {
+          expect(jsonDecode(request.body)['language'], 'python');
+          return pending.future;
+        }),
+      );
+      final editor = TextEditingController(text: 'def solve(a,t):return 0');
+      Widget view(CodeLanguage language) => MaterialApp(
+        home: Scaffold(
+          body: ReferenceRunPanel(
+            lessonId: 'signal-ranges-v1',
+            language: language,
+            editor: editor,
+            enabled: true,
+            runner: client,
+          ),
+        ),
+      );
+      await tester.pumpWidget(view(CodeLanguage.python));
+      await tester.tap(find.text('Run reference cases'));
+      await tester.pump();
+      await tester.pumpWidget(view(CodeLanguage.javascript));
+      pending.complete(
+        http.Response(jsonEncode({...goodReply(), 'language': 'python'}), 200),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('draft changed'), findsOneWidget);
+      expect(find.text('3/3 reference cases matched'), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+      editor.dispose();
+    },
+  );
   test('server reference fixtures match the visible input contracts', () {
     final suite =
         jsonDecode(
