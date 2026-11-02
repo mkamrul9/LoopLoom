@@ -43,6 +43,13 @@ class Blind75Entry {
   final List<BlindArgument> arguments;
   final BlindValueKind result;
 
+  String get milestone => switch (number) {
+    <= 75 => 'Core 75',
+    <= 150 => 'Core 150',
+    <= 250 => 'Breadth 250',
+    _ => 'Mastery 300',
+  };
+
   Uri get challengeUri => Uri.https('leetcode.com', '/problems/$slug/');
 
   bool get hasReferenceCases => codeSpecs.containsKey(lesson.id);

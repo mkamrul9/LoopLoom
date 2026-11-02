@@ -273,6 +273,13 @@ void main() {
     expect(find.text('Interview Mastery · 300'), findsNWidgets(2));
     expect(find.textContaining('0 of 300 self-reviewed'), findsOneWidget);
     expect(find.textContaining('300 problems'), findsOneWidget);
+    await tester.ensureVisible(find.text('Breadth 250 · 100'));
+    await tester.tap(find.text('Breadth 250 · 100'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('100 of 100 problems'), findsOneWidget);
+    await tester.ensureVisible(find.text('All · 300'));
+    await tester.tap(find.text('All · 300'));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.byType(TextField).first);
     await tester.enterText(find.byType(TextField).first, 'Ransom Note');
     await tester.pumpAndSettle();

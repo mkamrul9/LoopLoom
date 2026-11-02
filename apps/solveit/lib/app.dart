@@ -42,6 +42,7 @@ class _LearningHomeState extends State<LearningHome> {
   int track = 3;
   String blindQuery = '';
   String blindDifficulty = 'All';
+  String masteryMilestone = 'All';
   List<Lesson> get trackLessons => switch (track) {
     0 => pilotLessons,
     1 => interviewLessons,
@@ -554,7 +555,12 @@ class _LearningHomeState extends State<LearningHome> {
 
   Widget _curriculumPath(List<Blind75Entry> entries) {
     final normalizedQuery = blindQuery.trim().toLowerCase();
-    final visibleEntries = entries.where((entry) {
+    final milestoneEntries = entries.where((entry) {
+      return entries.length != 300 ||
+          masteryMilestone == 'All' ||
+          entry.milestone == masteryMilestone;
+    }).toList();
+    final visibleEntries = milestoneEntries.where((entry) {
       final matchesQuery =
           normalizedQuery.isEmpty ||
           entry.title.toLowerCase().contains(normalizedQuery) ||
@@ -637,9 +643,38 @@ class _LearningHomeState extends State<LearningHome> {
               )
               .toList(),
         ),
+        if (entries.length == 300) ...[
+          const SizedBox(height: 12),
+          const Text('STUDY MILESTONE', style: noteLabel),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                [
+                  'All',
+                  'Core 75',
+                  'Core 150',
+                  'Breadth 250',
+                  'Mastery 300',
+                ].map((milestone) {
+                  final count = milestone == 'All'
+                      ? entries.length
+                      : entries
+                            .where((entry) => entry.milestone == milestone)
+                            .length;
+                  return ChoiceChip(
+                    label: Text('$milestone · $count'),
+                    selected: masteryMilestone == milestone,
+                    onSelected: (_) =>
+                        setState(() => masteryMilestone = milestone),
+                  );
+                }).toList(),
+          ),
+        ],
         const SizedBox(height: 12),
         Text(
-          '${visibleEntries.length} of ${entries.length} problems · ${reviewedInTrack()} self-reviewed',
+          '${visibleEntries.length} of ${milestoneEntries.length} problems · ${visibleEntries.map((entry) => entry.lesson.id).where((id) => store.sessions.any((session) => session.lesson.id == id && session.stage == CoachingStage.complete)).toSet().length} self-reviewed',
           style: const TextStyle(fontSize: 14, color: StudyColors.muted),
         ),
         if (visibleEntries.isEmpty)
