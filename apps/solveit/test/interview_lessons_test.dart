@@ -127,6 +127,34 @@ void main() {
       mastery300Entries.map((entry) => entry.pattern).toSet().length,
       greaterThanOrEqualTo(18),
     );
+    expect(
+      mastery300Entries
+          .singleWhere(
+            (entry) =>
+                entry.slug ==
+                'maximum-number-of-events-that-can-be-attended-ii',
+          )
+          .pattern,
+      '1-D dynamic programming',
+    );
+    expect(
+      mastery300Entries
+          .singleWhere(
+            (entry) => entry.slug == 'find-k-th-smallest-pair-distance',
+          )
+          .pattern,
+      'Binary search',
+    );
+    expect(
+      mastery300Entries
+          .singleWhere(
+            (entry) =>
+                entry.slug ==
+                'maximum-length-of-subarray-with-positive-product',
+          )
+          .pattern,
+      '1-D dynamic programming',
+    );
     for (final entry in mastery300Entries) {
       expect(entry.lesson.questions, hasLength(5), reason: entry.title);
       expect(entry.lesson.checks, hasLength(5), reason: entry.title);

@@ -782,7 +782,7 @@ const mastery300Seeds = <MasteryProblemSeed>[
   MasteryProblemSeed(
     'Find K-th Smallest Pair Distance',
     'find-k-th-smallest-pair-distance',
-    'Heaps',
+    'Binary search',
     'Hard',
   ),
   // Graph traversal (22)
@@ -1169,8 +1169,8 @@ const mastery300Seeds = <MasteryProblemSeed>[
   MasteryProblemSeed(
     'Maximum Number of Events That Can Be Attended II',
     'maximum-number-of-events-that-can-be-attended-ii',
-    'Greedy',
-    'Medium',
+    '1-D dynamic programming',
+    'Hard',
   ),
   MasteryProblemSeed(
     'Wiggle Subsequence',
@@ -1212,7 +1212,7 @@ const mastery300Seeds = <MasteryProblemSeed>[
   MasteryProblemSeed(
     'Maximum Length of Subarray With Positive Product',
     'maximum-length-of-subarray-with-positive-product',
-    'Greedy',
+    '1-D dynamic programming',
     'Medium',
   ),
   // Intervals (8)
