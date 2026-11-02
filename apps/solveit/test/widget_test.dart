@@ -273,10 +273,14 @@ void main() {
     expect(find.text('Interview Mastery · 300'), findsNWidgets(2));
     expect(find.textContaining('0 of 300 self-reviewed'), findsOneWidget);
     expect(find.textContaining('300 problems'), findsOneWidget);
-    await tester.ensureVisible(find.text('Breadth 250 · 100'));
-    await tester.tap(find.text('Breadth 250 · 100'));
+    await tester.ensureVisible(find.text('Core 150 · 150'));
+    await tester.tap(find.text('Core 150 · 150'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('100 of 100 problems'), findsOneWidget);
+    expect(find.textContaining('150 of 150 problems'), findsOneWidget);
+    await tester.ensureVisible(find.text('Breadth 250 · 250'));
+    await tester.tap(find.text('Breadth 250 · 250'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('250 of 250 problems'), findsOneWidget);
     await tester.ensureVisible(find.text('All · 300'));
     await tester.tap(find.text('All · 300'));
     await tester.pumpAndSettle();

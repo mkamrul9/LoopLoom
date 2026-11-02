@@ -1352,10 +1352,76 @@ const mastery300Seeds = <MasteryProblemSeed>[
   ),
 ];
 
+const _coreExtensionCounts = <String, int>{
+  'Arrays & hashing': 10,
+  'Two pointers': 5,
+  'Sliding window': 5,
+  'Binary search': 6,
+  'Linked lists': 5,
+  'Stacks': 5,
+  'Trees': 7,
+  'Tries': 1,
+  'Backtracking': 4,
+  'Heaps': 4,
+  'Graphs': 6,
+  'Advanced graphs': 2,
+  '1-D dynamic programming': 5,
+  '2-D dynamic programming': 3,
+  'Greedy': 3,
+  'Intervals': 2,
+  'Bit manipulation': 2,
+};
+
+const _breadthExtensionCounts = <String, int>{
+  'Arrays & hashing': 6,
+  'Two pointers': 3,
+  'Sliding window': 2,
+  'Binary search': 4,
+  'Linked lists': 3,
+  'Stacks': 4,
+  'Trees': 10,
+  'Tries': 2,
+  'Backtracking': 5,
+  'Heaps': 4,
+  'Graphs': 12,
+  'Advanced graphs': 7,
+  '1-D dynamic programming': 8,
+  '2-D dynamic programming': 7,
+  'Greedy': 6,
+  'Intervals': 4,
+  'Bit manipulation': 3,
+  'Math & geometry': 10,
+};
+
+List<MasteryProblemSeed> _selectExtensionSeeds(
+  Map<String, int> counts, {
+  Map<String, int> skipByPattern = const {},
+}) => [
+  for (final quota in counts.entries)
+    ...mastery300Seeds
+        .where((seed) => seed.pattern == quota.key)
+        .skip(skipByPattern[quota.key] ?? 0)
+        .take(quota.value),
+];
+
+final _core150Extensions = _selectExtensionSeeds(_coreExtensionCounts);
+final _breadth250Extensions = _selectExtensionSeeds(
+  _breadthExtensionCounts,
+  skipByPattern: _coreExtensionCounts,
+);
+final _milestoneSeeds = <MasteryProblemSeed>[
+  ..._core150Extensions,
+  ..._breadth250Extensions,
+  for (final seed in mastery300Seeds)
+    if (!_core150Extensions.contains(seed) &&
+        !_breadth250Extensions.contains(seed))
+      seed,
+];
+
 final mastery300Entries = List<Blind75Entry>.unmodifiable([
   ...blind75Entries,
-  for (var i = 0; i < mastery300Seeds.length; i++)
-    mastery300Seeds[i].build(blind75Entries.length + i + 1),
+  for (var i = 0; i < _milestoneSeeds.length; i++)
+    _milestoneSeeds[i].build(blind75Entries.length + i + 1),
 ]);
 
 final mastery300ByLessonId = {

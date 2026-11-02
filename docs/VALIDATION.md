@@ -170,3 +170,5 @@ Added the Interview Mastery 300 path and populated 225 curated extensions alongs
 Added filters for the 300 path’s Core 75, Core 150, Breadth 250, and Mastery 300 cumulative milestones. Each selection scopes the problem count and self-reviewed progress; the 300-entry path remains searchable by title, pattern, and difficulty. Flutter analysis passed, all 59 tests passed, and the release web build succeeded after this UI update.
 
 Added an “Open official problem statement” action to the lesson overview for all 300 catalog challenges, so learners can inspect the canonical statement before writing an approach. The link opens externally. Flutter analysis passed, all 59 tests passed, and the release web build succeeded.
+
+Corrected milestone filters to be cumulative: Core 75 displays 75 entries, Core 150 displays 150, Breadth 250 displays 250, and Mastery 300 displays all 300. Reordered the extension set so its Core 150 segment samples multiple interview families rather than taking the first category blocks. Flutter analysis passed, all 59 tests passed, and the release web build succeeded.

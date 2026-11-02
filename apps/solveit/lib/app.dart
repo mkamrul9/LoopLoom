@@ -555,10 +555,15 @@ class _LearningHomeState extends State<LearningHome> {
 
   Widget _curriculumPath(List<Blind75Entry> entries) {
     final normalizedQuery = blindQuery.trim().toLowerCase();
+    final milestoneLimit = switch (masteryMilestone) {
+      'Core 75' => 75,
+      'Core 150' => 150,
+      'Breadth 250' => 250,
+      'Mastery 300' => 300,
+      _ => entries.length,
+    };
     final milestoneEntries = entries.where((entry) {
-      return entries.length != 300 ||
-          masteryMilestone == 'All' ||
-          entry.milestone == masteryMilestone;
+      return entries.length != 300 || entry.number <= milestoneLimit;
     }).toList();
     final visibleEntries = milestoneEntries.where((entry) {
       final matchesQuery =
@@ -658,11 +663,16 @@ class _LearningHomeState extends State<LearningHome> {
                   'Breadth 250',
                   'Mastery 300',
                 ].map((milestone) {
-                  final count = milestone == 'All'
-                      ? entries.length
-                      : entries
-                            .where((entry) => entry.milestone == milestone)
-                            .length;
+                  final limit = switch (milestone) {
+                    'Core 75' => 75,
+                    'Core 150' => 150,
+                    'Breadth 250' => 250,
+                    'Mastery 300' => 300,
+                    _ => entries.length,
+                  };
+                  final count = entries
+                      .where((entry) => entry.number <= limit)
+                      .length;
                   return ChoiceChip(
                     label: Text('$milestone · $count'),
                     selected: masteryMilestone == milestone,
