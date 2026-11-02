@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../data/mastery300_curriculum.dart';
 import '../../domain/lesson.dart';
 import '../../ui/solveit_theme.dart';
 import '../../ui/save_status.dart';
@@ -86,6 +88,20 @@ class _PracticeScreenState extends State<PracticeScreen> {
         );
       }
     });
+  }
+
+  Future<void> _openOfficialChallenge() async {
+    final entry = mastery300ByLessonId[session.lesson.id];
+    if (entry == null) return;
+    final opened = await launchUrl(
+      entry.challengeUri,
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open the challenge page.')),
+      );
+    }
   }
 
   @override
@@ -178,6 +194,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(session.lesson.pattern.toUpperCase(), style: noteLabel),
+      if (mastery300ByLessonId.containsKey(session.lesson.id)) ...[
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: _openOfficialChallenge,
+            icon: const Icon(Icons.open_in_new, size: 18),
+            label: const Text('Open official problem statement'),
+          ),
+        ),
+      ],
       const SizedBox(height: 18),
       const Text(
         'The problem',

@@ -285,6 +285,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('1 of 300 problems'), findsOneWidget);
     expect(find.text('Ransom Note'), findsNWidgets(2));
+    await tester.tap(find.text('Ransom Note').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Open official problem statement'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
