@@ -182,3 +182,7 @@ Added problem-specific original prompts, examples, edge-case contracts, approach
 ## Problem-specific guide batch 2 — 2 November 2026
 
 Added 19 more original problem-specific coaching guides, bringing the customized extension total to 37. New coverage includes prefix-remainder divisibility, in-place placement, sorted search, linked-list reversal, tree height/path state, duplicate-pruned backtracking, heap selection, BFS components, and DSU cycle detection. The other 188 extensions still use general pattern scaffolds; full canonical statements remain linked externally.
+
+### Mastery 300 content batch 3
+
+Added twelve problem-specific original coaching guides, bringing the customized extension total to 49. New coverage includes stable array compaction, linked-list rotation and merge sort, nested decoding, monotonic digit removal, tree path sums, trie prefix replacement, multi-source grid BFS, greedy jump ranges, and circular fuel feasibility. The other 176 extensions still use general pattern scaffolds; full canonical statements remain linked externally.
