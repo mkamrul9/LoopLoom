@@ -178,3 +178,7 @@ Reviewed several clearly mismatched pattern tags in the 225 extensions and corre
 ## Problem-specific guide batch — 2 November 2026
 
 Added problem-specific original prompts, examples, edge-case contracts, approach questions, progressive hints, and explanations for 18 high-priority Core 150 extensions. These descriptions are SolveIt-authored and avoid reproducing full third-party statements; canonical full prompts remain one tap away on the external challenge page. The remaining 207 extensions still use family-level guidance and are not yet equally editorialized.
+
+## Problem-specific guide batch 2 — 2 November 2026
+
+Added 19 more original problem-specific coaching guides, bringing the customized extension total to 37. New coverage includes prefix-remainder divisibility, in-place placement, sorted search, linked-list reversal, tree height/path state, duplicate-pruned backtracking, heap selection, BFS components, and DSU cycle detection. The other 188 extensions still use general pattern scaffolds; full canonical statements remain linked externally.
