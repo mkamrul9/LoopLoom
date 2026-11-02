@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/code_specs.dart';
 import '../data/blind75_curriculum.dart';
+import '../data/mastery300_curriculum.dart';
 import '../domain/lesson.dart';
 import 'solveit_theme.dart';
 import 'reference_run_panel.dart';
@@ -38,7 +39,8 @@ class CodeWorkspace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spec = codeSpecs[lessonId];
-    final blindEntry = blind75ByLessonId[lessonId];
+    final blindEntry =
+        mastery300ByLessonId[lessonId] ?? blind75ByLessonId[lessonId];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

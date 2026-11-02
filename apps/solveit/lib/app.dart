@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'data/blind75_curriculum.dart';
 import 'data/lesson_catalog.dart';
+import 'data/mastery300_curriculum.dart';
 import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
 import 'domain/lesson.dart';
@@ -45,14 +46,16 @@ class _LearningHomeState extends State<LearningHome> {
     0 => pilotLessons,
     1 => interviewLessons,
     2 => starter30Lessons,
-    _ => blind75Lessons,
+    3 => blind75Lessons,
+    _ => mastery300Lessons,
   };
 
   String get trackTitle => switch (track) {
     0 => 'Interview warm-ups',
     1 => 'Intermediate foundations',
     2 => 'Starter 30',
-    _ => 'Blind 75 · guided path',
+    3 => 'Blind 75 · guided path',
+    _ => 'Interview Mastery · 300',
   };
   int reviewedInTrack() => store.sessions
       .where(
@@ -97,6 +100,11 @@ class _LearningHomeState extends State<LearningHome> {
         label: Text('Blind 75 · ${blind75Entries.length}'),
         selected: track == 3,
         onSelected: (_) => setState(() => track = 3),
+      ),
+      ChoiceChip(
+        label: Text('Mastery · ${mastery300Entries.length}'),
+        selected: track == 4,
+        onSelected: (_) => setState(() => track = 4),
       ),
     ],
   );
@@ -456,8 +464,8 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 16),
       trackPicker(),
       const SizedBox(height: 12),
-      if (track == 3) ...[
-        _blind75Path(),
+      if (track == 3 || track == 4) ...[
+        _curriculumPath(track == 3 ? blind75Entries : mastery300Entries),
       ] else ...[
         ...trackLessons.indexed.map(
           (item) => _lessonTile(item.$2, item.$1 + 1),
@@ -544,9 +552,9 @@ class _LearningHomeState extends State<LearningHome> {
         ],
       );
 
-  Widget _blind75Path() {
+  Widget _curriculumPath(List<Blind75Entry> entries) {
     final normalizedQuery = blindQuery.trim().toLowerCase();
-    final visibleEntries = blind75Entries.where((entry) {
+    final visibleEntries = entries.where((entry) {
       final matchesQuery =
           normalizedQuery.isEmpty ||
           entry.title.toLowerCase().contains(normalizedQuery) ||
@@ -573,8 +581,10 @@ class _LearningHomeState extends State<LearningHome> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'SolveIt’s prompts and explanations are original. This community study path links to the official LeetCode questions; SolveIt is not affiliated with LeetCode.',
+              Text(
+                entries.length == 75
+                    ? 'SolveIt’s prompts and explanations are original. This community study path links to the official LeetCode questions; SolveIt is not affiliated with LeetCode.'
+                    : 'This 300-problem path combines the Blind 75 with 225 curated interview challenges. Prompts guide your reasoning; official challenge pages provide full statements. SolveIt is not affiliated with LeetCode.',
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.6,
@@ -582,23 +592,24 @@ class _LearningHomeState extends State<LearningHome> {
                 ),
               ),
               const SizedBox(height: 6),
-              TextButton.icon(
-                onPressed: () async {
-                  final opened = await launchUrl(
-                    Uri.https('blind-75.com', '/'),
-                    mode: LaunchMode.externalApplication,
-                  );
-                  if (!opened && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Could not open the list reference.'),
-                      ),
+              if (entries.length == 75)
+                TextButton.icon(
+                  onPressed: () async {
+                    final opened = await launchUrl(
+                      Uri.https('blind-75.com', '/'),
+                      mode: LaunchMode.externalApplication,
                     );
-                  }
-                },
-                icon: const Icon(Icons.open_in_new, size: 18),
-                label: const Text('View Blind 75 list reference'),
-              ),
+                    if (!opened && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Could not open the list reference.'),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 18),
+                  label: const Text('View Blind 75 list reference'),
+                ),
             ],
           ),
         ),
@@ -628,7 +639,7 @@ class _LearningHomeState extends State<LearningHome> {
         ),
         const SizedBox(height: 12),
         Text(
-          '${visibleEntries.length} of 75 problems · ${reviewedInTrack()} self-reviewed',
+          '${visibleEntries.length} of ${entries.length} problems · ${reviewedInTrack()} self-reviewed',
           style: const TextStyle(fontSize: 14, color: StudyColors.muted),
         ),
         if (visibleEntries.isEmpty)
@@ -667,7 +678,7 @@ class _LearningHomeState extends State<LearningHome> {
               ),
               initiallyExpanded:
                   normalizedQuery.isNotEmpty ||
-                  phase.key == blind75Entries.first.phase,
+                  phase.key == entries.first.phase,
               children: patterns.entries
                   .map(
                     (pattern) => ExpansionTile(
@@ -742,33 +753,27 @@ class _LearningHomeState extends State<LearningHome> {
         minHeight: 3,
       ),
       const SizedBox(height: 24),
-      Text(
-        switch (track) {
-          0 =>
-            'Build confidence with lookup, sorted search, and fixed windows.',
-          1 =>
-            'Practice windows, search boundaries, strings, heaps, trees, linked lists, graphs, backtracking, and dynamic programming.',
-          2 =>
-            'The starter path combines three warm-ups with twenty-seven intermediate pattern lessons.',
-          _ =>
-            'A 75-question interview-preparation path arranged by patterns and study phases, with one guided reasoning sequence per problem.',
-        },
-        style: const TextStyle(
-          fontSize: 13,
-          height: 1.65,
-          color: StudyColors.muted,
-        ),
-      ),
+      Text(switch (track) {
+        0 => 'Build confidence with lookup, sorted search, and fixed windows.',
+        1 =>
+          'Practice windows, search boundaries, strings, heaps, trees, linked lists, graphs, backtracking, and dynamic programming.',
+        2 =>
+          'The starter path combines three warm-ups with twenty-seven intermediate pattern lessons.',
+        3 =>
+          'A 75-question interview-preparation path arranged by patterns and study phases, with one guided reasoning sequence per problem.',
+        _ =>
+          'A 300-problem interview path across core and advanced patterns. Each challenge has five guided reasoning checkpoints and links to its official statement.',
+      }, style: const TextStyle(fontSize: 13, height: 1.65, color: StudyColors.muted)),
       const SizedBox(height: 16),
-      if (track == 3) ...[
-        _blind75Path(),
+      if (track == 3 || track == 4) ...[
+        _curriculumPath(track == 3 ? blind75Entries : mastery300Entries),
       ] else ...[
         ...trackLessons.indexed.map(
           (item) => _lessonTile(item.$2, item.$1 + 1),
         ),
       ],
       const SizedBox(height: 32),
-      const Text('NEXT PATHS', style: noteLabel),
+      const Text('300-PROBLEM ROADMAP', style: noteLabel),
       const SizedBox(height: 14),
       _mastery300Plan(),
       const SizedBox(height: 16),
@@ -801,10 +806,10 @@ class _LearningHomeState extends State<LearningHome> {
       ('Math & geometry', 15),
     ];
     const milestones = <(String, String)>[
-      ('Core 75', 'Blind 75 · available now'),
-      ('Core 150', 'Add canonical pattern extensions'),
-      ('Breadth 250', 'Build approachable coverage across every family'),
-      ('Mastery 300', 'Add advanced and mixed-pattern transfer problems'),
+      ('Core 75', 'Blind 75 · available'),
+      ('Core 150', 'Available · deepen the core patterns'),
+      ('Breadth 250', 'Available · practice across every family'),
+      ('Mastery 300', 'Available · advanced and mixed-pattern practice'),
     ];
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -812,14 +817,14 @@ class _LearningHomeState extends State<LearningHome> {
         key: const PageStorageKey<String>('mastery-300-plan'),
         leading: const Icon(Icons.route_outlined),
         title: const Text('Interview Mastery · 300'),
-        subtitle: const Text(
-          '75 available · 225 planned · 18 pattern families',
+        subtitle: Text(
+          '${mastery300Entries.length} guided problems · 18 target pattern families',
         ),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'A staged interview path: learn the core patterns, widen coverage, then practice advanced variants and mixed-pattern problems. Counts below are curriculum targets; only Blind 75 is available today.',
+            'A staged interview path: learn the core patterns, widen coverage, then practice advanced variants and mixed-pattern problems. All 300 challenge entries are available; official challenge pages provide full problem statements.',
             style: TextStyle(height: 1.6, color: StudyColors.muted),
           ),
           const SizedBox(height: 16),
@@ -834,13 +839,11 @@ class _LearningHomeState extends State<LearningHome> {
               ),
               title: Text(milestone.$1),
               subtitle: Text(milestone.$2),
-              trailing: milestone.$1 == 'Core 75'
-                  ? const Text('LIVE', style: noteLabel)
-                  : const Text('PLANNED', style: noteLabel),
+              trailing: const Text('LIVE', style: noteLabel),
             ),
           const Divider(height: 28),
           Text(
-            'PATTERN COVERAGE · ${patterns.fold<int>(0, (sum, item) => sum + item.$2)} TOTAL TARGETS',
+            'PATTERN TARGETS · ${patterns.fold<int>(0, (sum, item) => sum + item.$2)} TOTAL',
             style: noteLabel,
           ),
           const SizedBox(height: 8),

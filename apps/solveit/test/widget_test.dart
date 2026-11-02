@@ -244,7 +244,7 @@ void main() {
     await tester.tap(find.text('Interview Mastery · 300'));
     await tester.pumpAndSettle();
     expect(
-      find.text('75 available · 225 planned · 18 pattern families'),
+      find.text('300 guided problems · 18 target pattern families'),
       findsOneWidget,
     );
     expect(find.text('Core 75'), findsOneWidget);
@@ -253,7 +253,31 @@ void main() {
     expect(find.text('Mastery 300'), findsOneWidget);
     expect(find.text('Advanced graphs'), findsOneWidget);
     expect(find.text('Two-dimensional DP'), findsOneWidget);
-    expect(find.textContaining('PATTERN COVERAGE · 300'), findsOneWidget);
+    expect(find.textContaining('PATTERN TARGETS · 300'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Mastery 300 opens its searchable guided problem path', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.tap(find.text('Roadmaps'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Mastery · 300'));
+    await tester.tap(find.text('Mastery · 300'));
+    await tester.pumpAndSettle();
+    expect(find.text('Interview Mastery · 300'), findsNWidgets(2));
+    expect(find.textContaining('0 of 300 self-reviewed'), findsOneWidget);
+    expect(find.textContaining('300 problems'), findsOneWidget);
+    await tester.ensureVisible(find.byType(TextField).first);
+    await tester.enterText(find.byType(TextField).first, 'Ransom Note');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('1 of 300 problems'), findsOneWidget);
+    expect(find.text('Ransom Note'), findsNWidgets(2));
     expect(tester.takeException(), isNull);
   });
 

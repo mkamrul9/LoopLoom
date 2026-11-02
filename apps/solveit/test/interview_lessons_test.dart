@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:solveit/data/interview_lessons.dart';
 import 'package:solveit/data/lesson_catalog.dart';
 import 'package:solveit/data/blind75_curriculum.dart';
+import 'package:solveit/data/mastery300_curriculum.dart';
 import 'package:solveit/domain/lesson.dart';
 import 'package:solveit/features/coaching/session_controller.dart';
 
@@ -82,7 +83,7 @@ void main() {
       hasLength(15),
     );
     expect(starter30Lessons, hasLength(30));
-    expect(allLessons, hasLength(90));
+    expect(allLessons, hasLength(315));
     for (final entry in blind75Entries) {
       final lesson = entry.lesson;
       expect(entry.challengeUri.host, 'leetcode.com');
@@ -105,6 +106,32 @@ void main() {
         );
         session.dispose();
       }
+    }
+  });
+  test('Interview Mastery contains 300 unique, guided challenges', () {
+    expect(mastery300Seeds, hasLength(225));
+    expect(mastery300Entries, hasLength(300));
+    expect(
+      mastery300Entries.map((entry) => entry.number),
+      List.generate(300, (index) => index + 1),
+    );
+    expect(
+      mastery300Entries.map((entry) => entry.slug).toSet(),
+      hasLength(300),
+    );
+    expect(
+      mastery300Entries.map((entry) => entry.lesson.id).toSet(),
+      hasLength(300),
+    );
+    expect(
+      mastery300Entries.map((entry) => entry.pattern).toSet().length,
+      greaterThanOrEqualTo(18),
+    );
+    for (final entry in mastery300Entries) {
+      expect(entry.lesson.questions, hasLength(5), reason: entry.title);
+      expect(entry.lesson.checks, hasLength(5), reason: entry.title);
+      expect(entry.lesson.hints, hasLength(3), reason: entry.title);
+      expect(entry.challengeUri.host, 'leetcode.com');
     }
   });
   test(
