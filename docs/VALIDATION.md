@@ -174,3 +174,7 @@ Added an “Open official problem statement” action to the lesson overview for
 Corrected milestone filters to be cumulative: Core 75 displays 75 entries, Core 150 displays 150, Breadth 250 displays 250, and Mastery 300 displays all 300. Reordered the extension set so its Core 150 segment samples multiple interview families rather than taking the first category blocks. Flutter analysis passed, all 59 tests passed, and the release web build succeeded.
 
 Reviewed several clearly mismatched pattern tags in the 225 extensions and corrected weighted event selection and positive-product subarrays to dynamic programming, and k-th pair distance to binary search. Added assertions so these assignments do not regress. Flutter analysis passed, all 59 tests passed, and the release web build succeeded.
+
+## Problem-specific guide batch — 2 November 2026
+
+Added problem-specific original prompts, examples, edge-case contracts, approach questions, progressive hints, and explanations for 18 high-priority Core 150 extensions. These descriptions are SolveIt-authored and avoid reproducing full third-party statements; canonical full prompts remain one tap away on the external challenge page. The remaining 207 extensions still use family-level guidance and are not yet equally editorialized.

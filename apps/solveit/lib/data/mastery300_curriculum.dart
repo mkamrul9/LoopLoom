@@ -34,20 +34,26 @@ class MasteryProblemSeed {
       _ => 'Phase 4 · Optimization and transfer',
     };
     final cue = _patternCue(pattern);
+    final guide = masteryProblemGuides[slug];
     final lesson = Lesson(
       id: 'mastery300-$slug-v1',
       title: title,
       pattern: pattern,
-      summary: 'Practice $cue through $title.',
+      summary: guide?.summary ?? 'Practice $cue through $title.',
       statement:
+          guide?.statement ??
           'Open the linked challenge and restate its input, required output, and constraints in your own words. Then solve $title by identifying when $cue is useful. SolveIt’s guided prompts help you reason through the external challenge; the challenge page supplies its full statement and examples.',
       example:
+          guide?.example ??
           'Use one official example from the linked challenge. Before coding, write the expected result and the intermediate state that best tests $cue.',
       constraints:
+          guide?.edgeCase ??
           'Read the challenge constraints before choosing a data structure or complexity target. Clarify empty, minimal, duplicate, and boundary inputs where the contract allows them.',
       questions: [
-        'Restate $title: what are the inputs, exact output, and important constraints?',
-        'What simple baseline would work? What repeated work can $cue avoid?',
+        guide?.contractQuestion ??
+            'Restate $title: what are the inputs, exact output, and important constraints?',
+        guide?.approachQuestion ??
+            'What simple baseline would work? What repeated work can $cue avoid?',
         'Trace one official example from the challenge page. What is the key state after each step?',
         'Write the solution in your selected language. Which edge case would you test first?',
         'State the invariant that makes the approach correct, its time and space costs, and one alternative.',
@@ -59,8 +65,9 @@ class MasteryProblemSeed {
         'I tested a boundary case and can explain the complexity.',
         'I can state the correctness invariant and when this pattern applies.',
       ],
-      hints: _patternHints(pattern),
+      hints: guide?.hints ?? _patternHints(pattern),
       explanation:
+          guide?.explanation ??
           'For $title, first derive the contract from the linked challenge. Consider $cue, define the state that must remain true after each step, and test the invariant against a boundary case. Compare the resulting complexity with the simplest baseline before choosing the implementation.',
     );
     return Blind75Entry(
@@ -74,6 +81,376 @@ class MasteryProblemSeed {
     );
   }
 }
+
+class MasteryProblemGuide {
+  const MasteryProblemGuide({
+    required this.summary,
+    required this.statement,
+    required this.example,
+    required this.edgeCase,
+    required this.contractQuestion,
+    required this.approachQuestion,
+    required this.hints,
+    required this.explanation,
+  });
+
+  final String summary, statement, example, edgeCase;
+  final String contractQuestion, approachQuestion, explanation;
+  final List<String> hints;
+}
+
+/// Original, problem-specific coaching for the first high-priority extension
+/// batch. Remaining challenges still use the family-level scaffold below.
+const masteryProblemGuides = <String, MasteryProblemGuide>{
+  'ransom-note': MasteryProblemGuide(
+    summary:
+        'Check whether a target string can be assembled from a character supply.',
+    statement:
+        'Given a target string and a source string, decide whether the source contains enough copies of every character required by the target. Each source character can be used once.',
+    example:
+        'target = "aab", source = "ababa"\nOutput: true\nThe target needs two a characters and one b.',
+    edgeCase:
+        'A target character may be missing or appear more times in the target than in the source. An empty target needs no characters.',
+    contractQuestion:
+        'Which character counts must the source satisfy for the target to be constructible?',
+    approachQuestion:
+        'How can one pass over the source record available characters so each target lookup is constant time?',
+    hints: [
+      'Count the required characters or the available characters.',
+      'A fixed-size frequency table is enough when the alphabet is constrained.',
+      'Consume one count per target character; fail as soon as a count is exhausted.',
+    ],
+    explanation:
+        'Count available characters, then consume one for each required target character. The invariant is that remaining counts equal unused source characters. This is linear in the two string lengths and uses space proportional to the alphabet.',
+  ),
+  'majority-element': MasteryProblemGuide(
+    summary: 'Find the value that occupies more than half of an array.',
+    statement:
+        'Given a nonempty integer array with one value occurring strictly more than half the time, return that value.',
+    example: 'values = [3, 3, 4, 3, 2, 3, 3]\nOutput: 3',
+    edgeCase:
+        'The majority may be the only element. Equal values can appear far apart, so adjacency alone is not enough.',
+    contractQuestion:
+        'What does “more than half” guarantee about the number of other values combined?',
+    approachQuestion:
+        'Can competing values cancel in pairs while a strict majority remains?',
+    hints: [
+      'A frequency map is a simple baseline.',
+      'Try keeping a candidate and a balance rather than storing every count.',
+      'When the balance reaches zero, choose the next value as candidate.',
+    ],
+    explanation:
+        'Boyer–Moore voting maintains a candidate and cancellation balance. Every non-majority value can cancel at most one majority occurrence; because the majority exceeds all others combined, it survives. The prompt guarantees a majority, so a verification pass is unnecessary.',
+  ),
+  'subarray-sum-equals-k': MasteryProblemGuide(
+    summary: 'Count contiguous ranges whose sum equals a target.',
+    statement:
+        'Given an integer array and target k, count the nonempty contiguous subarrays with sum exactly k.',
+    example:
+        'values = [1, 2, 1, 2], k = 3\nOutput: 3\nMatching ranges are [1,2], [2,1], and [1,2].',
+    edgeCase:
+        'Values may be negative or zero, so extending a range does not move its sum in one direction.',
+    contractQuestion:
+        'Why must the counted elements be contiguous, and are empty ranges allowed?',
+    approachQuestion:
+        'If the running prefix is p, which earlier prefix would make the intervening range sum to k?',
+    hints: [
+      'A quadratic scan is a useful correctness baseline.',
+      'Store how often each prefix sum has appeared.',
+      'Seed the frequency table with prefix 0 occurring once.',
+    ],
+    explanation:
+        'For current prefix p, every earlier prefix p-k identifies a range ending here. Add its frequency before recording p. This supports negative numbers and counts all ranges in O(n) expected time with O(n) extra space.',
+  ),
+  'two-sum-ii-input-array-is-sorted': MasteryProblemGuide(
+    summary:
+        'Use sorted order to find two distinct positions with a target sum.',
+    statement:
+        'Given a nondecreasing integer array and a target, return the two one-based positions whose values sum to the target. The input has exactly one valid pair.',
+    example: 'values = [1, 3, 4, 8], target = 7\nOutput: [2, 3]',
+    edgeCase:
+        'The answer uses two different positions even when both values are equal.',
+    contractQuestion:
+        'What indexing convention does the returned pair use, and why must the positions differ?',
+    approachQuestion:
+        'How does the sorted order tell you which pointer to move when the current sum is too small or too large?',
+    hints: [
+      'A hash-map solution is a useful baseline.',
+      'Place one pointer at each end of the sorted range.',
+      'Moving the left pointer increases the sum; moving the right pointer decreases it.',
+    ],
+    explanation:
+        'With left < right, compare their sum to the target. Sorted order proves which side cannot participate in a solution at the current value. Each move shrinks the range, yielding O(n) time and O(1) extra space.',
+  ),
+  'remove-duplicates-from-sorted-array': MasteryProblemGuide(
+    summary: 'Compact a sorted array in place so each value appears once.',
+    statement:
+        'Given a nondecreasing array, overwrite its prefix so that every distinct value appears once in sorted order. Return the length of that prefix.',
+    example: 'values = [1, 1, 2, 2, 4]\nReturn: 3\nKept prefix: [1, 2, 4]',
+    edgeCase:
+        'An empty array has a kept length of zero; a one-value array is already compact.',
+    contractQuestion:
+        'Which part of the array is meaningful after the operation, and what does the returned length describe?',
+    approachQuestion:
+        'How can a write index track the next new value while a read index scans the sorted input?',
+    hints: [
+      'The sorted order puts duplicates next to each other.',
+      'Compare each read value with the last value written.',
+      'Write only when the value changes.',
+    ],
+    explanation:
+        'The prefix before the write index contains exactly the distinct values seen so far. Since reads never move behind writes, the array can be compacted in place in O(n) time and O(1) extra space.',
+  ),
+  'sort-colors': MasteryProblemGuide(
+    summary: 'Partition three known values in one pass.',
+    statement:
+        'Sort an array containing only 0, 1, and 2 in place, without using a comparison sort.',
+    example: 'values = [2, 0, 1, 2, 0]\nOutput: [0, 0, 1, 2, 2]',
+    edgeCase:
+        'The scan can shrink from the right while processing a 2; that swapped-in value has not been examined yet.',
+    contractQuestion:
+        'What three regions can the array be divided into while scanning?',
+    approachQuestion:
+        'How can low, scan, and high boundaries keep the 0, 1, and 2 regions ordered?',
+    hints: [
+      'Counting each value and rewriting is a simple baseline.',
+      'Maintain a finished 0 region, unknown region, and finished 2 region.',
+      'After swapping a 2 with the right boundary, recheck the incoming value.',
+    ],
+    explanation:
+        'The Dutch-national-flag invariant keeps values before low equal to 0 and values after high equal to 2. The middle region is already known to be 1; scan it once, carefully reprocessing a swapped-in value from the right.',
+  ),
+  'binary-search': MasteryProblemGuide(
+    summary: 'Locate a target in a sorted array in logarithmic time.',
+    statement:
+        'Given a sorted integer array and a target, return its index when present or -1 otherwise. Aim for logarithmic time.',
+    example: 'values = [-4, 0, 5, 9, 13], target = 9\nOutput: 3',
+    edgeCase:
+        'The target may be absent or at either endpoint; an empty range must terminate safely.',
+    contractQuestion:
+        'What must remain true about the search interval after each comparison?',
+    approachQuestion:
+        'Which half can be discarded when the midpoint value is below or above the target?',
+    hints: [
+      'Use two boundaries around the remaining candidate range.',
+      'Calculate a midpoint without adding both endpoints directly.',
+      'Update a boundary so the interval gets strictly smaller every iteration.',
+    ],
+    explanation:
+        'The invariant is that any possible target remains inside the active sorted interval. Each midpoint comparison discards half, giving O(log n) time and O(1) extra space.',
+  ),
+  'first-bad-version': MasteryProblemGuide(
+    summary: 'Find the first true value in a monotone yes/no sequence.',
+    statement:
+        'Versions are numbered from 1 to n. A predicate is false before the first bad version and true from that version onward. Return the first version for which the predicate is true.',
+    example: 'n = 6, first bad = 4\nPredicate: F, F, F, T, T, T\nOutput: 4',
+    edgeCase:
+        'The first bad version may be 1 or n; never assume both a good and bad version are present.',
+    contractQuestion:
+        'What monotonic property does the bad-version predicate guarantee?',
+    approachQuestion:
+        'How can you keep the first true version inside a shrinking interval without querying every version?',
+    hints: [
+      'The answer is a lower boundary, not any true version.',
+      'When mid is bad, keep mid as a possible answer and search left.',
+      'Use a range convention that still works when only one candidate remains.',
+    ],
+    explanation:
+        'Binary search the first true predicate value. Keeping mid when it is bad preserves the earliest candidate; when it is good, every version through mid can be excluded. The answer is found in O(log n) predicate calls.',
+  ),
+  'add-two-numbers': MasteryProblemGuide(
+    summary: 'Add two integers represented by reverse-order linked digits.',
+    statement:
+        'Each linked list stores a nonnegative integer one decimal digit per node, least significant digit first. Return a new list representing their sum in the same order.',
+    example:
+        'first = 2 → 4 → 3 (342)\nsecond = 5 → 6 → 4 (465)\nOutput: 7 → 0 → 8 (807)',
+    edgeCase:
+        'The lists may have different lengths, and a final carry may create a new node.',
+    contractQuestion:
+        'Why are the least significant digits visited first, and what does each node represent?',
+    approachQuestion:
+        'What state is needed to add one pair of digits and pass overflow to the next position?',
+    hints: [
+      'Use a sentinel node to simplify the result head.',
+      'Treat a missing node as digit zero.',
+      'Continue while either input remains or carry is nonzero.',
+    ],
+    explanation:
+        'Add corresponding digits plus carry, append sum modulo 10, and carry the quotient. A sentinel simplifies construction. Each node is processed once, so time is O(max(m,n)) and result space is O(max(m,n)).',
+  ),
+  'copy-list-with-random-pointer': MasteryProblemGuide(
+    summary: 'Deep-copy a list whose nodes also have arbitrary links.',
+    statement:
+        'Each node has a next pointer and a random pointer that may target any node in the list or null. Return a separate list with the same values and pointer relationships.',
+    example:
+        'For nodes A → B with A.random = B and B.random = A, the copy must contain A′ → B′ with matching cross-links.',
+    edgeCase:
+        'A random pointer can be null, point to the same node, or point backward; copied pointers must never point into the original list.',
+    contractQuestion:
+        'What does “deep copy” require for both next and random references?',
+    approachQuestion:
+        'How can a mapping from each original node to its clone preserve arbitrary links?',
+    hints: [
+      'Create all clone nodes before assigning random links.',
+      'Use an original-to-clone map, or interleave clones temporarily.',
+      'Restore the original list if you use the interleaving method.',
+    ],
+    explanation:
+        'A node map gives a direct correspondence for both pointers in two passes. Interleaving clones can reduce auxiliary mapping space but requires careful detachment. In either approach, copied random links must resolve through the clone correspondence.',
+  ),
+  'min-stack': MasteryProblemGuide(
+    summary: 'Design a stack that reports its minimum in constant time.',
+    statement:
+        'Support push, pop, top, and retrieving the minimum value, each in O(1) time.',
+    example: 'push(3), push(1), getMin() → 1, pop(), top() → 3, getMin() → 3',
+    edgeCase:
+        'The same minimum value may be pushed multiple times; removing one copy must not lose the remaining minimum.',
+    contractQuestion:
+        'Which stack operations must be constant time, and what should getMin return after a pop?',
+    approachQuestion:
+        'What extra state can track the minimum corresponding to every stack depth?',
+    hints: [
+      'A single global minimum fails when the minimum is popped.',
+      'Store a minimum alongside each pushed value.',
+      'Alternatively store only values that set a new minimum, including duplicates.',
+    ],
+    explanation:
+        'A parallel minimum stack stores the minimum at each depth. Then push, pop, top, and getMin are all O(1); extra space is O(n). Retaining duplicate minima ensures a pop restores the correct value.',
+  ),
+  'evaluate-reverse-polish-notation': MasteryProblemGuide(
+    summary: 'Evaluate an arithmetic expression written in postfix order.',
+    statement:
+        'Tokens contain integers or binary operators +, -, *, and /. Evaluate the valid reverse-Polish expression and return its integer result.',
+    example: 'tokens = ["4", "13", "5", "/", "+"]\nOutput: 6',
+    edgeCase:
+        'Subtraction and division are not commutative; integer division truncates toward zero.',
+    contractQuestion:
+        'When an operator appears, which two operands should be removed first from the stack?',
+    approachQuestion: 'Why can each token be processed once with a stack?',
+    hints: [
+      'Push numbers as they appear.',
+      'For an operator, pop the right operand before the left operand.',
+      'Apply the operator in left/right order and push the result.',
+    ],
+    explanation:
+        'Postfix order places both operands before their operator. A stack holds the unfinished values; each operator combines the top two. Operand order matters for subtraction and division. The evaluation takes O(n) time and O(n) space.',
+  ),
+  'daily-temperatures': MasteryProblemGuide(
+    summary: 'For each day, find how long until a warmer temperature.',
+    statement:
+        'Given daily temperatures, return for each index the number of days until a strictly warmer day, or zero if none exists later.',
+    example: 'temps = [70, 72, 71, 75]\nOutput: [1, 2, 1, 0]',
+    edgeCase:
+        'Equal temperatures are not warmer, and unresolved days at the end keep answer zero.',
+    contractQuestion:
+        'Does the next day need to be warmer or merely equal, and what value represents no future answer?',
+    approachQuestion:
+        'How can a decreasing stack of unresolved day indices be resolved when a warmer day appears?',
+    hints: [
+      'A nested scan is a baseline but repeats comparisons.',
+      'Keep indices whose next warmer day is not known yet.',
+      'When current temperature exceeds the stack top, fill that earlier day’s distance.',
+    ],
+    explanation:
+        'The stack holds unresolved indices in nonincreasing temperature order. A warmer current day resolves all smaller temperatures at the top. Every index is pushed and popped once, for O(n) time and O(n) space.',
+  ),
+  'subsets': MasteryProblemGuide(
+    summary: 'Generate every subset of a set of distinct values.',
+    statement:
+        'Given distinct integers, return the collection of all subsets, including the empty subset and the full set.',
+    example: 'values = [4, 7]\nOutput: [[], [4], [7], [4,7]]',
+    edgeCase: 'The empty input has exactly one subset: the empty set.',
+    contractQuestion:
+        'How many subsets should n distinct values produce, and is the empty subset included?',
+    approachQuestion:
+        'For each value, how can the existing subsets be extended with and without it?',
+    hints: [
+      'Each value creates a binary include/exclude choice.',
+      'A backtracking call can decide one index at a time.',
+      'Copy the current selection when all decisions have been made.',
+    ],
+    explanation:
+        'Every element has two independent choices, giving 2^n subsets. Backtracking records a subset at each complete decision path; the total output size is necessarily exponential.',
+  ),
+  'permutations': MasteryProblemGuide(
+    summary: 'Generate every ordering of distinct input values.',
+    statement:
+        'Given distinct integers, return all possible permutations, with each input value used exactly once in every output.',
+    example:
+        'values = [1, 2, 3]\nThere are 6 permutations, including [1,2,3] and [3,2,1].',
+    edgeCase: 'The empty input has one permutation: the empty ordering.',
+    contractQuestion:
+        'What makes a partial ordering valid, and when is it complete?',
+    approachQuestion:
+        'How can a used marker or remaining-choice set prevent reusing a value?',
+    hints: [
+      'Choose one unused value for the next position.',
+      'Recurse, then undo the choice before trying another.',
+      'A complete path has the same length as the input.',
+    ],
+    explanation:
+        'Backtracking fills positions by choosing an unused element and undoing the choice afterward. For n distinct values there are n! outputs; time is O(n·n!) when copying each result.',
+  ),
+  'kth-largest-element-in-an-array': MasteryProblemGuide(
+    summary: 'Select the k-th value in descending order without fully sorting.',
+    statement:
+        'Given an unsorted integer array and valid k, return the element that would occupy position k when values are ordered from largest to smallest.',
+    example: 'values = [3, 1, 5, 2, 4], k = 2\nOutput: 4',
+    edgeCase:
+        'Repeated values occupy repeated ranks; selection is by position in sorted order, not distinct value.',
+    contractQuestion:
+        'How do duplicates contribute to rank, and is k one-based?',
+    approachQuestion:
+        'Would a bounded heap or partition-based selection fit the input and expected complexity?',
+    hints: [
+      'Sorting gives a simple O(n log n) baseline.',
+      'A min-heap of size k keeps only the k largest values seen.',
+      'The heap root is the smallest among those retained k values.',
+    ],
+    explanation:
+        'A size-k min-heap maintains the k largest values seen so far; its root is the k-th largest. This takes O(n log k) time and O(k) space. Quickselect can be expected O(n) with in-place partitioning.',
+  ),
+  'rotting-oranges': MasteryProblemGuide(
+    summary:
+        'Find how many simultaneous time steps are needed for infection to spread on a grid.',
+    statement:
+        'In a grid, empty cells stay empty, fresh cells become rotten when adjacent to a rotten cell, and all changes in a minute happen simultaneously. Return the minutes until no fresh orange remains, or -1 if some can never be reached.',
+    example: 'grid = [[2,1,1],[1,1,0],[0,1,1]]\nOutput: 4',
+    edgeCase:
+        'If there are no fresh cells initially, return zero; isolated fresh cells make completion impossible.',
+    contractQuestion:
+        'Which cells are adjacent, and why must one minute process a full current frontier together?',
+    approachQuestion:
+        'How can multi-source BFS start from every initially rotten cell at time zero?',
+    hints: [
+      'Count fresh cells and enqueue all rotten cells first.',
+      'Process the queue in layers so each layer represents one minute.',
+      'Return elapsed layers only if the fresh count reaches zero.',
+    ],
+    explanation:
+        'Multi-source BFS expands one layer per minute from all rotten cells. Decrement the fresh count only when a fresh neighbor is first infected. The result is the final layer count, zero for no fresh cells, or -1 if fresh cells remain.',
+  ),
+  'course-schedule-ii': MasteryProblemGuide(
+    summary: 'Return a valid order that respects course prerequisites.',
+    statement:
+        'Given course IDs and prerequisite pairs, return any ordering that places every prerequisite before its dependent course. Return an empty list if no such ordering exists.',
+    example:
+        'courses = 3, prerequisites = [[1,0],[2,0]]\nOne valid output: [0,1,2]',
+    edgeCase:
+        'A directed cycle makes completion impossible; courses with no dependencies still belong in the order.',
+    contractQuestion:
+        'Which direction should each prerequisite edge point, and what output signals a cycle?',
+    approachQuestion:
+        'How can indegrees and a queue produce a topological ordering?',
+    hints: [
+      'Build adjacency lists and count incoming prerequisite edges.',
+      'Start with every course whose indegree is zero.',
+      'If fewer than all courses are emitted, a cycle remains.',
+    ],
+    explanation:
+        'Kahn’s algorithm repeatedly emits a zero-indegree course and removes its outgoing edges. The order is valid by construction. If fewer than n nodes are emitted, the graph contains a cycle. Time and space are O(V+E).',
+  ),
+};
 
 String _patternCue(String pattern) => switch (pattern) {
   'Arrays & hashing' => 'counting, prefix state, or indexed lookup',
