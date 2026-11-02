@@ -6,6 +6,7 @@ import '../../data/session_repository.dart';
 import '../../domain/lesson.dart';
 import '../../domain/learner_preferences.dart';
 import '../../data/code_specs.dart';
+import '../../data/blind75_curriculum.dart';
 import 'coach_provider.dart';
 
 enum MessageKind { question, checkpoint, hint, solution, note, feedback, error }
@@ -99,7 +100,9 @@ class SessionController extends ChangeNotifier {
   bool get assisted => hintsUsed > 0 || solutionRevealed || aiReviews > 0;
   bool get verifiedSolved => false;
   String get starter =>
-      codeSpecs[lesson.id]?.starter(_language) ?? _language.starter;
+      codeSpecs[lesson.id]?.starter(_language) ??
+      blind75ByLessonId[lesson.id]?.starter(_language) ??
+      _language.starter;
   String get draft => _drafts[_language] ?? starter;
   String get reasoningDraft => _reasoning[_stage] ?? '';
   String get answerForReview => _stage == CoachingStage.code

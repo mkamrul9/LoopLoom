@@ -41,19 +41,47 @@ class LearnerPreferences {
   const LearnerPreferences({
     this.pace = CoachingPace.intermediate,
     this.preferredLanguage = CodeLanguage.python,
+    this.textScale = 1.15,
+    this.displayName = '',
+    this.targetRole = '',
+    this.weeklyGoalDays = 5,
+    this.dailyGoalMinutes = 30,
+    this.targetInterviewDate,
   });
+
+  static const textScaleOptions = <double>[1.0, 1.15, 1.3];
 
   final CoachingPace pace;
   final CodeLanguage preferredLanguage;
+  final double textScale;
+  final String displayName, targetRole;
+  final int weeklyGoalDays, dailyGoalMinutes;
+  final DateTime? targetInterviewDate;
 
   Map<String, Object?> toJson() => {
     'pace': pace.name,
     'preferredLanguage': preferredLanguage.name,
+    'textScale': textScale,
+    'displayName': displayName,
+    'targetRole': targetRole,
+    'weeklyGoalDays': weeklyGoalDays,
+    'dailyGoalMinutes': dailyGoalMinutes,
+    'targetInterviewDate': targetInterviewDate?.toIso8601String(),
   };
 
   factory LearnerPreferences.fromJson(Map<String, Object?> json) {
     T parse<T extends Enum>(List<T> values, Object? value, T fallback) =>
         values.where((entry) => entry.name == value).firstOrNull ?? fallback;
+    final storedScale = json['textScale'];
+    final textScale =
+        storedScale is num &&
+            textScaleOptions.any((option) => (option - storedScale).abs() < .01)
+        ? storedScale.toDouble()
+        : 1.15;
+    final rawDate = json['targetInterviewDate'];
+    final parsedDate = rawDate is String ? DateTime.tryParse(rawDate) : null;
+    final rawDays = json['weeklyGoalDays'];
+    final rawMinutes = json['dailyGoalMinutes'];
     return LearnerPreferences(
       pace: parse(CoachingPace.values, json['pace'], CoachingPace.intermediate),
       preferredLanguage: parse(
@@ -61,14 +89,44 @@ class LearnerPreferences {
         json['preferredLanguage'],
         CodeLanguage.python,
       ),
+      textScale: textScale,
+      displayName: json['displayName'] is String
+          ? (json['displayName'] as String).trim()
+          : '',
+      targetRole: json['targetRole'] is String
+          ? (json['targetRole'] as String).trim()
+          : '',
+      weeklyGoalDays: rawDays is int && rawDays >= 1 && rawDays <= 7
+          ? rawDays
+          : 5,
+      dailyGoalMinutes:
+          rawMinutes is int && rawMinutes >= 10 && rawMinutes <= 240
+          ? rawMinutes
+          : 30,
+      targetInterviewDate: parsedDate,
     );
   }
 
   LearnerPreferences copyWith({
     CoachingPace? pace,
     CodeLanguage? preferredLanguage,
+    double? textScale,
+    String? displayName,
+    String? targetRole,
+    int? weeklyGoalDays,
+    int? dailyGoalMinutes,
+    DateTime? targetInterviewDate,
+    bool clearTargetInterviewDate = false,
   }) => LearnerPreferences(
     pace: pace ?? this.pace,
     preferredLanguage: preferredLanguage ?? this.preferredLanguage,
+    textScale: textScale ?? this.textScale,
+    displayName: displayName ?? this.displayName,
+    targetRole: targetRole ?? this.targetRole,
+    weeklyGoalDays: weeklyGoalDays ?? this.weeklyGoalDays,
+    dailyGoalMinutes: dailyGoalMinutes ?? this.dailyGoalMinutes,
+    targetInterviewDate: clearTargetInterviewDate
+        ? null
+        : targetInterviewDate ?? this.targetInterviewDate,
   );
 }

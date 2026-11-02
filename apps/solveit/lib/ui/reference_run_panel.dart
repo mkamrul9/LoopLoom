@@ -125,16 +125,25 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final spec = codeSpecs[widget.lessonId];
+    if (spec == null) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          'SolveIt does not have local reference cases for this problem yet. Your draft is saved here; use the linked challenge page to run its official tests.',
+          style: TextStyle(fontSize: 14, height: 1.6, color: StudyColors.muted),
+        ),
+      );
+    }
     if (client == null) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Text(
-          'Execution is not available in this build. You can save your code for self-review.',
-          style: TextStyle(fontSize: 12, height: 1.6, color: StudyColors.muted),
+          'Reference-case execution is not configured in this build. Your draft is saved here for self-review.',
+          style: TextStyle(fontSize: 14, height: 1.6, color: StudyColors.muted),
         ),
       );
     }
-    final spec = codeSpecs[widget.lessonId]!;
     final supported = {
       CodeLanguage.cpp,
       CodeLanguage.javascript,

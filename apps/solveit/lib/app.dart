@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'data/blind75_curriculum.dart';
+import 'data/lesson_catalog.dart';
 import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
 import 'domain/lesson.dart';
@@ -9,6 +12,7 @@ import 'ui/save_status.dart';
 import 'ui/workbook_bootstrap.dart';
 import 'ui/backup_screen.dart';
 import 'ui/settings_screen.dart';
+import 'ui/readable_surface.dart';
 
 class SolveItApp extends StatelessWidget {
   const SolveItApp({super.key, this.store});
@@ -34,17 +38,21 @@ class LearningHome extends StatefulWidget {
 class _LearningHomeState extends State<LearningHome> {
   PracticeStore get store => widget.store;
   int selected = 0;
-  int track = 1;
+  int track = 3;
+  String blindQuery = '';
+  String blindDifficulty = 'All';
   List<Lesson> get trackLessons => switch (track) {
     0 => pilotLessons,
     1 => interviewLessons,
-    _ => allLessons,
+    2 => starter30Lessons,
+    _ => blind75Lessons,
   };
 
   String get trackTitle => switch (track) {
     0 => 'Interview warm-ups',
     1 => 'Intermediate foundations',
-    _ => 'Interview starter 30',
+    2 => 'Starter 30',
+    _ => 'Blind 75 · guided path',
   };
   int reviewedInTrack() => store.sessions
       .where(
@@ -81,9 +89,14 @@ class _LearningHomeState extends State<LearningHome> {
         onSelected: (_) => setState(() => track = 1),
       ),
       ChoiceChip(
-        label: Text('Starter 30 · ${allLessons.length}'),
+        label: Text('Starter 30 · ${starter30Lessons.length}'),
         selected: track == 2,
         onSelected: (_) => setState(() => track = 2),
+      ),
+      ChoiceChip(
+        label: Text('Blind 75 · ${blind75Entries.length}'),
+        selected: track == 3,
+        onSelected: (_) => setState(() => track = 3),
       ),
     ],
   );
@@ -105,147 +118,161 @@ class _LearningHomeState extends State<LearningHome> {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: store,
-    builder: (context, _) => LayoutBuilder(
-      builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 840;
-        return Scaffold(
-          appBar: AppBar(
-            title: const Row(
-              mainAxisSize: MainAxisSize.min,
+    builder: (context, _) => ReadableSurface(
+      scale: store.preferences.textScale,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 840;
+          return Scaffold(
+            appBar: AppBar(
+              title: const Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  StudyMark(),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'solveit',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -.7,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                IconButton(
+                  tooltip: 'Profile & settings',
+                  icon: const Icon(Icons.account_circle_outlined),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => SettingsScreen(store: store),
+                    ),
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  tooltip: 'Workbook options',
+                  icon: const Icon(Icons.more_horiz),
+                  constraints: const BoxConstraints(minWidth: 224),
+                  onSelected: (option) => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => option == 'settings'
+                          ? SettingsScreen(store: store)
+                          : BackupScreen(store: store),
+                    ),
+                  ),
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(
+                      value: 'settings',
+                      child: Row(
+                        children: [
+                          Icon(Icons.tune_outlined, size: 19),
+                          SizedBox(width: 12),
+                          Text('Profile & settings'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'backup',
+                      child: Row(
+                        children: [
+                          Icon(Icons.inventory_2_outlined, size: 19),
+                          SizedBox(width: 12),
+                          Text('Workbook backup'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (wide)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: SaveStatus(store: store, compact: true),
+                  ),
+              ],
+              bottom: const PreferredSize(
+                preferredSize: Size.fromHeight(1),
+                child: Divider(),
+              ),
+            ),
+            body: Row(
               children: [
-                StudyMark(),
-                SizedBox(width: 18),
-                Flexible(
-                  child: Text(
-                    'solveit',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -.7,
+                if (wide)
+                  NavigationRail(
+                    selectedIndex: selected,
+                    onDestinationSelected: (v) => setState(() => selected = v),
+                    labelType: NavigationRailLabelType.all,
+                    destinations: const [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.auto_stories_outlined),
+                        label: Text('Learn'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.route_outlined),
+                        label: Text('Roadmaps'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.history),
+                        label: Text('History'),
+                      ),
+                    ],
+                  ),
+                if (wide) const VerticalDivider(width: 1),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      wide ? 48 : 24,
+                      wide ? 42 : 30,
+                      wide ? 48 : 24,
+                      32,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 960),
+                        child: selected == 0
+                            ? _learn(wide)
+                            : selected == 1
+                            ? _roadmaps()
+                            : _history(),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            actions: [
-              PopupMenuButton<String>(
-                tooltip: 'Workbook options',
-                icon: const Icon(Icons.more_horiz),
-                constraints: const BoxConstraints(minWidth: 224),
-                onSelected: (option) => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => option == 'settings'
-                        ? SettingsScreen(store: store)
-                        : BackupScreen(store: store),
-                  ),
-                ),
-                itemBuilder: (context) => const [
-                  PopupMenuItem(
-                    value: 'settings',
-                    child: Row(
-                      children: [
-                        Icon(Icons.tune_outlined, size: 19),
-                        SizedBox(width: 12),
-                        Text('Learning preferences'),
+            bottomNavigationBar: wide
+                ? null
+                : DecoratedBox(
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: StudyColors.line)),
+                    ),
+                    child: NavigationBar(
+                      selectedIndex: selected,
+                      onDestinationSelected: (v) =>
+                          setState(() => selected = v),
+                      destinations: const [
+                        NavigationDestination(
+                          icon: Icon(Icons.auto_stories_outlined),
+                          label: 'Learn',
+                        ),
+                        NavigationDestination(
+                          icon: Icon(Icons.route_outlined),
+                          label: 'Roadmaps',
+                        ),
+                        NavigationDestination(
+                          icon: Icon(Icons.history),
+                          label: 'History',
+                        ),
                       ],
                     ),
                   ),
-                  PopupMenuItem(
-                    value: 'backup',
-                    child: Row(
-                      children: [
-                        Icon(Icons.inventory_2_outlined, size: 19),
-                        SizedBox(width: 12),
-                        Text('Workbook backup'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: 24),
-                child: SaveStatus(store: store, compact: true),
-              ),
-            ],
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(1),
-              child: Divider(),
-            ),
-          ),
-          body: Row(
-            children: [
-              if (wide)
-                NavigationRail(
-                  selectedIndex: selected,
-                  onDestinationSelected: (v) => setState(() => selected = v),
-                  labelType: NavigationRailLabelType.all,
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.auto_stories_outlined),
-                      label: Text('Learn'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.route_outlined),
-                      label: Text('Roadmaps'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.history),
-                      label: Text('History'),
-                    ),
-                  ],
-                ),
-              if (wide) const VerticalDivider(width: 1),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    wide ? 48 : 24,
-                    wide ? 42 : 30,
-                    wide ? 48 : 24,
-                    32,
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 960),
-                      child: selected == 0
-                          ? _learn(wide)
-                          : selected == 1
-                          ? _roadmaps()
-                          : _history(),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: wide
-              ? null
-              : DecoratedBox(
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: StudyColors.line)),
-                  ),
-                  child: NavigationBar(
-                    selectedIndex: selected,
-                    onDestinationSelected: (v) => setState(() => selected = v),
-                    destinations: const [
-                      NavigationDestination(
-                        icon: Icon(Icons.auto_stories_outlined),
-                        label: 'Learn',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.route_outlined),
-                        label: 'Roadmaps',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.history),
-                        label: 'History',
-                      ),
-                    ],
-                  ),
-                ),
-        );
-      },
+          );
+        },
+      ),
     ),
   );
 
@@ -255,7 +282,9 @@ class _LearningHomeState extends State<LearningHome> {
       const Text('THE INTERVIEW WORKBOOK', style: noteLabel),
       const SizedBox(height: 18),
       Text(
-        'Think it through.',
+        store.preferences.displayName.trim().isEmpty
+            ? 'Think it through.'
+            : 'Welcome back, ${store.preferences.displayName.trim()}.',
         style: TextStyle(
           fontSize: wide ? 42 : 34,
           height: 1.15,
@@ -267,6 +296,41 @@ class _LearningHomeState extends State<LearningHome> {
       const Text(
         'One problem. A clearer way forward.',
         style: TextStyle(color: StudyColors.muted, fontSize: 16, height: 1.5),
+      ),
+      if (!wide) ...[const SizedBox(height: 10), SaveStatus(store: store)],
+      const SizedBox(height: 22),
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: StudyColors.recess,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('YOUR STUDY PLAN', style: noteLabel),
+            const SizedBox(height: 8),
+            Text(
+              '${store.preferences.dailyGoalMinutes} minutes a day · ${store.preferences.weeklyGoalDays} days a week',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            if (store.preferences.targetRole.trim().isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Preparing for ${store.preferences.targetRole.trim()}',
+                style: const TextStyle(fontSize: 14, color: StudyColors.muted),
+              ),
+            ],
+            if (store.preferences.targetInterviewDate case final date?) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Target date · ${MaterialLocalizations.of(context).formatMediumDate(date)}',
+                style: const TextStyle(fontSize: 14, color: StudyColors.muted),
+              ),
+            ],
+          ],
+        ),
       ),
       const SizedBox(height: 32),
       Container(
@@ -333,6 +397,10 @@ class _LearningHomeState extends State<LearningHome> {
                                 .id,
                       )
                       ? 'INTERVIEW WARM-UP'
+                      : (store.latestIncomplete?.lesson ?? trackLessons.first)
+                            .id
+                            .startsWith('blind75-')
+                      ? 'BLIND 75'
                       : 'INTERMEDIATE',
                   style: noteLabel,
                 ),
@@ -388,7 +456,13 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 16),
       trackPicker(),
       const SizedBox(height: 12),
-      ...trackLessons.indexed.map((item) => _lessonTile(item.$2, item.$1 + 1)),
+      if (track == 3) ...[
+        _blind75Path(),
+      ] else ...[
+        ...trackLessons.indexed.map(
+          (item) => _lessonTile(item.$2, item.$1 + 1),
+        ),
+      ],
       const SizedBox(height: 24),
       const Text(
         'C++ / Python / JavaScript / TypeScript',
@@ -402,68 +476,233 @@ class _LearningHomeState extends State<LearningHome> {
     ],
   );
 
-  Widget _lessonTile(Lesson lesson, int number) => Column(
-    children: [
-      const Divider(),
-      Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => openLesson(lesson),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 42,
-                  child: Text(
-                    number.toString().padLeft(2, '0'),
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      color: StudyColors.muted,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(lesson.pattern.toUpperCase(), style: noteLabel),
-                      const SizedBox(height: 7),
-                      Text(
-                        lesson.title,
+  Widget _lessonTile(Lesson lesson, int number, {String? title, String? tag}) =>
+      Column(
+        children: [
+          const Divider(),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => openLesson(lesson),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 42,
+                      child: Text(
+                        number.toString().padLeft(2, '0'),
                         style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        lesson.summary,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          height: 1.5,
+                          fontFamily: 'monospace',
                           color: StudyColors.muted,
+                          fontSize: 14,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(lesson.pattern.toUpperCase(), style: noteLabel),
+                          const SizedBox(height: 7),
+                          Text(
+                            title ?? lesson.title,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            lesson.summary,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              height: 1.55,
+                              color: StudyColors.muted,
+                            ),
+                          ),
+                          if (tag != null) ...[
+                            const SizedBox(height: 8),
+                            Text(tag.toUpperCase(), style: noteLabel),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      progressFor(lesson),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: StudyColors.muted,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  progressFor(lesson),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: StudyColors.muted,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
+        ],
+      );
+
+  Widget _blind75Path() {
+    final normalizedQuery = blindQuery.trim().toLowerCase();
+    final visibleEntries = blind75Entries.where((entry) {
+      final matchesQuery =
+          normalizedQuery.isEmpty ||
+          entry.title.toLowerCase().contains(normalizedQuery) ||
+          entry.pattern.toLowerCase().contains(normalizedQuery) ||
+          entry.lesson.summary.toLowerCase().contains(normalizedQuery);
+      final matchesDifficulty =
+          blindDifficulty == 'All' || entry.difficulty == blindDifficulty;
+      return matchesQuery && matchesDifficulty;
+    }).toList();
+    final phases = <String, List<Blind75Entry>>{};
+    for (final entry in visibleEntries) {
+      phases.putIfAbsent(entry.phase, () => []).add(entry);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: StudyColors.sheet,
+            border: Border.all(color: StudyColors.line),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'SolveIt’s prompts and explanations are original. This community study path links to the official LeetCode questions; SolveIt is not affiliated with LeetCode.',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.6,
+                  color: StudyColors.muted,
+                ),
+              ),
+              const SizedBox(height: 6),
+              TextButton.icon(
+                onPressed: () async {
+                  final opened = await launchUrl(
+                    Uri.https('blind-75.com', '/'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                  if (!opened && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Could not open the list reference.'),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.open_in_new, size: 18),
+                label: const Text('View Blind 75 list reference'),
+              ),
+            ],
+          ),
         ),
-      ),
-    ],
-  );
+        const SizedBox(height: 18),
+        TextField(
+          onChanged: (value) => setState(() => blindQuery = value),
+          textInputAction: TextInputAction.search,
+          decoration: const InputDecoration(
+            labelText: 'Find a problem or pattern',
+            prefixIcon: Icon(Icons.search),
+            hintText: 'Try “trees” or “Two Sum”',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: ['All', 'Easy', 'Medium', 'Hard']
+              .map(
+                (level) => ChoiceChip(
+                  label: Text(level),
+                  selected: blindDifficulty == level,
+                  onSelected: (_) => setState(() => blindDifficulty = level),
+                ),
+              )
+              .toList(),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          '${visibleEntries.length} of 75 problems · ${reviewedInTrack()} self-reviewed',
+          style: const TextStyle(fontSize: 14, color: StudyColors.muted),
+        ),
+        if (visibleEntries.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 32),
+            child: Text('No problems match those filters.'),
+          ),
+        if (normalizedQuery.isNotEmpty)
+          ...visibleEntries.map(
+            (entry) => _lessonTile(
+              entry.lesson,
+              entry.number,
+              title: entry.title,
+              tag: entry.difficulty,
+            ),
+          )
+        else
+          ...phases.entries.map((phase) {
+            final patterns = <String, List<Blind75Entry>>{};
+            for (final entry in phase.value) {
+              patterns.putIfAbsent(entry.pattern, () => []).add(entry);
+            }
+            return ExpansionTile(
+              key: PageStorageKey<String>('blind-phase-${phase.key}'),
+              tilePadding: const EdgeInsets.symmetric(horizontal: 4),
+              title: Text(
+                phase.key,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                '${phase.value.length} problems',
+                style: const TextStyle(fontSize: 14),
+              ),
+              initiallyExpanded:
+                  normalizedQuery.isNotEmpty ||
+                  phase.key == blind75Entries.first.phase,
+              children: patterns.entries
+                  .map(
+                    (pattern) => ExpansionTile(
+                      key: PageStorageKey<String>(
+                        'blind-pattern-${phase.key}-${pattern.key}',
+                      ),
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+                      title: Text(
+                        pattern.key,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      subtitle: Text(
+                        '${pattern.value.length} problems',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      initiallyExpanded: normalizedQuery.isNotEmpty,
+                      children: pattern.value
+                          .map(
+                            (entry) => _lessonTile(
+                              entry.lesson,
+                              entry.number,
+                              title: entry.title,
+                              tag: entry.difficulty,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  )
+                  .toList(),
+            );
+          }),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
 
   Widget _roadmaps() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,8 +748,10 @@ class _LearningHomeState extends State<LearningHome> {
             'Build confidence with lookup, sorted search, and fixed windows.',
           1 =>
             'Practice windows, search boundaries, strings, heaps, trees, linked lists, graphs, backtracking, and dynamic programming.',
-          _ =>
+          2 =>
             'The starter path combines three warm-ups with twenty-seven intermediate pattern lessons.',
+          _ =>
+            'A 75-question interview-preparation path arranged by patterns and study phases, with one guided reasoning sequence per problem.',
         },
         style: const TextStyle(
           fontSize: 13,
@@ -519,18 +760,16 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ),
       const SizedBox(height: 16),
-      ...trackLessons.indexed.map((item) => _lessonTile(item.$2, item.$1 + 1)),
+      if (track == 3) ...[
+        _blind75Path(),
+      ] else ...[
+        ...trackLessons.indexed.map(
+          (item) => _lessonTile(item.$2, item.$1 + 1),
+        ),
+      ],
       const SizedBox(height: 32),
       const Text('NEXT PATHS', style: noteLabel),
       const SizedBox(height: 14),
-      const ListTile(
-        contentPadding: EdgeInsets.zero,
-        title: Text('Interview / 75'),
-        subtitle: Text(
-          '45 additional original problems are still to be authored and reviewed.',
-        ),
-        trailing: Text('PLANNED', style: noteLabel),
-      ),
       const ListTile(
         contentPadding: EdgeInsets.zero,
         title: Text('Mastery / 300'),

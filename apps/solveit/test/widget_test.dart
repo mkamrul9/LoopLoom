@@ -53,6 +53,8 @@ void main() {
     await tester.pumpWidget(SolveItApp(store: store));
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Intermediate · 27'));
+    await tester.pumpAndSettle();
     expect(find.textContaining('1 of 27 self-reviewed'), findsOneWidget);
     expect(find.text('Intermediate foundations'), findsOneWidget);
     await tester.tap(find.text('Warm-ups · 3'));
@@ -107,6 +109,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('large text remains usable in home and guided practice', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = PracticeStore()
+      ..preferences = const LearnerPreferences(textScale: 1.3);
+    await tester.pumpWidget(SolveItApp(store: store));
+    final homeException = tester.takeException();
+    if (homeException is FlutterError) {
+      debugPrint(homeException.toStringDeep());
+    }
+    expect(homeException, isNull);
+    await tester.ensureVisible(find.text('Start guided practice'));
+    await tester.tap(find.text('Start guided practice'));
+    await tester.pumpAndSettle();
+    expect(find.text('The problem'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    await store.close();
+  });
+
   testWidgets('wide layout shows roadmaps and real empty history', (
     tester,
   ) async {
@@ -117,6 +143,8 @@ void main() {
     await tester.pumpWidget(SolveItApp(store: PracticeStore()));
     expect(find.byType(NavigationRail), findsOneWidget);
     await tester.tap(find.text('Roadmaps'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Intermediate · 27'));
     await tester.pumpAndSettle();
     expect(find.text('Intermediate foundations'), findsOneWidget);
     await tester.tap(find.text('Warm-ups · 3'));
@@ -140,15 +168,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Starter 30 · 30'));
     await tester.pumpAndSettle();
-    expect(find.text('Interview starter 30'), findsOneWidget);
+    expect(find.text('Starter 30'), findsOneWidget);
     expect(find.textContaining('0 of 30 self-reviewed'), findsOneWidget);
     expect(find.text('The supply pair'), findsOneWidget);
-    expect(
-      find.text(
-        '45 additional original problems are still to be authored and reviewed.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Mastery / 300'), findsOneWidget);
   });
 
   testWidgets('phone settings update coaching pace and default language', (
@@ -162,7 +185,14 @@ void main() {
     await tester.pumpWidget(SolveItApp(store: store));
     await tester.tap(find.byTooltip('Workbook options'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Learning preferences'));
+    await tester.tap(find.text('Profile & settings'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Beginner'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('Beginner'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Beginner'));
     await tester.pumpAndSettle();
@@ -174,6 +204,30 @@ void main() {
     expect(store.preferences.preferredLanguage, CodeLanguage.typescript);
     expect(tester.takeException(), isNull);
     await store.close();
+  });
+
+  testWidgets('Blind 75 roadmap opens its phase and pattern groups', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.tap(find.text('Roadmaps'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('0 of 75 self-reviewed'), findsOneWidget);
+    expect(find.text('Phase 1 · Sequences and search'), findsOneWidget);
+    await tester.ensureVisible(find.text('Array scans & hashing'));
+    await tester.tap(find.text('Array scans & hashing'));
+    await tester.pumpAndSettle();
+    expect(find.text('Contains Duplicate'), findsOneWidget);
+    await tester.ensureVisible(find.byType(TextField));
+    await tester.enterText(find.byType(TextField), 'Container With Most Water');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('1 of 75 problems'), findsOneWidget);
+    expect(find.text('Container With Most Water'), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('focus view hides context without losing the reasoning draft', (

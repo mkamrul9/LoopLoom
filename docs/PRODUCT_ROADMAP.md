@@ -6,7 +6,7 @@ Planning baseline: 29 October 2026. Scope, timing, prices, and success targets b
 
 Learn how to solve unfamiliar coding problems by explaining your thinking to a coach. The coach asks useful questions, identifies misconceptions, and helps you improve an approach before writing code.
 
-The confirmed initial audience is **intermediate developers preparing for coding interviews**. Interview 75 is the primary product path; foundation lessons act as diagnostic refreshers and warm-ups. Beginner and advanced paths extend the same learning system later. The confirmed development constraint is **strict zero spend**: no paid AI calls, paid infrastructure, purchased hardware, or automatic upgrade from free quotas. Use existing local resources and fail back to curated guided practice.
+The confirmed initial audience is **intermediate developers preparing for coding interviews**. The community Blind 75 collection is now the primary guided path; foundation lessons provide warm-ups and intermediate refreshers. Beginner and advanced paths extend the same learning system later. The confirmed development constraint is **strict zero spend**: no paid AI calls, paid infrastructure, purchased hardware, or automatic upgrade from free quotas. Use existing local resources and fall back to curated guided practice.
 
 The first product is a coding coach. Later modules can teach SQL, system design, CS fundamentals, and other technical material through the same lesson/checkpoint model.
 
@@ -29,10 +29,11 @@ Progress states: not started, in progress, self-reviewed, verified solved with a
 Roadmaps reference one shared problem catalog. A solved problem contributes to every roadmap containing it; attempts remain tied to the content version and language.
 
 - Foundation track: optional diagnostic refreshers in syntax, arrays, strings, complexity, maps/sets, two pointers, fixed/variable windows, stacks, binary search, and recursion basics. Experienced learners can skip mastered refreshers.
-- Interview 75 (primary): diagnostic placement and balanced practice across those foundations plus linked lists, trees, heaps, intervals, graphs, backtracking, greedy techniques, and basic dynamic programming. Emphasize explaining tradeoffs, invariants, complexity, edge cases, and follow-up variants under interview conditions.
+- Blind 75 (available as a draft path): 75 community-list entries grouped into four phases and sixteen patterns, with a guided five-checkpoint lesson for each entry. Fifteen entries reuse matching Starter 30 lesson IDs and retain progress; sixty use original SolveIt prompts. The path filters by difficulty and opens the official LeetCode challenge externally. SolveIt is not affiliated with LeetCode and does not submit code or synchronize results.
+- Starter 30: three warm-ups and twenty-seven intermediate foundation lessons remain available as a separate track.
 - Mastery 300: deeper graph algorithms, union-find, tries, advanced DP, monotonic structures, bit techniques, and mixed-pattern transfer problems.
 - Beginner, intermediate, and advanced are learner support modes as well as difficulty filters. Beginners get smaller checkpoints and worked traces; advanced learners get fewer prompts and more proof/optimization questions.
-- Optional Blind 75-style external reference track: link out and preserve source attribution. Do not imply affiliation. Verify permissions before distributing third-party list structure, statements, tests, explanations, or solutions.
+- Editorial review, provenance review, and tested code remain required before calling the 75-entry path a reviewed curriculum. Only the fifteen reused entries currently have SolveIt reference-case specifications; the other sixty rely on LeetCode's external judge. Do not treat reference-case matches or self-review as a verified solve.
 
 Start with original problem statements and examples. Familiar algorithmic ideas can be taught with original scenarios. Maintain authorship, license, provenance, reviewers, and version metadata. [LeetCode's terms](https://leetcode.com/terms/) are relevant before incorporating its content; a public URL is not a redistribution license.
 
@@ -85,7 +86,7 @@ Estimated 4–6 additional weeks, strongly dependent on content throughput.
 
 Only commit a date after measuring problem authoring/review throughput and learner retention.
 
-- Reach 300 reviewed problems and more advanced patterns.
+- Independently review and test the current 75-problem path before expanding toward 300 reviewed problems and more advanced patterns.
 - Add personalized weekly plans, mock interviews, team/cohort dashboards, and institution licensing when demand is demonstrated.
 - Explore optional on-device AI on supported devices and the next subject module.
 - Split backend services only when operational evidence requires it.

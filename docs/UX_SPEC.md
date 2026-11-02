@@ -16,13 +16,13 @@ Roadmaps: choose a path, inspect prerequisites, switch support level, and see co
 
 History: inspect attempts, feedback, code, hints, solution reveals, verified outcomes, and reflections. Filter by problem, pattern, language, and state when history grows.
 
-Profile/settings: preferred language, daily goal, theme, accessibility, AI mode and data controls, subscription, export, deletion, and support.
+Profile/settings (available): local display name, target role and interview date, weekly and daily practice targets, default language, coaching pace, readable-text scale, save status, and workbook backup. Profile details are device-local; there is no account or sync. Theme controls, AI mode, subscription, deletion tooling, and support workflows remain future work.
 
 Compact screens use a bottom bar; wide screens use a rail. The coach and problem statement become a split workspace with an editor on large screens. Adapt by available width rather than device brand. Keep routes shareable on web before web beta.
 
 ## First session
 
-The first release targets intermediate interview candidates. Lead with Interview 75, tradeoffs, invariants, edge cases, and interview follow-ups. Use a short diagnostic to offer refreshers rather than assuming the learner needs syntax lessons. The current thirty-lesson draft catalog spans warm-up and intermediate foundations; the paid MVP still needs editorial review and tested language solutions for its medium-difficulty interview starter set.
+The first release targets intermediate interview candidates. Lead with the Blind 75 guided path, tradeoffs, invariants, edge cases, and interview follow-ups. Use warm-up and intermediate lessons as refreshers. The current 75-entry path is a draft curriculum: fifteen entries reuse Starter 30 lessons and sixty have original SolveIt prompts. It still needs independent editorial review and broader tested reference cases before it can be presented as a reviewed interview curriculum.
 
 Allow guest start. Ask preferred language, experience level, and daily time budget without a long form. Recommend one small lesson. Introduce the teaching contract: "Explain your idea. I will help you improve it before you code."
 
@@ -44,4 +44,4 @@ Touch targets at least 48 logical pixels, readable contrast, scalable text witho
 
 ## Prototype boundaries
 
-Guided self-check mode must be named visibly. Drafts/history persist locally with Saving, Saved locally, and Not saved states. The home card resumes an unfinished session. Explain local-data removal and failed/conflicting writes without claiming cloud backup. Optional local AI feedback is labeled experimental; unavailable inference keeps guided practice usable. The code step saves work but does not execute it. A finished self-check session must not appear as test-verified solved. Upcoming roadmaps show planned coverage honestly.
+Guided self-check mode must be named visibly. Drafts/history and profile settings persist locally with Saving, Saved locally, and Not saved states. The home card resumes an unfinished session and displays the learner's study plan. Explain local-data removal and failed/conflicting writes without claiming cloud backup. Optional local AI feedback is labeled experimental; unavailable inference keeps guided practice usable. Code drafts save locally. Only problems with authored reference cases can run through the optional development runner; Blind 75 links open LeetCode externally and do not submit or sync code. A finished self-check session must not appear as test-verified solved. Upcoming roadmaps show planned coverage honestly.

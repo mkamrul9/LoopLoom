@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solveit/data/interview_lessons.dart';
+import 'package:solveit/data/lesson_catalog.dart';
+import 'package:solveit/data/blind75_curriculum.dart';
 import 'package:solveit/domain/lesson.dart';
 import 'package:solveit/features/coaching/session_controller.dart';
 
@@ -45,8 +47,8 @@ void main() {
   test(
     'all published lessons have a unique versioned identity and five checkpoints',
     () {
-      expect(allLessons.map((l) => l.id).toSet().length, 30);
-      for (final l in allLessons) {
+      expect(starter30Lessons.map((l) => l.id).toSet().length, 30);
+      for (final l in starter30Lessons) {
         expect(l.questions.length, 5);
         expect(l.checks.length, 5);
         expect(
@@ -62,6 +64,49 @@ void main() {
       }
     },
   );
+  test('Blind 75 has 75 ordered, grouped and fully guided problem entries', () {
+    expect(blind75Entries, hasLength(75));
+    expect(
+      blind75Entries.map((entry) => entry.number),
+      List.generate(75, (i) => i + 1),
+    );
+    expect(blind75Entries.map((entry) => entry.slug).toSet(), hasLength(75));
+    expect(
+      blind75Entries.map((entry) => entry.lesson.id).toSet(),
+      hasLength(75),
+    );
+    expect(blind75Entries.map((entry) => entry.phase).toSet(), hasLength(4));
+    expect(blind75Entries.map((entry) => entry.pattern).toSet(), hasLength(16));
+    expect(
+      blind75Entries.where((entry) => entry.hasReferenceCases),
+      hasLength(15),
+    );
+    expect(starter30Lessons, hasLength(30));
+    expect(allLessons, hasLength(90));
+    for (final entry in blind75Entries) {
+      final lesson = entry.lesson;
+      expect(entry.challengeUri.host, 'leetcode.com');
+      expect(lesson.questions, hasLength(5), reason: entry.title);
+      expect(lesson.checks, hasLength(5), reason: entry.title);
+      expect(lesson.hints, hasLength(3), reason: entry.title);
+      expect(lesson.statement, isNotEmpty, reason: entry.title);
+      expect(lesson.example, isNotEmpty, reason: entry.title);
+      expect(lesson.explanation, isNotEmpty, reason: entry.title);
+      for (final language in CodeLanguage.values) {
+        final session = SessionController(
+          lesson,
+          attemptNumber: 1,
+          initialLanguage: language,
+        );
+        expect(
+          session.starter,
+          isNotEmpty,
+          reason: '${entry.title} / ${language.name}',
+        );
+        session.dispose();
+      }
+    }
+  });
   test(
     'prefix and stack references agree with exhaustive small-input baselines',
     () {

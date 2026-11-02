@@ -15,8 +15,8 @@ abstract final class StudyColors {
 
 const noteLabel = TextStyle(
   fontFamily: 'monospace',
-  fontSize: 10,
-  letterSpacing: 1.1,
+  fontSize: 13,
+  letterSpacing: .55,
   fontWeight: FontWeight.w600,
   color: StudyColors.muted,
 );
@@ -43,10 +43,19 @@ ThemeData studyTheme() {
     useMaterial3: true,
     colorScheme: scheme,
     scaffoldBackgroundColor: StudyColors.paper,
-    textTheme: ThemeData.light().textTheme.apply(
-      bodyColor: StudyColors.ink,
-      displayColor: StudyColors.ink,
-    ),
+    textTheme: ThemeData.light().textTheme
+        .copyWith(
+          bodyLarge: const TextStyle(fontSize: 18, height: 1.65),
+          bodyMedium: const TextStyle(fontSize: 16, height: 1.6),
+          bodySmall: const TextStyle(fontSize: 14, height: 1.5),
+          labelLarge: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          labelMedium: const TextStyle(fontSize: 14),
+          labelSmall: const TextStyle(fontSize: 12),
+        )
+        .apply(bodyColor: StudyColors.ink, displayColor: StudyColors.ink),
     appBarTheme: const AppBarTheme(
       backgroundColor: StudyColors.paper,
       foregroundColor: StudyColors.ink,
@@ -55,7 +64,7 @@ ThemeData studyTheme() {
       scrolledUnderElevation: 0,
       titleTextStyle: TextStyle(
         color: StudyColors.ink,
-        fontSize: 17,
+        fontSize: 18,
         fontWeight: FontWeight.w600,
       ),
     ),
@@ -68,7 +77,7 @@ ThemeData studyTheme() {
       indicatorColor: StudyColors.accentWash,
       height: 72,
       labelTextStyle: WidgetStatePropertyAll(
-        TextStyle(fontSize: 11, color: StudyColors.ink),
+        TextStyle(fontSize: 13, color: StudyColors.ink),
       ),
     ),
     navigationRailTheme: const NavigationRailThemeData(
@@ -78,11 +87,11 @@ ThemeData studyTheme() {
       unselectedIconTheme: IconThemeData(color: StudyColors.muted),
       selectedLabelTextStyle: TextStyle(
         color: StudyColors.accent,
-        fontSize: 11,
+        fontSize: 12,
       ),
       unselectedLabelTextStyle: TextStyle(
         color: StudyColors.muted,
-        fontSize: 11,
+        fontSize: 12,
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
@@ -118,7 +127,7 @@ ThemeData studyTheme() {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: StudyColors.sheet,
-      labelStyle: const TextStyle(color: StudyColors.muted, fontSize: 14),
+      labelStyle: const TextStyle(color: StudyColors.muted, fontSize: 16),
       hintStyle: const TextStyle(color: StudyColors.muted),
       contentPadding: const EdgeInsets.all(18),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),

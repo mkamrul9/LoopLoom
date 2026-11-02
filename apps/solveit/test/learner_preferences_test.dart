@@ -69,6 +69,35 @@ void main() {
   });
 
   test(
+    'learner profile, study targets and readable text preference persist',
+    () async {
+      final repository = MemorySessionRepository();
+      final store = await PracticeStore.load(repository, pilotLessons);
+      final interviewDate = DateTime(2027, 4, 18);
+      await store.updatePreferences(
+        LearnerPreferences(
+          displayName: 'Ari',
+          targetRole: 'Backend engineer',
+          weeklyGoalDays: 4,
+          dailyGoalMinutes: 45,
+          targetInterviewDate: interviewDate,
+          textScale: 1.3,
+        ),
+      );
+      await store.close();
+
+      final restored = await PracticeStore.load(repository, pilotLessons);
+      expect(restored.preferences.displayName, 'Ari');
+      expect(restored.preferences.targetRole, 'Backend engineer');
+      expect(restored.preferences.weeklyGoalDays, 4);
+      expect(restored.preferences.dailyGoalMinutes, 45);
+      expect(restored.preferences.targetInterviewDate, interviewDate);
+      expect(restored.preferences.textScale, 1.3);
+      await restored.close();
+    },
+  );
+
+  test(
     'settings retry does not overwrite the separate session save status',
     () async {
       final repository = FailingPreferenceRepository();

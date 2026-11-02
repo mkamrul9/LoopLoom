@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../data/local_database.dart';
-import '../data/interview_lessons.dart';
+import '../data/lesson_catalog.dart';
 import '../data/session_repository.dart';
 import '../features/coaching/coach_provider.dart';
 import '../features/coaching/session_controller.dart';

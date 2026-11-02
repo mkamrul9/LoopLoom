@@ -108,8 +108,7 @@ const interviewLessons = <Lesson>[
     summary: 'Use the sorted half to shrink a rotated search range.',
     statement:
         'A shelf contains distinct numbers in increasing order, then it may have been rotated at one position. Return the index of target, or -1 when it is absent. The array may be empty or unrotated.',
-    example:
-        'values = [6, 7, 9, 1, 3, 5], target = 3\nAnswer: 4.',
+    example: 'values = [6, 7, 9, 1, 3, 5], target = 3\nAnswer: 4.',
     constraints:
         '0–10,000 distinct integers from −1,000,000 to 1,000,000. Do not modify the input. Return -1 when target is not present.',
     questions: [
@@ -141,8 +140,7 @@ const interviewLessons = <Lesson>[
     summary: 'Build each answer from the values on both sides.',
     statement:
         'For every position, return the product of all input values except the value at that position. Do not use division. Zeros are allowed. Return an empty list for empty input.',
-    example:
-        'values = [1, 2, 0, 4]\nAnswer: [0, 0, 8, 0].',
+    example: 'values = [1, 2, 0, 4]\nAnswer: [0, 0, 8, 0].',
     constraints:
         '0–12 integers, each from −2 to 2. Products fit a signed 32-bit integer. Do not modify the input.',
     questions: [
@@ -174,8 +172,7 @@ const interviewLessons = <Lesson>[
     summary: 'Begin counting only where a run can start.',
     statement:
         'Given an unordered list of integers, return the length of its longest sequence of consecutive values. Duplicates count once, and consecutive values differ by exactly one. Return 0 for empty input.',
-    example:
-        'values = [100, 4, 200, 1, 3, 2]\nAnswer: 4, from [1, 2, 3, 4].',
+    example: 'values = [100, 4, 200, 1, 3, 2]\nAnswer: 4, from [1, 2, 3, 4].',
     constraints:
         '0–10,000 integers from −1,000,000 to 1,000,000. The input is unordered and may contain duplicates. Do not modify it.',
     questions: [
@@ -272,8 +269,7 @@ const interviewLessons = <Lesson>[
     summary: 'Visit each four-direction land component once.',
     statement:
         'A rectangular map uses 1 for land and 0 for water. Count connected land groups. Cells connect only up, down, left, or right; diagonal contact does not connect them. Do not modify the map. An empty map contains zero groups.',
-    example:
-        'map = [[1, 1, 0], [0, 1, 0], [1, 0, 1]]\nAnswer: 3.',
+    example: 'map = [[1, 1, 0], [0, 1, 0], [1, 0, 1]]\nAnswer: 3.',
     constraints:
         '0–50 rows and 0–50 columns, all rows have the same length, and each cell is 0 or 1. Return 0 for an empty or all-water map.',
     questions: [
@@ -371,8 +367,7 @@ const interviewLessons = <Lesson>[
     summary: 'Traverse each undirected component from one unseen node.',
     statement:
         'A social graph has nodes numbered from 0 to n−1 and is given as an adjacency list. Each undirected edge appears in both endpoint lists; there are no self-edges or duplicate neighbors. Return the number of connected components. Isolated nodes each count as a group; an empty graph returns 0.',
-    example:
-        'neighbors = [[1], [0, 2], [1], [4], [3], []]\nAnswer: 3.',
+    example: 'neighbors = [[1], [0, 2], [1], [4], [3], []]\nAnswer: 3.',
     constraints:
         '0–1,000 nodes. Neighbor indices are valid and adjacency is symmetric. Do not modify the input.',
     questions: [
@@ -497,7 +492,8 @@ const interviewLessons = <Lesson>[
     id: 'kth-score-v1',
     title: 'Find the kth-highest score',
     pattern: 'Heaps · keep only the best k',
-    summary: 'A small min-heap can track the ranking without sorting everything.',
+    summary:
+        'A small min-heap can track the ranking without sorting everything.',
     statement:
         'Given a list of scores and a valid rank k, return the kth-largest score. Equal scores each occupy a rank; for example, the second-largest score can equal the largest score.',
     example: 'scores = [3, 2, 1, 5, 6, 4], k = 2\nAnswer: 5.',
@@ -529,7 +525,8 @@ const interviewLessons = <Lesson>[
     id: 'top-frequency-v1',
     title: 'Choose the most frequent values',
     pattern: 'Heaps · frequency ranking',
-    summary: 'Count first, then retain only the strongest frequency candidates.',
+    summary:
+        'Count first, then retain only the strongest frequency candidates.',
     statement:
         'Return the k values with the greatest frequencies. If values tie at the cutoff, choose the smaller numeric values first. Return the chosen values in ascending numeric order. k is between zero and the number of distinct input values.',
     example: 'values = [3, 2, 3, 2, 1], k = 2\nAnswer: [2, 3].',
@@ -561,7 +558,8 @@ const interviewLessons = <Lesson>[
     id: 'merge-streams-v1',
     title: 'Merge the sorted reading streams',
     pattern: 'Heaps · k-way merge',
-    summary: 'Only the next unread value from each stream can be the next result.',
+    summary:
+        'Only the next unread value from each stream can be the next result.',
     statement:
         'Given several individually sorted integer streams, return every value in one globally sorted list. Streams may be empty. Preserve duplicates and leave the input unchanged.',
     example:
@@ -660,7 +658,8 @@ const interviewLessons = <Lesson>[
     id: 'tree-path-sum-v1',
     title: 'Check a root-to-leaf total',
     pattern: 'Trees · path search',
-    summary: 'A target is reached only when a complete root-to-leaf path matches.',
+    summary:
+        'A target is reached only when a complete root-to-leaf path matches.',
     statement:
         'Return true if any path from the root to a leaf has values summing to target. A leaf has no children. The tree uses rows [value, leftIndex, rightIndex], with row 0 as root and -1 for a missing child. An empty tree returns false.',
     example:
@@ -693,7 +692,8 @@ const interviewLessons = <Lesson>[
     id: 'list-middle-v1',
     title: 'Find the middle node',
     pattern: 'Linked lists · fast and slow pointers',
-    summary: 'Move one pointer twice as quickly to find the midpoint in one pass.',
+    summary:
+        'Move one pointer twice as quickly to find the midpoint in one pass.',
     statement:
         'Return the node index at the middle of a finite singly linked list. For an even number of nodes, return the second middle. Each row is [value, nextIndex], row 0 is the head, and -1 ends the list. An empty list returns -1.',
     example:
@@ -827,7 +827,8 @@ const interviewLessons = <Lesson>[
     summary: 'Keep a starting position so a combination is counted only once.',
     statement:
         'Return the number of combinations that sum to target using the distinct positive candidate values. A candidate may be reused any number of times, but different orders of the same values count as one combination. target = 0 has one combination: choose nothing.',
-    example: 'candidates = [2, 3, 6, 7], target = 7\nAnswer: 2: [2, 2, 3] and [7].',
+    example:
+        'candidates = [2, 3, 6, 7], target = 7\nAnswer: 2: [2, 2, 3] and [7].',
     constraints:
         '0–12 distinct candidates, each 1–50. Target is 0–50. The answer fits a signed 32-bit integer. Do not modify input.',
     questions: [
@@ -885,5 +886,3 @@ const interviewLessons = <Lesson>[
         'Let search(i, remaining) count assignments from position i onward that reach the remaining total. Recurse twice: assign plus and reduce remaining by values[i], or assign minus and increase remaining by values[i]. At the end return one if remaining is zero, otherwise zero. Add the two branch counts because they represent distinct sign choices at this position. A zero creates two separate branches with the same numeric remainder, so it doubles the count. The search takes O(2^n) time and O(n) recursion space; memoization by index and remaining total can reuse repeated states.',
   ),
 ];
-
-const allLessons = <Lesson>[...pilotLessons, ...interviewLessons];

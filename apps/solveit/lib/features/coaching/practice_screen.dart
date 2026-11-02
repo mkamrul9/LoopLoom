@@ -4,6 +4,7 @@ import '../../domain/lesson.dart';
 import '../../ui/solveit_theme.dart';
 import '../../ui/save_status.dart';
 import '../../ui/code_workspace.dart';
+import '../../ui/readable_surface.dart';
 import 'session_controller.dart';
 
 class PracticeScreen extends StatefulWidget {
@@ -89,83 +90,86 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: session,
-    builder: (context, _) => Scaffold(
-      appBar: AppBar(
-        title: Text(
-          session.lesson.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              session.toggleFocus();
-              revealTarget(questionKey);
-            },
-            icon: Icon(
-              focusView
-                  ? Icons.fullscreen_exit
-                  : Icons.center_focus_strong_outlined,
-              size: 18,
-            ),
-            label: Text(focusView ? 'Overview' : 'Focus'),
+    listenable: Listenable.merge([session, widget.store]),
+    builder: (context, _) => ReadableSurface(
+      scale: widget.store.preferences.textScale,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            session.lesson.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(width: 8),
-        ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(),
-        ),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final split = constraints.maxWidth >= 1000 && !focusView;
-          final problem = focusView
-              ? ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: const EdgeInsets.only(bottom: 20),
-                  title: const Text(
-                    'Problem & examples',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  subtitle: Text(
-                    session.lesson.pattern,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: StudyColors.muted,
-                    ),
-                  ),
-                  children: [_problem()],
-                )
-              : _problem();
-          return SingleChildScrollView(
-            controller: scroll,
-            padding: EdgeInsets.all(split ? 36 : 24),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: focusView ? 720 : 1160),
-                child: split
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 4, child: problem),
-                          const SizedBox(width: 48),
-                          Expanded(flex: 6, child: _coaching()),
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          problem,
-                          const SizedBox(height: 28),
-                          _coaching(),
-                        ],
-                      ),
+          actions: [
+            TextButton.icon(
+              onPressed: () {
+                session.toggleFocus();
+                revealTarget(questionKey);
+              },
+              icon: Icon(
+                focusView
+                    ? Icons.fullscreen_exit
+                    : Icons.center_focus_strong_outlined,
+                size: 18,
               ),
+              label: Text(focusView ? 'Overview' : 'Focus'),
             ),
-          );
-        },
+            const SizedBox(width: 8),
+          ],
+          bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(1),
+            child: Divider(),
+          ),
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final split = constraints.maxWidth >= 1000 && !focusView;
+            final problem = focusView
+                ? ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    childrenPadding: const EdgeInsets.only(bottom: 20),
+                    title: const Text(
+                      'Problem & examples',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    subtitle: Text(
+                      session.lesson.pattern,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: StudyColors.muted,
+                      ),
+                    ),
+                    children: [_problem()],
+                  )
+                : _problem();
+            return SingleChildScrollView(
+              controller: scroll,
+              padding: EdgeInsets.all(split ? 36 : 24),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: focusView ? 720 : 1160),
+                  child: split
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 4, child: problem),
+                            const SizedBox(width: 48),
+                            Expanded(flex: 6, child: _coaching()),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            problem,
+                            const SizedBox(height: 28),
+                            _coaching(),
+                          ],
+                        ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     ),
   );
@@ -205,7 +209,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               session.lesson.example,
               style: const TextStyle(
                 fontFamily: 'monospace',
-                fontSize: 13,
+                fontSize: 14,
                 height: 1.8,
               ),
             ),
@@ -216,7 +220,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       Text(
         session.lesson.constraints,
         style: const TextStyle(
-          fontSize: 12,
+          fontSize: 14,
           color: StudyColors.muted,
           height: 1.7,
         ),
@@ -240,7 +244,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         const SizedBox(height: 10),
         SelectableText(
           message.text,
-          style: const TextStyle(fontSize: 14, height: 1.7),
+          style: const TextStyle(fontSize: 16, height: 1.7),
         ),
       ],
     ),

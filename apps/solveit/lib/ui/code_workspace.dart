@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/code_specs.dart';
+import '../data/blind75_curriculum.dart';
 import '../domain/lesson.dart';
 import 'solveit_theme.dart';
 import 'reference_run_panel.dart';
@@ -36,6 +38,7 @@ class CodeWorkspace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spec = codeSpecs[lessonId];
+    final blindEntry = blind75ByLessonId[lessonId];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -54,8 +57,60 @@ class CodeWorkspace extends StatelessWidget {
         const SizedBox(height: 14),
         const Text(
           'Implement solve and return the result. Console input/output is not required. The starter is a signature, not a solution.',
-          style: TextStyle(fontSize: 12, height: 1.6, color: StudyColors.muted),
+          style: TextStyle(fontSize: 14, height: 1.6, color: StudyColors.muted),
         ),
+        if (blindEntry != null) ...[
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: StudyColors.sheet,
+              border: Border.all(color: StudyColors.line),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  blindEntry.hasReferenceCases
+                      ? 'Blind 75 · ${blindEntry.difficulty}'
+                      : 'SolveIt practice draft · ${blindEntry.difficulty}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'This is an independently written study prompt. The official page has LeetCode’s canonical statement and judge. SolveIt does not submit code or sync results; adapt your draft to that page’s signature when you submit.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.55,
+                    color: StudyColors.muted,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final opened = await launchUrl(
+                      blindEntry.challengeUri,
+                      mode: LaunchMode.externalApplication,
+                    );
+                    if (!opened && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Could not open the challenge page.'),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.open_in_new),
+                  label: const Text('Open official LeetCode problem'),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         TextField(
           controller: editor,
@@ -69,7 +124,7 @@ class CodeWorkspace extends StatelessWidget {
           smartQuotesType: SmartQuotesType.disabled,
           style: const TextStyle(
             fontFamily: 'monospace',
-            fontSize: 14,
+            fontSize: 16,
             height: 1.7,
           ),
           decoration: const InputDecoration(
@@ -92,7 +147,7 @@ class CodeWorkspace extends StatelessWidget {
               listenable: editor,
               builder: (_, _) => Text(
                 '${editor.text.split('\n').length} lines · ${editor.text.runes.length} characters',
-                style: const TextStyle(fontSize: 11, color: StudyColors.muted),
+                style: const TextStyle(fontSize: 13, color: StudyColors.muted),
               ),
             ),
           ],
@@ -103,11 +158,11 @@ class CodeWorkspace extends StatelessWidget {
             tilePadding: EdgeInsets.zero,
             title: const Text(
               'Reference cases · expected results',
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 16),
             ),
             subtitle: const Text(
               'Compare these expected results with your reasoning.',
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 14),
             ),
             children: spec.cases
                 .map(

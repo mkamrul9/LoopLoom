@@ -4,7 +4,7 @@ A Flutter problem-solving coach: understand the problem, explain an approach, tr
 
 Android first, with a responsive Flutter web application from the same codebase. **SolveIt is a working name**, pending brand and store availability checks.
 
-Confirmed direction: intermediate developers preparing for interviews; strict zero-spend development. Interview 75 is the main planned path. The thirty original pilot lessons cover warm-up and intermediate foundations. Default builds use guided practice; optional AI requests go only through a local development gateway.
+Confirmed direction: intermediate developers preparing for interviews; strict zero-spend development. The Blind 75 guided path is the main interview-preparation roadmap, alongside three warm-ups, twenty-seven intermediate lessons, and a combined Starter 30 track. Default builds use guided practice; optional AI requests go only through a local development gateway.
 
 ## Start here
 
@@ -19,11 +19,11 @@ Confirmed direction: intermediate developers preparing for interviews; strict ze
 
 ## Project status
 
-The pilot now has thirty original problems—three warm-ups and twenty-seven intermediate lessons—with progressive hints, separate language drafts, durable local history, restart recovery, and an optional experimental local-coach connection. This is a 30-problem draft catalog; independent editorial review and tested language solutions remain release work. A portable local runtime and two free models have been installed and evaluated. Neither met the coaching quality bar; the app stays in guided mode. AI feedback does not approve checkpoints or establish verified solves. Production AI quality, secure code execution, accounts, cloud sync, and billing remain subsequent milestones. See the [model results](docs/LOCAL_AI_VALIDATION.md) and [app validation notes](docs/VALIDATION.md).
+The catalog includes thirty original starter lessons plus a 75-entry Blind 75 path, grouped into sixteen patterns and four study phases. Fifteen entries reuse a matching Starter 30 lesson so saved progress carries over; sixty have new SolveIt-authored prompts, hints, and explanations. Every entry has five guided checkpoints and starter drafts in C++, Python, JavaScript, and TypeScript. Editorial review and tested language solutions remain release work. A portable local runtime and two free models were evaluated; neither met the coaching quality bar, so the app stays in guided mode by default. AI feedback does not approve checkpoints or establish verified solves. Only fifteen reused Blind 75 lessons currently have reference-case specifications, and code execution requires the optional local development runner; the other sixty link to LeetCode's judge. SolveIt writes its own prompts and is not affiliated with LeetCode. Production AI quality, secure execution, accounts, cloud sync, and billing remain subsequent milestones. See the [model results](docs/LOCAL_AI_VALIDATION.md) and [app validation notes](docs/VALIDATION.md).
 
 The teaching rule is simple: **feedback should help the learner take the next step, without revealing the complete solution by default**. Users can still explicitly choose to reveal a solution; that attempt is recorded as assisted.
 
-Workbook backup is available from the header's **Workbook backup** button. Copy the JSON text into a file; paste it on another device to review and restore missing attempts. Existing attempt IDs are preserved rather than overwritten. See [backup instructions](docs/LOCAL_DEVELOPMENT.md#workbook-backup).
+Profile & settings are available from the header. Name, target role, interview date, practice targets, text size, coaching pace, and default language are stored locally. Device text scaling remains active. Workbook backup is available from the header menu; copy the JSON text into a file and paste it on another device to review and restore missing attempts. Existing attempt IDs are preserved rather than overwritten. See [backup instructions](docs/LOCAL_DEVELOPMENT.md#workbook-backup).
 
 ## Repository direction
 
@@ -31,7 +31,7 @@ An opt-in local C++/JavaScript/Python/TypeScript reference runner executes visib
 
 The Code checkpoint includes lesson-specific starter signatures in all four languages, an indentation control, and folded reference cases with expected results. Drafts save locally; opt-in execution is available only in the local development preview and never marks a problem solved. [Workspace details](docs/CODE_WORKSPACE.md).
 
-The available Intermediate foundations track covers prefix sums, stacks, intervals, binary search, strings, heaps, tree and linked-list traversal, graph traversal, backtracking, products, sequences, variable-size windows, dynamic programming, and greedy scans. Warm-ups remain available. Both tracks have independent self-review counts and lesson resume states. [Content and validation details](docs/INTERMEDIATE_LESSONS.md).
+The Blind 75 roadmap can be searched by problem or pattern, filtered by difficulty, and browsed by phase. Progress is device-local and labeled self-reviewed; it is not a verified solve. Official challenge links open outside SolveIt and do not submit or synchronize code. The neutral paper-and-graphite theme uses larger default text and Standard, Comfortable, and Large reading choices that combine with device accessibility settings. See the [UX specification](docs/UX_SPEC.md) and [starter lesson details](docs/INTERMEDIATE_LESSONS.md).
 
 `apps/solveit/` contains the Flutter app. Documentation lives in `docs/`. Keep problem content and coaching rules versioned independently from UI code as the catalog grows.
 
@@ -44,4 +44,4 @@ flutter test
 flutter run -d chrome
 ```
 
-For Android, connect a device or start an emulator and run `flutter run`. Production package identity, signing, and Play Console registration must be configured before release.
+For Android, connect a device or start an emulator and run `flutter run`. Local checks currently build a debug APK and web output; neither is a published release. Production package identity, signing, store listing, and Play Console registration must be configured before release.

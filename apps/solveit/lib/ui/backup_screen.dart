@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../data/interview_lessons.dart';
+import '../data/lesson_catalog.dart';
+import 'readable_surface.dart';
 import '../features/coaching/session_controller.dart';
 import 'solveit_theme.dart';
 
@@ -97,116 +98,122 @@ class _BackupScreenState extends State<BackupScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: !busy,
-    child: Scaffold(
-      appBar: AppBar(title: const Text('Workbook backup')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 680),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text('KEEP YOUR WORK', style: noteLabel),
-                const SizedBox(height: 16),
-                const Text(
-                  'A copy for later.',
-                  style: TextStyle(fontSize: 30, letterSpacing: -.8),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Back up your attempts, code drafts, explanations, and session notes. The copy includes current unsaved edits and retained older records.',
-                  style: TextStyle(height: 1.65),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Backups are plain JSON text and are not encrypted. Copy the text into a file and store it somewhere you trust. Nothing is uploaded.',
-                  style: TextStyle(
-                    height: 1.65,
-                    color: StudyColors.muted,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                OutlinedButton.icon(
-                  onPressed: busy ? null : copyBackup,
-                  icon: const Icon(Icons.copy_outlined, size: 18),
-                  label: const Text('Copy workbook backup'),
-                ),
-                if (exportText.text.isNotEmpty) ...[
+  Widget build(BuildContext context) => ReadableSurface(
+    scale: widget.store.preferences.textScale,
+    child: PopScope(
+      canPop: !busy,
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Workbook backup')),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 680),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('KEEP YOUR WORK', style: noteLabel),
                   const SizedBox(height: 16),
-                  TextField(
-                    controller: exportText,
-                    readOnly: true,
-                    minLines: 3,
-                    maxLines: 6,
-                    decoration: const InputDecoration(
-                      labelText: 'Your backup text',
-                      helperText:
-                          'You can also select and copy this text manually.',
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 32),
-                const Divider(),
-                const SizedBox(height: 24),
-                const Text('Restore a copy', style: TextStyle(fontSize: 22)),
-                const SizedBox(height: 12),
-                const Text(
-                  'Paste the full backup text below. Existing attempts stay as they are, including when the backup contains a different draft with the same attempt ID. Unknown lesson versions are retained but may not open.',
-                  style: TextStyle(
-                    height: 1.65,
-                    fontSize: 13,
-                    color: StudyColors.muted,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                TextField(
-                  controller: input,
-                  enabled: !busy,
-                  minLines: 4,
-                  maxLines: 8,
-                  maxLength: 2000000,
-                  decoration: const InputDecoration(
-                    labelText: 'Backup JSON',
-                    alignLabelWithHint: true,
-                    counterText: '',
-                  ),
-                  onChanged: (_) => setState(() {
-                    plan = null;
-                    status = null;
-                  }),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: busy ? null : reviewBackup,
-                  child: const Text('Review backup'),
-                ),
-                if (plan case final checked?) ...[
-                  const SizedBox(height: 20),
-                  Text(
-                    '${checked.total} attempts in this backup. ${checked.additions} to add; ${checked.existing} already on this device.',
-                    style: const TextStyle(height: 1.65),
+                  const Text(
+                    'A copy for later.',
+                    style: TextStyle(fontSize: 30, letterSpacing: -.8),
                   ),
                   const SizedBox(height: 12),
-                  FilledButton(
-                    onPressed: busy ? null : restore,
-                    child: Text(
-                      busy ? 'Restoring…' : 'Restore missing attempts',
+                  const Text(
+                    'Back up your attempts, code drafts, explanations, and session notes. The copy includes current unsaved edits and retained older records.',
+                    style: TextStyle(height: 1.65),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Backups are plain JSON text and are not encrypted. Copy the text into a file and store it somewhere you trust. Nothing is uploaded.',
+                    style: TextStyle(
+                      height: 1.65,
+                      color: StudyColors.muted,
+                      fontSize: 13,
                     ),
                   ),
-                ],
-                if (status != null) ...[
                   const SizedBox(height: 20),
-                  Semantics(
-                    liveRegion: true,
-                    child: Text(status!, style: const TextStyle(height: 1.65)),
+                  OutlinedButton.icon(
+                    onPressed: busy ? null : copyBackup,
+                    icon: const Icon(Icons.copy_outlined, size: 18),
+                    label: const Text('Copy workbook backup'),
                   ),
+                  if (exportText.text.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: exportText,
+                      readOnly: true,
+                      minLines: 3,
+                      maxLines: 6,
+                      decoration: const InputDecoration(
+                        labelText: 'Your backup text',
+                        helperText:
+                            'You can also select and copy this text manually.',
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 24),
+                  const Text('Restore a copy', style: TextStyle(fontSize: 22)),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Paste the full backup text below. Existing attempts stay as they are, including when the backup contains a different draft with the same attempt ID. Unknown lesson versions are retained but may not open.',
+                    style: TextStyle(
+                      height: 1.65,
+                      fontSize: 13,
+                      color: StudyColors.muted,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: input,
+                    enabled: !busy,
+                    minLines: 4,
+                    maxLines: 8,
+                    maxLength: 2000000,
+                    decoration: const InputDecoration(
+                      labelText: 'Backup JSON',
+                      alignLabelWithHint: true,
+                      counterText: '',
+                    ),
+                    onChanged: (_) => setState(() {
+                      plan = null;
+                      status = null;
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: busy ? null : reviewBackup,
+                    child: const Text('Review backup'),
+                  ),
+                  if (plan case final checked?) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      '${checked.total} attempts in this backup. ${checked.additions} to add; ${checked.existing} already on this device.',
+                      style: const TextStyle(height: 1.65),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: busy ? null : restore,
+                      child: Text(
+                        busy ? 'Restoring…' : 'Restore missing attempts',
+                      ),
+                    ),
+                  ],
+                  if (status != null) ...[
+                    const SizedBox(height: 20),
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        status!,
+                        style: const TextStyle(height: 1.65),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
                 ],
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
           ),
         ),

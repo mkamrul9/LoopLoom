@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solveit/data/code_specs.dart';
-import 'package:solveit/data/interview_lessons.dart';
+import 'package:solveit/data/blind75_curriculum.dart';
+import 'package:solveit/data/lesson_catalog.dart';
 import 'package:solveit/domain/lesson.dart';
 import 'package:solveit/features/coaching/session_controller.dart';
 import 'package:solveit/ui/code_workspace.dart';
@@ -12,7 +13,8 @@ void main() {
     'untouched scaffolds cannot acknowledge the code checkpoint in any lesson or language',
     () {
       for (final lesson in allLessons) {
-        expect(codeSpecs[lesson.id]!.cases.length, 3);
+        final spec = codeSpecs[lesson.id];
+        if (spec != null) expect(spec.cases.length, 3);
         final session = SessionController(lesson, attemptNumber: 1);
         for (var i = 0; i < 3; i++) {
           session.submit('Reasoning');
@@ -20,6 +22,11 @@ void main() {
         }
         for (final lang in CodeLanguage.values) {
           session.changeLanguage(lang);
+          expect(
+            session.starter,
+            isNotEmpty,
+            reason: '${lesson.id} ${lang.name}',
+          );
           session.submit(session.draft);
           expect(
             session.checkpointReady,
@@ -45,6 +52,48 @@ void main() {
     original.dispose();
     restored.dispose();
   });
+  testWidgets(
+    'Blind 75 code draft shows the official challenge and runner limits',
+    (tester) async {
+      final entry = blind75Entries.singleWhere(
+        (problem) => problem.title == 'Reverse Linked List',
+      );
+      final session = SessionController(entry.lesson, attemptNumber: 1);
+      for (var i = 0; i < 3; i++) {
+        session.submit('My approach');
+        session.advanceAfterSelfCheck();
+      }
+      final editor = TextEditingController(text: session.draft);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: studyTheme(),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: CodeWorkspace(
+                lessonId: entry.lesson.id,
+                language: CodeLanguage.python,
+                editor: editor,
+                enabled: true,
+                onChanged: (_) {},
+                onLanguageChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Open official LeetCode problem'), findsOneWidget);
+      expect(
+        find.textContaining('does not have local reference cases'),
+        findsOneWidget,
+      );
+      expect(find.text('Run reference cases'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      editor.dispose();
+      session.dispose();
+    },
+  );
   testWidgets(
     'phone editor inserts spaces at selection and opens honest reference cases',
     (tester) async {
