@@ -770,14 +770,7 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 32),
       const Text('NEXT PATHS', style: noteLabel),
       const SizedBox(height: 14),
-      const ListTile(
-        contentPadding: EdgeInsets.zero,
-        title: Text('Mastery / 300'),
-        subtitle: Text(
-          'Advanced patterns and transfer problems are still in development.',
-        ),
-        trailing: Text('PLANNED', style: noteLabel),
-      ),
+      _mastery300Plan(),
       const SizedBox(height: 16),
       const Text(
         'The available 30 lessons are original drafts with five guided checkpoints each. They are useful for practice, but still need independent editorial review before a reviewed interview curriculum can be claimed.',
@@ -785,6 +778,95 @@ class _LearningHomeState extends State<LearningHome> {
       ),
     ],
   );
+
+  Widget _mastery300Plan() {
+    const patterns = <(String, int)>[
+      ('Arrays, strings & hashing', 26),
+      ('Two pointers', 15),
+      ('Sliding window', 11),
+      ('Binary search', 16),
+      ('Linked lists', 16),
+      ('Stacks & monotonic structures', 16),
+      ('Trees & BSTs', 27),
+      ('Tries', 5),
+      ('Backtracking', 19),
+      ('Heaps & top-k', 15),
+      ('Graph traversal & modeling', 25),
+      ('Advanced graphs', 15),
+      ('One-dimensional DP', 21),
+      ('Two-dimensional DP', 20),
+      ('Greedy', 17),
+      ('Intervals', 9),
+      ('Bit manipulation', 12),
+      ('Math & geometry', 15),
+    ];
+    const milestones = <(String, String)>[
+      ('Core 75', 'Blind 75 · available now'),
+      ('Core 150', 'Add canonical pattern extensions'),
+      ('Breadth 250', 'Build approachable coverage across every family'),
+      ('Mastery 300', 'Add advanced and mixed-pattern transfer problems'),
+    ];
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        key: const PageStorageKey<String>('mastery-300-plan'),
+        leading: const Icon(Icons.route_outlined),
+        title: const Text('Interview Mastery · 300'),
+        subtitle: const Text(
+          '75 available · 225 planned · 18 pattern families',
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+        expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'A staged interview path: learn the core patterns, widen coverage, then practice advanced variants and mixed-pattern problems. Counts below are curriculum targets; only Blind 75 is available today.',
+            style: TextStyle(height: 1.6, color: StudyColors.muted),
+          ),
+          const SizedBox(height: 16),
+          for (final milestone in milestones)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              leading: Icon(
+                milestone.$1 == 'Core 75'
+                    ? Icons.check_circle_outline
+                    : Icons.circle_outlined,
+              ),
+              title: Text(milestone.$1),
+              subtitle: Text(milestone.$2),
+              trailing: milestone.$1 == 'Core 75'
+                  ? const Text('LIVE', style: noteLabel)
+                  : const Text('PLANNED', style: noteLabel),
+            ),
+          const Divider(height: 28),
+          Text(
+            'PATTERN COVERAGE · ${patterns.fold<int>(0, (sum, item) => sum + item.$2)} TOTAL TARGETS',
+            style: noteLabel,
+          ),
+          const SizedBox(height: 8),
+          for (final pattern in patterns)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                children: [
+                  Expanded(child: Text(pattern.$1)),
+                  Text('${pattern.$2}'),
+                ],
+              ),
+            ),
+          const SizedBox(height: 12),
+          const Text(
+            'Problem choices will favor reusable interview techniques and topic coverage. “Interview relevant” is a curation goal, not a promise about any specific company or interview.',
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.55,
+              color: StudyColors.muted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _history() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
