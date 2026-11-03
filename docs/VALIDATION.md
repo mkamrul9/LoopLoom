@@ -194,3 +194,7 @@ Added twelve more original problem-specific guides, bringing the customized exte
 ### Mastery 300 content batch 5
 
 Added thirty problem-specific guides across arrays and hashing, two pointers, sliding windows, binary search, linked lists, monotonic stacks, trees, graph traversal, dynamic programming, intervals, and math. The customized extension count is now 90 of 225; the remaining 135 still use pattern-level scaffolds. Full canonical statements remain linked externally. Static checks confirmed that all thirty new slugs exist in the extension catalog and that the guide map has 90 distinct keys; `git diff --check` passed. Flutter format/analyze/build were not run because the SDK is unavailable in this shell.
+
+## Local spaced-review queue
+
+Completed guided attempts now persist their completion timestamp while keeping the existing session schema version and accepting older backups without a completion timestamp. Older completed attempts use their saved start time as an approximate review baseline. PracticeStore schedules the next fresh attempt after 1, 3, 7, and 14 days, then repeats the 14-day interval. The Learn dashboard shows due or upcoming lessons; History shows the full queue. Starting a queued review creates a new attempt when no unfinished attempt exists. Due dates are computed locally when the app is open; no notification permission or background scheduler was added. `git diff --check` passed. Flutter analysis/build and widget/regression checks were not run because the Flutter SDK is unavailable in this shell.

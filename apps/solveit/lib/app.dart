@@ -341,6 +341,8 @@ class _LearningHomeState extends State<LearningHome> {
           ],
         ),
       ),
+      const SizedBox(height: 16),
+      _reviewPlan(),
       const SizedBox(height: 32),
       Container(
         width: double.infinity,
@@ -552,6 +554,80 @@ class _LearningHomeState extends State<LearningHome> {
           ),
         ],
       );
+
+  Widget _reviewPlan({bool showAll = false}) {
+    final now = DateTime.now();
+    final schedule = store.reviewSchedule;
+    final due = schedule.where((assignment) => assignment.isDueAt(now)).toList();
+    final candidates = showAll || due.isEmpty ? schedule : due;
+    final visible = showAll ? candidates : candidates.take(4).toList();
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: StudyColors.sheet,
+        border: Border.all(color: StudyColors.line),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(child: Text('SPACED PRACTICE', style: noteLabel)),
+              Text(
+                due.isEmpty
+                    ? '${schedule.length} scheduled'
+                    : '${due.length} due',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: StudyColors.muted,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            due.isEmpty ? 'Keep earlier patterns fresh.' : 'Time to revisit.',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            'After self-review, revisit a problem in 1, 3, 7, then 14 days. Reviews are practice, not verified solves.',
+            style: const TextStyle(
+              fontSize: 13,
+              height: 1.55,
+              color: StudyColors.muted,
+            ),
+          ),
+          if (visible.isEmpty) ...[
+            const SizedBox(height: 12),
+            const Text(
+              'Complete a guided session to add your first review.',
+              style: TextStyle(fontSize: 14),
+            ),
+          ] else ...[
+            const SizedBox(height: 10),
+            for (final assignment in visible)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: Text(assignment.lesson.title),
+                subtitle: Text(
+                  assignment.isDueAt(now)
+                      ? 'Due now · ${assignment.intervalDays}-day interval'
+                      : 'Due ${MaterialLocalizations.of(context).formatMediumDate(assignment.dueAt.toLocal())}',
+                ),
+                trailing: TextButton(
+                  onPressed: () => openLesson(assignment.lesson),
+                  child: Text(assignment.isDueAt(now) ? 'Review' : 'Preview'),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
 
   Widget _curriculumPath(List<Blind75Entry> entries) {
     final normalizedQuery = blindQuery.trim().toLowerCase();
@@ -939,6 +1015,8 @@ class _LearningHomeState extends State<LearningHome> {
         'Saved on this device. Clearing browser data or uninstalling the app removes local work.',
         style: TextStyle(fontSize: 12, color: StudyColors.muted),
       ),
+      const SizedBox(height: 18),
+      _reviewPlan(showAll: true),
       const SizedBox(height: 32),
       if (store.unavailableAttempts > 0)
         Text(

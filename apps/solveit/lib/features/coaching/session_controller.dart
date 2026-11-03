@@ -88,12 +88,15 @@ class SessionController extends ChangeNotifier {
   bool _checkpointReady = false, _solutionRevealed = false, _focusView = false;
   bool _reviewing = false, _disposed = false;
   int _hintsUsed = 0, _aiReviews = 0, _revision = 0;
+  DateTime? _completedAt;
 
   CoachingStage get stage => _stage;
   CodeLanguage get language => _language;
   List<CoachMessage> get messages => List.unmodifiable(_messages);
   bool get checkpointReady => _checkpointReady;
   bool get solutionRevealed => _solutionRevealed;
+  DateTime? get completedAt =>
+      _completedAt ?? (_stage == CoachingStage.complete ? startedAt : null);
   bool get focusView => _focusView;
   bool get reviewing => _reviewing;
   int get hintsUsed => _hintsUsed;
@@ -172,6 +175,7 @@ class SessionController extends ChangeNotifier {
     if (!_checkpointReady || _stage == CoachingStage.complete || reviewing) {
       return;
     }
+    if (_stage == CoachingStage.reflect) _completedAt = DateTime.now();
     _stage = CoachingStage.values[_stage.index + 1];
     _checkpointReady = false;
     _messages.add(
@@ -274,6 +278,7 @@ class SessionController extends ChangeNotifier {
     'lessonId': lesson.id,
     'attemptNumber': attemptNumber,
     'startedAt': startedAt.toUtc().toIso8601String(),
+    'completedAt': _completedAt?.toUtc().toIso8601String(),
     'stage': stage.name,
     'language': language.name,
     'pace': pace.name,
@@ -302,6 +307,7 @@ class SessionController extends ChangeNotifier {
         (json['hintsUsed'] as int) > lesson.hints.length ||
         json['aiReviews'] is! int ||
         (json['aiReviews'] as int) < 0 ||
+        (json['completedAt'] != null && json['completedAt'] is! String) ||
         json['messages'] is! List ||
         (json['messages'] as List).isEmpty) {
       throw const FormatException('Invalid session');
@@ -316,6 +322,9 @@ class SessionController extends ChangeNotifier {
       initialLanguage: _enum(CodeLanguage.values, json['language']),
     );
     session._stage = _enum(CoachingStage.values, json['stage']);
+    if (json['completedAt'] case final String completedAt) {
+      session._completedAt = DateTime.parse(completedAt).toLocal();
+    }
     session._language = _enum(CodeLanguage.values, json['language']);
     session._checkpointReady = _boolean(json, 'checkpointReady');
     session._solutionRevealed = _boolean(json, 'solutionRevealed');
@@ -369,6 +378,22 @@ class BackupImportResult {
   final int added, skipped;
 }
 
+class ReviewAssignment {
+  const ReviewAssignment({
+    required this.lesson,
+    required this.dueAt,
+    required this.intervalDays,
+    required this.completedAttempts,
+  });
+
+  final Lesson lesson;
+  final DateTime dueAt;
+  final int intervalDays;
+  final int completedAttempts;
+
+  bool isDueAt(DateTime now) => !dueAt.isAfter(now);
+}
+
 class PracticeStore extends ChangeNotifier {
   PracticeStore({SessionRepository? repository, CoachProvider? coach})
     : repository = repository ?? MemorySessionRepository(),
@@ -398,6 +423,49 @@ class PracticeStore extends ChangeNotifier {
       .map((s) => s.lesson.id)
       .toSet()
       .length;
+
+  List<ReviewAssignment> get reviewSchedule {
+    const intervals = [1, 3, 7, 14];
+    final completedByLesson = <String, List<SessionController>>{};
+    for (final session in _sessions) {
+      if (session.stage == CoachingStage.complete) {
+        completedByLesson
+            .putIfAbsent(session.lesson.id, () => [])
+            .add(session);
+      }
+    }
+    final assignments = <ReviewAssignment>[];
+    for (final attempts in completedByLesson.values) {
+      attempts.sort(
+        (a, b) => a.completedAt!.compareTo(b.completedAt!),
+      );
+      final latest = attempts.last;
+      if (_sessions.any(
+        (session) =>
+            session.lesson.id == latest.lesson.id &&
+            session.stage != CoachingStage.complete,
+      )) {
+        continue;
+      }
+      final intervalIndex = (attempts.length - 1)
+          .clamp(0, intervals.length - 1)
+          .toInt();
+      final intervalDays = intervals[intervalIndex];
+      assignments.add(
+        ReviewAssignment(
+          lesson: latest.lesson,
+          dueAt: latest.completedAt!.add(Duration(days: intervalDays)),
+          intervalDays: intervalDays,
+          completedAttempts: attempts.length,
+        ),
+      );
+    }
+    assignments.sort((a, b) => a.dueAt.compareTo(b.dueAt));
+    return List.unmodifiable(assignments);
+  }
+
+  List<ReviewAssignment> dueReviewsAt(DateTime now) =>
+      reviewSchedule.where((assignment) => assignment.isDueAt(now)).toList();
 
   static Future<PracticeStore> load(
     SessionRepository repository,
