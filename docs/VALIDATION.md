@@ -190,3 +190,7 @@ Added twelve problem-specific original coaching guides, bringing the customized 
 ### Mastery 300 content batch 4
 
 Added twelve more original problem-specific guides, bringing the customized extension total to 60. Coverage now includes prefix-minimum interval reasoning, fixed-window anagrams, duplicate-aware binary search, timestamp lookup, monotonic histogram stacks, tree views, queen placement, heap scheduling, grid shortest paths, ratio graphs, Dijkstra, and edit-distance DP. The other 165 extensions still use general pattern scaffolds; full canonical statements remain linked externally.
+
+### Mastery 300 content batch 5
+
+Added thirty problem-specific guides across arrays and hashing, two pointers, sliding windows, binary search, linked lists, monotonic stacks, trees, graph traversal, dynamic programming, intervals, and math. The customized extension count is now 90 of 225; the remaining 135 still use pattern-level scaffolds. Full canonical statements remain linked externally. Static checks confirmed that all thirty new slugs exist in the extension catalog and that the guide map has 90 distinct keys; `git diff --check` passed. Flutter format/analyze/build were not run because the SDK is unavailable in this shell.
