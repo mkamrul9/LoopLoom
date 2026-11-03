@@ -185,4 +185,8 @@ Added 19 more original problem-specific coaching guides, bringing the customized
 
 ### Mastery 300 content batch 3
 
-Added twelve problem-specific original coaching guides, bringing the customized extension total to 49. New coverage includes stable array compaction, linked-list rotation and merge sort, nested decoding, monotonic digit removal, tree path sums, trie prefix replacement, multi-source grid BFS, greedy jump ranges, and circular fuel feasibility. The other 176 extensions still use general pattern scaffolds; full canonical statements remain linked externally.
+Added twelve problem-specific original coaching guides, bringing the customized extension total to 48. New coverage includes stable array compaction, linked-list rotation and merge sort, nested decoding, monotonic digit removal, tree path sums, trie prefix replacement, multi-source grid BFS, greedy jump ranges, and circular fuel feasibility. The other 177 extensions still use general pattern scaffolds; full canonical statements remain linked externally.
+
+### Mastery 300 content batch 4
+
+Added twelve more original problem-specific guides, bringing the customized extension total to 60. Coverage now includes prefix-minimum interval reasoning, fixed-window anagrams, duplicate-aware binary search, timestamp lookup, monotonic histogram stacks, tree views, queen placement, heap scheduling, grid shortest paths, ratio graphs, Dijkstra, and edit-distance DP. The other 165 extensions still use general pattern scaffolds; full canonical statements remain linked externally.
