@@ -28,7 +28,7 @@ class SaveStatus extends StatelessWidget {
                     ? Icons.more_horiz
                     : Icons.check,
                 size: 13,
-                color: StudyColors.muted,
+                color: context.palette.muted,
               ),
               const SizedBox(width: 6),
               Text(
@@ -39,7 +39,7 @@ class SaveStatus extends StatelessWidget {
                     : store.sessions.isEmpty
                     ? 'LOCAL WORKBOOK'
                     : 'Saved locally',
-                style: const TextStyle(fontSize: 11, color: StudyColors.muted),
+                style: TextStyle(fontSize: 11, color: context.palette.muted),
               ),
               if (retryable)
                 TextButton(

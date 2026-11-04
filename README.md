@@ -1,47 +1,116 @@
-# LoopLoom
+<p align="center">
+  <img src="docs/looploom-logo-preview.png" alt="LoopLoom — Think · Trace · Code" width="760" />
+</p>
 
-A Flutter problem-solving coach: understand the problem, explain an approach, trace it, write code, and reflect before moving on.
+<p align="center">
+  <a href="https://github.com/mkamrul9/LoopLoom"><img src="https://img.shields.io/github/stars/mkamrul9/LoopLoom?style=flat-square&color=914B36" alt="GitHub stars" /></a>
+  <a href="https://github.com/mkamrul9/LoopLoom/network/members"><img src="https://img.shields.io/github/forks/mkamrul9/LoopLoom?style=flat-square&color=914B36" alt="GitHub forks" /></a>
+  <a href="https://github.com/mkamrul9/LoopLoom/issues"><img src="https://img.shields.io/github/issues/mkamrul9/LoopLoom?style=flat-square&color=914B36" alt="Open issues" /></a>
+  <img src="https://img.shields.io/badge/Flutter-Android%20%2B%20Web-914B36?style=flat-square" alt="Flutter for Android and web" />
+  <img src="https://img.shields.io/badge/Practice-local--first-262B2D?style=flat-square" alt="Local first practice" />
+</p>
 
-Android first, with a responsive Flutter web application from the same codebase. **LoopLoom is the selected product name**; store and trademark clearance remains a release task.
+<h1 align="center">Think it through. Then write the code.</h1>
 
-Confirmed direction: intermediate developers preparing for interviews; strict zero-spend development. The Blind 75 guided path is the main interview-preparation roadmap, alongside three warm-ups, twenty-seven intermediate lessons, and a combined Starter 30 track. Default builds use guided practice; optional AI requests go only through a local development gateway.
+<p align="center">
+  LoopLoom is a focused coding interview coach that helps you build an approach one decision at a time.
+</p>
 
-## Start here
+<table>
+  <tr>
+    <th align="center">Light</th>
+    <th align="center">Dark</th>
+  </tr>
+  <tr>
+    <td><img src="docs/looploom-app-preview.png" alt="LoopLoom learning screen in light theme" width="480" /></td>
+    <td><img src="docs/looploom-app-preview-dark.png" alt="LoopLoom learning screen in dark theme" width="480" /></td>
+  </tr>
+</table>
 
-- [Product and delivery roadmap](docs/PRODUCT_ROADMAP.md)
-- [Architecture and data model](docs/ARCHITECTURE.md)
-- [Free/local AI strategy](docs/AI_STRATEGY.md)
-- [UX and design direction](docs/UX_SPEC.md)
-- [Monetization and Play Store launch](docs/RELEASE_MONETIZATION.md)
-- [Implementation backlog](docs/BUILD_BACKLOG.md)
-- [Local storage and AI setup](docs/LOCAL_DEVELOPMENT.md)
-- [Measured local AI results](docs/LOCAL_AI_VALIDATION.md)
+## Learn the reasoning, not just the answer
 
-## Project status
+Most practice tools show a problem and wait for a submission. LoopLoom guides you through the thinking that comes first: understand the constraints, explain an algorithm, trace it through an example, write code, and reflect on the tradeoffs.
 
-The catalog includes thirty original starter lessons plus a 75-entry Blind 75 path, grouped into sixteen patterns and four study phases. Fifteen entries reuse a matching Starter 30 lesson so saved progress carries over; sixty have new LoopLoom-authored prompts, hints, and explanations. Every entry has five guided checkpoints and starter drafts in C++, Python, JavaScript, and TypeScript. Editorial review and tested language solutions remain release work. A portable local runtime and two free models were evaluated; neither met the coaching quality bar, so the app stays in guided mode by default. AI feedback does not approve checkpoints or establish verified solves. Only fifteen reused Blind 75 lessons currently have reference-case specifications, and code execution requires the optional local development runner; the other sixty link to LeetCode's judge. LoopLoom writes its own prompts and is not affiliated with LeetCode. Production AI quality, secure execution, accounts, cloud sync, and billing remain subsequent milestones. See the [model results](docs/LOCAL_AI_VALIDATION.md) and [app validation notes](docs/VALIDATION.md).
+The coach asks for the next step instead of revealing a complete solution by default. You can request a hint or reveal an explanation when you need one; assisted work is recorded as assisted.
 
-The teaching rule is simple: **feedback should help the learner take the next step, without revealing the complete solution by default**. Users can still explicitly choose to reveal a solution; that attempt is recorded as assisted.
+## What is in the app
 
-Profile & settings are available from the header. Name, target role, interview date, practice targets, text size, coaching pace, and default language are stored locally. Device text scaling remains active. Workbook backup is available from the header menu; copy the JSON text into a file and paste it on another device to review and restore missing attempts. Existing attempt IDs are preserved rather than overwritten. See [backup instructions](docs/LOCAL_DEVELOPMENT.md#workbook-backup).
+- **Guided interview practice** across five checkpoints: Understand, Approach, Trace, Code, and Reflect.
+- **Three study paths:** Starter 30, Blind 75, and Interview Mastery 300, organized around interview patterns and phases.
+- **Four coding languages:** C++, Python, JavaScript, and TypeScript, with a saved draft for each language.
+- **A local workbook** for attempts, notes, saved problems, study goals, and review history. Export a backup to move your work between devices.
+- **Readable study settings** with device text scaling and persistent System, Light, and Dark themes.
+- **Responsive Flutter screens** for Android and web.
+- **Optional local AI experiments** through a development gateway. Guided practice works without an AI service or paid API.
 
-## Repository direction
+### How a session works
 
-An opt-in local C++/JavaScript/Python/TypeScript reference runner executes visible cases in restricted disposable Docker containers. TypeScript uses type stripping without type checking. Results never grant verified solves; the default APK keeps execution disabled. [Setup and scope](docs/REFERENCE_RUNNER.md).
+1. Read the constraints and explain what the problem asks.
+2. Describe an approach and why it should work.
+3. Trace the approach through an example and an edge case.
+4. Write a code draft in your preferred language.
+5. State the complexity and reflect on a follow-up.
 
-The Code checkpoint includes lesson-specific starter signatures in all four languages, an indentation control, and folded reference cases with expected results. Drafts save locally; opt-in execution is available only in the local development preview and never marks a problem solved. [Workspace details](docs/CODE_WORKSPACE.md).
+Progress is labeled **self-reviewed**. It does not claim a verified solve when code has not been judged.
 
-The Blind 75 roadmap can be searched by problem or pattern, filtered by difficulty, and browsed by phase. Progress is device-local and labeled self-reviewed; it is not a verified solve. Official challenge links open outside LoopLoom and do not submit or synchronize code. The focus-oriented paper, charcoal, and muted-clay theme uses larger default text and Standard, Comfortable, and Large reading choices that combine with device accessibility settings. The one-line wordmark turns each `oo` into a continuous infinity loop, with “Think · Trace · Code” below. See the [UX specification](docs/UX_SPEC.md) and [starter lesson details](docs/INTERMEDIATE_LESSONS.md).
+## The curriculum, honestly described
 
-`apps/solveit/` contains the Flutter app. Documentation lives in `docs/`. Keep problem content and coaching rules versioned independently from UI code as the catalog grows.
+LoopLoom writes its own learning prompts, hints, and explanations. The Blind 75 path links to the official challenge pages and is not affiliated with LeetCode. The 300-problem roadmap combines the Blind 75 with additional interview challenges; canonical statements and online judging remain on their linked sites.
 
-Use Flutter stable and the Android SDK. From `apps/solveit`, run:
+The curriculum is still being reviewed. Fifteen Blind 75 lessons currently have local reference-case specifications. The remaining challenges use external judges. The optional development runner executes only authored reference cases in disposable Docker containers; it is not enabled as a production code-execution service.
 
-```powershell
+## A quiet place to practice
+
+The paper, charcoal, and muted-clay palette keeps problem text and code in focus. Choose System to follow the device, or select Light or Dark in **Profile & settings → Appearance**. Your choice is saved in the local workbook. The two infinity-shaped `oo` pairs are drawn directly into the one-line wordmark.
+
+## Run locally
+
+### Requirements
+
+- Flutter SDK with Dart 3.12 or newer
+- Android SDK for Android builds
+- A browser for Flutter web
+
+### Start the app
+
+```bash
+cd apps/solveit
 flutter pub get
-flutter analyze
-flutter test
 flutter run -d chrome
 ```
 
-For Android, connect a device or start an emulator and run `flutter run`. Local checks currently build a debug APK and web output; neither is a published release. Production package identity, signing, store listing, and Play Console registration must be configured before release.
+For Android, start an emulator or connect a device, then run:
+
+```bash
+flutter run
+```
+
+The app stores its workbook locally. There is no sign-in or cloud sync in this release. The Android application ID still uses the original `dev.solveit.solveit` identity to preserve existing local installs.
+
+## Repository map
+
+```text
+apps/solveit/       Flutter app, Android project, and web assets
+docs/               Product, architecture, curriculum, and release documentation
+scripts/            Local development helpers and brand asset generator
+```
+
+Useful guides:
+
+- [Product roadmap](docs/PRODUCT_ROADMAP.md)
+- [Architecture and data model](docs/ARCHITECTURE.md)
+- [UX and visual direction](docs/UX_SPEC.md)
+- [LoopLoom brand and color palettes](docs/LOOPLOOM_BRAND.md)
+- [Curriculum: Interview Mastery 300](docs/MASTER_300_CURRICULUM.md)
+- [Local development and backup](docs/LOCAL_DEVELOPMENT.md)
+- [Local AI evaluation](docs/LOCAL_AI_VALIDATION.md)
+- [Code runner scope](docs/REFERENCE_RUNNER.md)
+- [Release and monetization plan](docs/RELEASE_MONETIZATION.md)
+
+## Project status
+
+LoopLoom is under active development. Accounts, cross-device sync, production AI, secure hosted code execution, and billing are not implemented. Public release still needs curriculum review, device and accessibility checks, release signing, and Play Store preparation. See the [delivery roadmap](docs/PRODUCT_ROADMAP.md) for the current plan.
+
+## License
+
+No open-source license has been added yet. Until the project publishes one, public visibility does not grant permission to reuse or distribute the code.

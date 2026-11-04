@@ -2,9 +2,11 @@
 
 The name is the logo. Both `oo` pairs are one continuous infinity stroke, optically aligned with the lowercase letters so the word still reads **LoopLoom**. Use the name on one line, with **THINK · TRACE · CODE** below it. There is no separate symbol. Android launchers and web favicons use the same one-line lockup inside their required square canvas.
 
-The palette supports long reading and writing sessions: warm paper `#F7F4EF`, nearly white sheets `#FFFDF9`, charcoal text `#262B2D`, quiet secondary text `#5F6466`, and clay `#914B36` for the wordmark loops, focus, and primary actions. Avoid green, purple, gradients, and decorative color blocks. The clay accent is distinct without making the editor or problem statement visually busy.
+The light palette supports long reading and writing sessions: warm paper `#F7F4EF`, nearly white sheets `#FFFDF9`, charcoal text `#262B2D`, quiet secondary text `#5F6466`, and clay `#914B36` for the wordmark loops, focus, and primary actions. Dark mode uses charcoal paper `#17191B`, a raised writing surface `#202326`, warm white text `#F2EEE8`, secondary text `#B9B2AA`, and a lighter clay `#E3A58B`. Both palettes keep green, purple, gradients, and decorative color blocks out of the study surfaces.
 
-WCAG contrast ratios on the paper background: charcoal **13.06:1**, secondary text **5.47:1**, and clay **5.87:1**. White text on clay is **6.43:1**. These combinations exceed the 4.5:1 target for ordinary text. The paper and sheet surfaces have intentionally subtle separation; boundaries use a line as well as color.
+On the light paper background, contrast is **13.06:1** for charcoal, **5.47:1** for secondary text, **5.87:1** for clay, and **6.43:1** for white text on clay. On the dark paper background, contrast is **15.25:1** for warm white, **8.40:1** for secondary text, **8.41:1** for clay, and **8.27:1** for dark text on clay. These combinations exceed the 4.5:1 target for ordinary text. Surface boundaries use a line as well as color.
+
+System, Light, and Dark appearances are saved with learner preferences. System follows the operating-system preference; an explicit Light or Dark choice stays selected across launches and platforms.
 
 Sources and exports:
 

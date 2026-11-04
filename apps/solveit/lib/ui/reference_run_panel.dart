@@ -127,20 +127,20 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
   Widget build(BuildContext context) {
     final spec = codeSpecs[widget.lessonId];
     if (spec == null) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Text(
           'LoopLoom does not have local reference cases for this problem yet. Your draft is saved here; use the linked challenge page to run its official tests.',
-          style: TextStyle(fontSize: 14, height: 1.6, color: StudyColors.muted),
+          style: TextStyle(fontSize: 14, height: 1.6, color: context.palette.muted),
         ),
       );
     }
     if (client == null) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Text(
           'Reference-case execution is not configured in this build. Your draft is saved here for self-review.',
-          style: TextStyle(fontSize: 14, height: 1.6, color: StudyColors.muted),
+          style: TextStyle(fontSize: 14, height: 1.6, color: context.palette.muted),
         ),
       );
     }
@@ -158,31 +158,31 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
           supported
               ? 'Local development execution · reference cases only. This does not establish a verified solve.'
               : 'Reference execution currently supports C++, JavaScript, TypeScript and Python. You can keep drafting in any language.',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             height: 1.6,
-            color: StudyColors.muted,
+            color: context.palette.muted,
           ),
         ),
         if (widget.language == CodeLanguage.typescript) ...[
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'TypeScript runs with types removed; types are not checked. Use a synchronous solve function with no imports or exports. Enums, parameter properties and other syntax requiring transformation are unsupported.',
             style: TextStyle(
               fontSize: 12,
               height: 1.6,
-              color: StudyColors.muted,
+              color: context.palette.muted,
             ),
           ),
         ],
         if (widget.language == CodeLanguage.cpp) ...[
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'C++ compiles as C++17 for these reference cases. Implement solve with the lesson signature. Compilation and execution happen in a local development container.',
             style: TextStyle(
               fontSize: 12,
               height: 1.6,
-              color: StudyColors.muted,
+              color: context.palette.muted,
             ),
           ),
         ],

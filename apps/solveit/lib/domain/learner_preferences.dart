@@ -37,10 +37,20 @@ enum CoachingPace {
   }
 }
 
+enum AppearancePreference {
+  system('System'),
+  light('Light'),
+  dark('Dark');
+
+  const AppearancePreference(this.label);
+  final String label;
+}
+
 class LearnerPreferences {
   const LearnerPreferences({
     this.pace = CoachingPace.intermediate,
     this.preferredLanguage = CodeLanguage.python,
+    this.appearance = AppearancePreference.system,
     this.textScale = 1.15,
     this.displayName = '',
     this.targetRole = '',
@@ -54,6 +64,7 @@ class LearnerPreferences {
 
   final CoachingPace pace;
   final CodeLanguage preferredLanguage;
+  final AppearancePreference appearance;
   final double textScale;
   final String displayName, targetRole;
   final int weeklyGoalDays, dailyGoalMinutes;
@@ -63,6 +74,7 @@ class LearnerPreferences {
   Map<String, Object?> toJson() => {
     'pace': pace.name,
     'preferredLanguage': preferredLanguage.name,
+    'appearance': appearance.name,
     'textScale': textScale,
     'displayName': displayName,
     'targetRole': targetRole,
@@ -93,6 +105,11 @@ class LearnerPreferences {
         json['preferredLanguage'],
         CodeLanguage.python,
       ),
+      appearance: parse(
+        AppearancePreference.values,
+        json['appearance'],
+        AppearancePreference.system,
+      ),
       textScale: textScale,
       displayName: json['displayName'] is String
           ? (json['displayName'] as String).trim()
@@ -117,6 +134,7 @@ class LearnerPreferences {
   LearnerPreferences copyWith({
     CoachingPace? pace,
     CodeLanguage? preferredLanguage,
+    AppearancePreference? appearance,
     double? textScale,
     String? displayName,
     String? targetRole,
@@ -128,6 +146,7 @@ class LearnerPreferences {
   }) => LearnerPreferences(
     pace: pace ?? this.pace,
     preferredLanguage: preferredLanguage ?? this.preferredLanguage,
+    appearance: appearance ?? this.appearance,
     textScale: textScale ?? this.textScale,
     displayName: displayName ?? this.displayName,
     targetRole: targetRole ?? this.targetRole,

@@ -1,16 +1,96 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-/// A quiet workbook palette. Accent color identifies an action or focus state.
-abstract final class StudyColors {
-  static const paper = Color(0xFFF7F4EF);
-  static const sheet = Color(0xFFFFFDF9);
-  static const ink = Color(0xFF262B2D);
-  static const muted = Color(0xFF5F6466);
-  static const line = Color(0xFFD9D3CC);
-  static const recess = Color(0xFFECE7DF);
-  static const accent = Color(0xFF914B36);
-  static const accentWash = Color(0xFFF2E1D6);
-  static const hint = Color(0xFF5F6466);
+@immutable
+class StudyPalette extends ThemeExtension<StudyPalette> {
+  const StudyPalette({
+    required this.paper,
+    required this.sheet,
+    required this.ink,
+    required this.muted,
+    required this.line,
+    required this.recess,
+    required this.accent,
+    required this.accentWash,
+    required this.onAccent,
+  });
+
+  static const light = StudyPalette(
+    paper: Color(0xFFF7F4EF),
+    sheet: Color(0xFFFFFDF9),
+    ink: Color(0xFF262B2D),
+    muted: Color(0xFF5F6466),
+    line: Color(0xFFD9D3CC),
+    recess: Color(0xFFECE7DF),
+    accent: Color(0xFF914B36),
+    accentWash: Color(0xFFF2E1D6),
+    onAccent: Color(0xFFFFFFFF),
+  );
+
+  static const dark = StudyPalette(
+    paper: Color(0xFF17191B),
+    sheet: Color(0xFF202326),
+    ink: Color(0xFFF2EEE8),
+    muted: Color(0xFFB9B2AA),
+    line: Color(0xFF49433E),
+    recess: Color(0xFF292C2F),
+    accent: Color(0xFFE3A58B),
+    accentWash: Color(0xFF45312A),
+    onAccent: Color(0xFF231814),
+  );
+
+  final Color paper;
+  final Color sheet;
+  final Color ink;
+  final Color muted;
+  final Color line;
+  final Color recess;
+  final Color accent;
+  final Color accentWash;
+  final Color onAccent;
+
+  @override
+  StudyPalette copyWith({
+    Color? paper,
+    Color? sheet,
+    Color? ink,
+    Color? muted,
+    Color? line,
+    Color? recess,
+    Color? accent,
+    Color? accentWash,
+    Color? onAccent,
+  }) => StudyPalette(
+    paper: paper ?? this.paper,
+    sheet: sheet ?? this.sheet,
+    ink: ink ?? this.ink,
+    muted: muted ?? this.muted,
+    line: line ?? this.line,
+    recess: recess ?? this.recess,
+    accent: accent ?? this.accent,
+    accentWash: accentWash ?? this.accentWash,
+    onAccent: onAccent ?? this.onAccent,
+  );
+
+  @override
+  StudyPalette lerp(ThemeExtension<StudyPalette>? other, double t) {
+    if (other is! StudyPalette) return this;
+    return StudyPalette(
+      paper: Color.lerp(paper, other.paper, t)!,
+      sheet: Color.lerp(sheet, other.sheet, t)!,
+      ink: Color.lerp(ink, other.ink, t)!,
+      muted: Color.lerp(muted, other.muted, t)!,
+      line: Color.lerp(line, other.line, t)!,
+      recess: Color.lerp(recess, other.recess, t)!,
+      accent: Color.lerp(accent, other.accent, t)!,
+      accentWash: Color.lerp(accentWash, other.accentWash, t)!,
+      onAccent: Color.lerp(onAccent, other.onAccent, t)!,
+    );
+  }
+}
+
+extension StudyPaletteContext on BuildContext {
+  StudyPalette get palette => Theme.of(this).extension<StudyPalette>()!;
 }
 
 const noteLabel = TextStyle(
@@ -18,32 +98,45 @@ const noteLabel = TextStyle(
   fontSize: 13,
   letterSpacing: .55,
   fontWeight: FontWeight.w600,
-  color: StudyColors.muted,
 );
 
-ThemeData studyTheme() {
-  const scheme = ColorScheme.light(
-    primary: StudyColors.accent,
-    onPrimary: Colors.white,
-    primaryContainer: StudyColors.accentWash,
-    onPrimaryContainer: StudyColors.ink,
-    secondary: StudyColors.muted,
-    onSecondary: Colors.white,
-    secondaryContainer: StudyColors.recess,
-    onSecondaryContainer: StudyColors.ink,
-    surface: StudyColors.paper,
-    onSurface: StudyColors.ink,
-    onSurfaceVariant: StudyColors.muted,
-    outline: StudyColors.muted,
-    outlineVariant: StudyColors.line,
-    surfaceContainerHighest: StudyColors.recess,
+ThemeData studyTheme([Brightness brightness = Brightness.light]) {
+  final colors = brightness == Brightness.light
+      ? StudyPalette.light
+      : StudyPalette.dark;
+  final scheme = ColorScheme.fromSeed(
+    seedColor: colors.accent,
+    brightness: brightness,
+  ).copyWith(
+    primary: colors.accent,
+    onPrimary: colors.onAccent,
+    primaryContainer: colors.accentWash,
+    onPrimaryContainer: colors.ink,
+    secondary: colors.accent,
+    onSecondary: colors.onAccent,
+    secondaryContainer: colors.recess,
+    onSecondaryContainer: colors.ink,
+    surface: colors.paper,
+    onSurface: colors.ink,
+    surfaceContainerLowest: colors.paper,
+    surfaceContainerLow: colors.sheet,
+    surfaceContainer: colors.sheet,
+    surfaceContainerHigh: colors.recess,
+    surfaceContainerHighest: colors.recess,
+    onSurfaceVariant: colors.muted,
+    outline: colors.muted,
+    outlineVariant: colors.line,
   );
   final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(10));
+  final baseTextTheme = ThemeData(brightness: brightness).textTheme;
   return ThemeData(
     useMaterial3: true,
+    brightness: brightness,
     colorScheme: scheme,
-    scaffoldBackgroundColor: StudyColors.paper,
-    textTheme: ThemeData.light().textTheme
+    extensions: [colors],
+    scaffoldBackgroundColor: colors.paper,
+    canvasColor: colors.paper,
+    textTheme: baseTextTheme
         .copyWith(
           bodyLarge: const TextStyle(fontSize: 18, height: 1.65),
           bodyMedium: const TextStyle(fontSize: 16, height: 1.6),
@@ -55,48 +148,53 @@ ThemeData studyTheme() {
           labelMedium: const TextStyle(fontSize: 14),
           labelSmall: const TextStyle(fontSize: 12),
         )
-        .apply(bodyColor: StudyColors.ink, displayColor: StudyColors.ink),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: StudyColors.paper,
-      foregroundColor: StudyColors.ink,
+        .apply(bodyColor: colors.ink, displayColor: colors.ink),
+    appBarTheme: AppBarTheme(
+      backgroundColor: colors.paper,
+      foregroundColor: colors.ink,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
+      systemOverlayStyle: brightness == Brightness.dark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       titleTextStyle: TextStyle(
-        color: StudyColors.ink,
+        color: colors.ink,
         fontSize: 18,
         fontWeight: FontWeight.w600,
       ),
     ),
-    navigationBarTheme: const NavigationBarThemeData(
+    navigationBarTheme: NavigationBarThemeData(
       iconTheme: WidgetStatePropertyAll(
-        IconThemeData(color: StudyColors.ink, size: 22),
+        IconThemeData(color: colors.ink, size: 22),
       ),
-      backgroundColor: StudyColors.paper,
+      backgroundColor: colors.paper,
       surfaceTintColor: Colors.transparent,
-      indicatorColor: StudyColors.accentWash,
+      indicatorColor: colors.accentWash,
       height: 72,
       labelTextStyle: WidgetStatePropertyAll(
-        TextStyle(fontSize: 13, color: StudyColors.ink),
+        TextStyle(fontSize: 13, color: colors.ink),
       ),
     ),
-    navigationRailTheme: const NavigationRailThemeData(
-      backgroundColor: StudyColors.paper,
-      indicatorColor: StudyColors.accentWash,
-      selectedIconTheme: IconThemeData(color: StudyColors.accent),
-      unselectedIconTheme: IconThemeData(color: StudyColors.muted),
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: colors.paper,
+      indicatorColor: colors.accentWash,
+      selectedIconTheme: IconThemeData(color: colors.accent),
+      unselectedIconTheme: IconThemeData(color: colors.muted),
       selectedLabelTextStyle: TextStyle(
-        color: StudyColors.accent,
+        color: colors.accent,
         fontSize: 12,
       ),
       unselectedLabelTextStyle: TextStyle(
-        color: StudyColors.muted,
+        color: colors.muted,
         fontSize: 12,
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size(48, 48),
+        foregroundColor: colors.onAccent,
+        backgroundColor: colors.accent,
         shape: shape,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -105,40 +203,76 @@ ThemeData studyTheme() {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(48, 48),
+        foregroundColor: colors.ink,
         shape: shape,
-        side: const BorderSide(color: StudyColors.line),
+        side: BorderSide(color: colors.line),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         minimumSize: const Size(48, 48),
-        foregroundColor: StudyColors.muted,
+        foregroundColor: colors.accent,
       ),
     ),
-    dividerTheme: const DividerThemeData(
-      color: StudyColors.line,
+    dividerTheme: DividerThemeData(
+      color: colors.line,
       thickness: 1,
       space: 1,
     ),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: StudyColors.accent,
-      linearTrackColor: StudyColors.recess,
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: colors.accent,
+      linearTrackColor: colors.recess,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: StudyColors.sheet,
-      labelStyle: const TextStyle(color: StudyColors.muted, fontSize: 16),
-      hintStyle: const TextStyle(color: StudyColors.muted),
+      fillColor: colors.sheet,
+      labelStyle: TextStyle(color: colors.muted, fontSize: 16),
+      hintStyle: TextStyle(color: colors.muted),
       contentPadding: const EdgeInsets.all(18),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: StudyColors.line),
+        borderSide: BorderSide(color: colors.line),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: StudyColors.accent, width: 1.5),
+        borderSide: BorderSide(color: colors.accent, width: 1.5),
       ),
+    ),
+    dialogTheme: DialogThemeData(backgroundColor: colors.sheet),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: colors.sheet,
+      surfaceTintColor: Colors.transparent,
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: colors.recess,
+      contentTextStyle: TextStyle(color: colors.ink, fontSize: 15),
+      actionTextColor: colors.accent,
+    ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: colors.accent,
+      selectionColor: colors.accent.withValues(alpha: .25),
+      selectionHandleColor: colors.accent,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: colors.sheet,
+      selectedColor: colors.accentWash,
+      disabledColor: colors.recess,
+      side: BorderSide(color: colors.line),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      labelStyle: TextStyle(color: colors.ink, fontSize: 14),
+      secondaryLabelStyle: TextStyle(color: colors.ink, fontSize: 14),
+    ),
+    radioTheme: RadioThemeData(fillColor: WidgetStatePropertyAll(colors.accent)),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: WidgetStateProperty.resolveWith((states) =>
+          states.contains(WidgetState.selected) ? colors.accent : null),
+      checkColor: WidgetStatePropertyAll(colors.onAccent),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) =>
+          states.contains(WidgetState.selected) ? colors.accent : colors.muted),
+      trackColor: WidgetStatePropertyAll(colors.recess),
     ),
   );
 }
@@ -148,8 +282,9 @@ class LoopLoomWordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(
-      color: StudyColors.ink,
+    final colors = context.palette;
+    final style = TextStyle(
+      color: colors.ink,
       fontSize: 21,
       fontWeight: FontWeight.w700,
       letterSpacing: -.8,
@@ -159,11 +294,11 @@ class LoopLoomWordmark extends StatelessWidget {
       child: ExcludeSemantics(
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             Text('L', style: style),
-            _LoopPair(),
+            _LoopPair(accent: colors.accent),
             Text('pL', style: style),
-            _LoopPair(),
+            _LoopPair(accent: colors.accent),
             Text('m', style: style),
           ],
         ),
@@ -173,27 +308,27 @@ class LoopLoomWordmark extends StatelessWidget {
 }
 
 class _LoopPair extends StatelessWidget {
-  const _LoopPair();
+  const _LoopPair({required this.accent});
+  final Color accent;
 
   @override
-  Widget build(BuildContext context) => const SizedBox(
+  Widget build(BuildContext context) => SizedBox(
     width: 28,
     height: 27,
-    child: CustomPaint(painter: _LoopPairPainter()),
+    child: CustomPaint(painter: _LoopPairPainter(accent)),
   );
 }
 
 class _LoopPairPainter extends CustomPainter {
-  const _LoopPairPainter();
+  const _LoopPairPainter(this.accent);
+  final Color accent;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = StudyColors.accent
+      ..color = accent
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.6;
-    // One crossing stroke keeps both lowercase o shapes legible.
-    // The lower optical center aligns with the neighboring letters.
     final loop = Path()
       ..moveTo(14, 15.5)
       ..cubicTo(10, 4.5, 1.5, 4.5, 1.5, 15.5)
@@ -204,5 +339,6 @@ class _LoopPairPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _LoopPairPainter oldDelegate) =>
+      oldDelegate.accent != accent;
 }

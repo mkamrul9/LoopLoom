@@ -124,11 +124,11 @@ class _BackupScreenState extends State<BackupScreen> {
                     style: TextStyle(height: 1.65),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Backups are plain JSON text and are not encrypted. Copy the text into a file and store it somewhere you trust. Nothing is uploaded.',
                     style: TextStyle(
                       height: 1.65,
-                      color: StudyColors.muted,
+                      color: context.palette.muted,
                       fontSize: 13,
                     ),
                   ),
@@ -157,12 +157,12 @@ class _BackupScreenState extends State<BackupScreen> {
                   const SizedBox(height: 24),
                   const Text('Restore a copy', style: TextStyle(fontSize: 22)),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Paste the full backup text below. Existing attempts stay as they are, including when the backup contains a different draft with the same attempt ID. Saved problems are combined. Unknown lesson versions are retained but may not open.',
                     style: TextStyle(
                       height: 1.65,
                       fontSize: 13,
-                      color: StudyColors.muted,
+                      color: context.palette.muted,
                     ),
                   ),
                   const SizedBox(height: 18),

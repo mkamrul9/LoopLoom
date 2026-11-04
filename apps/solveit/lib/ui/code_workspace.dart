@@ -57,17 +57,17 @@ class CodeWorkspace extends StatelessWidget {
               : null,
         ),
         const SizedBox(height: 14),
-        const Text(
+        Text(
           'Implement solve and return the result. Console input/output is not required. The starter is a signature, not a solution.',
-          style: TextStyle(fontSize: 14, height: 1.6, color: StudyColors.muted),
+          style: TextStyle(fontSize: 14, height: 1.6, color: context.palette.muted),
         ),
         if (blindEntry != null) ...[
           const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: StudyColors.sheet,
-              border: Border.all(color: StudyColors.line),
+              color: context.palette.sheet,
+              border: Border.all(color: context.palette.line),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -83,12 +83,12 @@ class CodeWorkspace extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'This is an independently written study prompt. The official page has LeetCode’s canonical statement and judge. LoopLoom does not submit code or sync results; adapt your draft to that page’s signature when you submit.',
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.55,
-                    color: StudyColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -149,7 +149,7 @@ class CodeWorkspace extends StatelessWidget {
               listenable: editor,
               builder: (_, _) => Text(
                 '${editor.text.split('\n').length} lines · ${editor.text.runes.length} characters',
-                style: const TextStyle(fontSize: 13, color: StudyColors.muted),
+                style: TextStyle(fontSize: 13, color: context.palette.muted),
               ),
             ),
           ],
@@ -173,7 +173,7 @@ class CodeWorkspace extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: StudyColors.recess,
+                      color: context.palette.recess,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(

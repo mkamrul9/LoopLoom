@@ -110,27 +110,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
       const SizedBox(height: 6),
       Text(
         subtitle,
-        style: const TextStyle(color: StudyColors.muted, height: 1.55),
+        style: TextStyle(color: context.palette.muted, height: 1.55),
       ),
     ],
   );
 
   Widget _profileCard() {
     final name = _name.text.trim();
-    final initial = name.isEmpty ? 'S' : name.substring(0, 1).toUpperCase();
+    final initial = name.isEmpty ? 'L' : name.substring(0, 1).toUpperCase();
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: StudyColors.sheet,
+        color: context.palette.sheet,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: StudyColors.line),
+        border: Border.all(color: context.palette.line),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: StudyColors.recess,
-            foregroundColor: StudyColors.ink,
+            backgroundColor: context.palette.recess,
+            foregroundColor: context.palette.ink,
             child: Text(
               initial,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
@@ -153,9 +153,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _role.text.trim().isEmpty
                       ? 'Interview preparation · private to this device'
                       : '${_role.text.trim()} · private to this device',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: StudyColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ],
@@ -187,12 +187,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Shape a quiet, practical place to prepare. Your profile and preferences are saved locally.',
               style: TextStyle(
                 fontSize: 16,
                 height: 1.6,
-                color: StudyColors.muted,
+                color: context.palette.muted,
               ),
             ),
             const SizedBox(height: 22),
@@ -321,7 +321,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: StudyColors.recess,
+                color: context.palette.recess,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Text(
@@ -334,9 +334,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'LoopLoom respects your device text setting as well.',
-              style: TextStyle(fontSize: 14, color: StudyColors.muted),
+              style: TextStyle(fontSize: 14, color: context.palette.muted),
+            ),
+            const SizedBox(height: 34),
+            const Divider(),
+            const SizedBox(height: 24),
+            _sectionHeading(
+              'Appearance',
+              'Choose a theme',
+              'System follows your device setting. Light and Dark stay selected on this device.',
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: AppearancePreference.values.map((appearance) {
+                final icon = switch (appearance) {
+                  AppearancePreference.system => Icons.settings_suggest_outlined,
+                  AppearancePreference.light => Icons.light_mode_outlined,
+                  AppearancePreference.dark => Icons.dark_mode_outlined,
+                };
+                return ChoiceChip(
+                  avatar: Icon(icon, size: 18),
+                  label: Text(appearance.label),
+                  selected: store.preferences.appearance == appearance,
+                  onSelected: (_) => _savePreference(
+                    store.preferences.copyWith(appearance: appearance),
+                  ),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 34),
             const Divider(),
@@ -362,7 +390,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: Text(pace.label),
                         subtitle: Text(pace.description),
                         contentPadding: EdgeInsets.zero,
-                        activeColor: StudyColors.ink,
+                        activeColor: context.palette.ink,
                       ),
                     )
                     .toList(),
@@ -395,12 +423,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'LoopLoom currently works without an online account. Practice history, profile details, and settings remain in this workbook on this device.',
             ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Use a workbook backup to move your attempts to another device. Backups are plain text and are not encrypted; store them somewhere you trust.',
               style: TextStyle(
                 fontSize: 15,
                 height: 1.6,
-                color: StudyColors.muted,
+                color: context.palette.muted,
               ),
             ),
             const SizedBox(height: 14),

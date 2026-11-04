@@ -169,9 +169,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     ),
                     subtitle: Text(
                       session.lesson.pattern,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: StudyColors.muted,
+                        color: context.palette.muted,
                       ),
                     ),
                     children: [_problem()],
@@ -242,9 +242,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       Container(
         width: double.infinity,
         padding: const EdgeInsets.all(18),
-        decoration: const BoxDecoration(
-          color: StudyColors.recess,
-          border: Border(left: BorderSide(color: StudyColors.line, width: 2)),
+        decoration: BoxDecoration(
+          color: context.palette.recess,
+          border: Border(left: BorderSide(color: context.palette.line, width: 2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,9 +265,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       const SizedBox(height: 18),
       Text(
         session.lesson.constraints,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
-          color: StudyColors.muted,
+          color: context.palette.muted,
           height: 1.7,
         ),
       ),
@@ -332,10 +332,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 child: Container(
                   height: 3,
                   color: complete || i < session.stage.index
-                      ? StudyColors.accent
+                      ? context.palette.accent
                       : i == session.stage.index
-                      ? StudyColors.ink
-                      : StudyColors.line,
+                      ? context.palette.ink
+                      : context.palette.line,
                 ),
               ),
             ),
@@ -365,7 +365,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               : 'Guided self-check · No AI grading. Saving code does not run it.',
           style: TextStyle(
             fontSize: 11,
-            color: StudyColors.muted,
+            color: context.palette.muted,
             height: 1.65,
           ),
         ),
@@ -480,7 +480,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             runSpacing: 4,
             children: [
               TextButton.icon(
-                style: TextButton.styleFrom(foregroundColor: StudyColors.hint),
+                style: TextButton.styleFrom(foregroundColor: context.palette.muted),
                 onPressed:
                     !session.reviewing &&
                         session.hintsUsed < session.lesson.hints.length
@@ -507,7 +507,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             session.assisted
                 ? 'Completed with assistance.'
                 : 'Completed without hints.',
-            style: const TextStyle(color: StudyColors.muted, height: 1.6),
+            style: TextStyle(color: context.palette.muted, height: 1.6),
           ),
           const SizedBox(height: 18),
           FilledButton(
@@ -521,7 +521,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
           tilePadding: EdgeInsets.zero,
           title: Text(
             'Session notes / ${session.messages.length}',
-            style: const TextStyle(fontSize: 13, color: StudyColors.muted),
+            style: TextStyle(fontSize: 13, color: context.palette.muted),
           ),
           children: session.messages.map(_message).toList(),
         ),

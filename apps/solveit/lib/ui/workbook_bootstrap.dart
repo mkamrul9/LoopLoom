@@ -7,8 +7,13 @@ import '../features/coaching/coach_provider.dart';
 import '../features/coaching/session_controller.dart';
 
 class WorkbookBootstrap extends StatefulWidget {
-  const WorkbookBootstrap({super.key, required this.builder});
+  const WorkbookBootstrap({
+    super.key,
+    required this.builder,
+    this.onStoreReady,
+  });
   final Widget Function(PracticeStore) builder;
+  final ValueChanged<PracticeStore>? onStoreReady;
   @override
   State<WorkbookBootstrap> createState() => _WorkbookBootstrapState();
 }
@@ -36,6 +41,7 @@ class _WorkbookBootstrapState extends State<WorkbookBootstrap>
         store.dispose();
       } else {
         loaded = store;
+        widget.onStoreReady?.call(store);
       }
       return store;
     } catch (_) {

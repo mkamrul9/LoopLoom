@@ -5,6 +5,7 @@ import 'data/lesson_catalog.dart';
 import 'data/mastery300_curriculum.dart';
 import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
+import 'domain/learner_preferences.dart';
 import 'domain/lesson.dart';
 import 'features/coaching/practice_screen.dart';
 import 'features/coaching/session_controller.dart';
@@ -15,17 +16,81 @@ import 'ui/backup_screen.dart';
 import 'ui/settings_screen.dart';
 import 'ui/readable_surface.dart';
 
-class LoopLoomApp extends StatelessWidget {
+class LoopLoomApp extends StatefulWidget {
   const LoopLoomApp({super.key, this.store});
   final PracticeStore? store;
+
+  @override
+  State<LoopLoomApp> createState() => _LoopLoomAppState();
+}
+
+class _LoopLoomAppState extends State<LoopLoomApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+  PracticeStore? _observedStore;
+
+  ThemeMode _modeFor(AppearancePreference preference) => switch (preference) {
+    AppearancePreference.system => ThemeMode.system,
+    AppearancePreference.light => ThemeMode.light,
+    AppearancePreference.dark => ThemeMode.dark,
+  };
+
+  void _observeStore(PracticeStore store) {
+    if (identical(_observedStore, store)) return;
+    _observedStore?.removeListener(_syncTheme);
+    _observedStore = store;
+    _themeMode = _modeFor(store.preferences.appearance);
+    store.addListener(_syncTheme);
+    if (mounted) setState(() {});
+  }
+
+  void _syncTheme() {
+    final store = _observedStore;
+    if (store == null) return;
+    final next = _modeFor(store.preferences.appearance);
+    if (next != _themeMode && mounted) setState(() => _themeMode = next);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final store = widget.store;
+    if (store != null) _observeStore(store);
+  }
+
+  @override
+  void didUpdateWidget(covariant LoopLoomApp oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.store, widget.store)) {
+      final nextStore = widget.store;
+      if (nextStore != null) {
+        _observeStore(nextStore);
+      } else {
+        _observedStore?.removeListener(_syncTheme);
+        _observedStore = null;
+        setState(() => _themeMode = ThemeMode.system);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _observedStore?.removeListener(_syncTheme);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'LoopLoom — Think it through',
     debugShowCheckedModeBanner: false,
-    theme: studyTheme(),
-    home: store == null
-        ? WorkbookBootstrap(builder: (store) => LearningHome(store: store))
-        : LearningHome(store: store!),
+    theme: studyTheme(Brightness.light),
+    darkTheme: studyTheme(Brightness.dark),
+    themeMode: _themeMode,
+    home: widget.store == null
+        ? WorkbookBootstrap(
+            onStoreReady: _observeStore,
+            builder: (store) => LearningHome(store: store),
+          )
+        : LearningHome(store: widget.store!),
   );
 }
 
@@ -147,7 +212,7 @@ class _LearningHomeState extends State<LearningHome> {
           final wide = constraints.maxWidth >= 840;
           return Scaffold(
             appBar: AppBar(
-              title: const Row(
+              title: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Expanded(
@@ -162,7 +227,7 @@ class _LearningHomeState extends State<LearningHome> {
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             letterSpacing: .8,
-                            color: StudyColors.muted,
+                            color: context.palette.muted,
                           ),
                         ),
                       ],
@@ -273,8 +338,8 @@ class _LearningHomeState extends State<LearningHome> {
             bottomNavigationBar: wide
                 ? null
                 : DecoratedBox(
-                    decoration: const BoxDecoration(
-                      border: Border(top: BorderSide(color: StudyColors.line)),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: context.palette.line)),
                     ),
                     child: NavigationBar(
                       selectedIndex: selected,
@@ -319,9 +384,9 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ),
       const SizedBox(height: 12),
-      const Text(
+      Text(
         'One problem. A clearer way forward.',
-        style: TextStyle(color: StudyColors.muted, fontSize: 16, height: 1.5),
+        style: TextStyle(color: context.palette.muted, fontSize: 16, height: 1.5),
       ),
       if (!wide) ...[const SizedBox(height: 10), SaveStatus(store: store)],
       const SizedBox(height: 22),
@@ -329,7 +394,7 @@ class _LearningHomeState extends State<LearningHome> {
         width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: StudyColors.recess,
+          color: context.palette.recess,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -345,14 +410,14 @@ class _LearningHomeState extends State<LearningHome> {
               const SizedBox(height: 4),
               Text(
                 'Preparing for ${store.preferences.targetRole.trim()}',
-                style: const TextStyle(fontSize: 14, color: StudyColors.muted),
+                style: TextStyle(fontSize: 14, color: context.palette.muted),
               ),
             ],
             if (store.preferences.targetInterviewDate case final date?) ...[
               const SizedBox(height: 4),
               Text(
                 'Target date · ${MaterialLocalizations.of(context).formatMediumDate(date)}',
-                style: const TextStyle(fontSize: 14, color: StudyColors.muted),
+                style: TextStyle(fontSize: 14, color: context.palette.muted),
               ),
             ],
           ],
@@ -365,21 +430,21 @@ class _LearningHomeState extends State<LearningHome> {
         width: double.infinity,
         padding: EdgeInsets.all(wide ? 30 : 22),
         decoration: BoxDecoration(
-          color: StudyColors.sheet,
-          border: Border.all(color: StudyColors.line),
+          color: context.palette.sheet,
+          border: Border.all(color: context.palette.line),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
                 Expanded(child: Text('NEXT ON YOUR DESK', style: noteLabel)),
                 Text(
                   '01',
                   style: TextStyle(
                     fontFamily: 'monospace',
-                    color: StudyColors.muted,
+                    color: context.palette.muted,
                     fontSize: 15,
                   ),
                 ),
@@ -402,7 +467,7 @@ class _LearningHomeState extends State<LearningHome> {
               style: TextStyle(
                 fontSize: 15,
                 height: 1.55,
-                color: StudyColors.muted,
+                color: context.palette.muted,
               ),
             ),
             const SizedBox(height: 22),
@@ -492,14 +557,14 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ],
       const SizedBox(height: 24),
-      const Text(
+      Text(
         'C++ / Python / JavaScript / TypeScript',
-        style: TextStyle(fontSize: 12, color: StudyColors.muted),
+        style: TextStyle(fontSize: 12, color: context.palette.muted),
       ),
       const SizedBox(height: 10),
-      const Text(
+      Text(
         'Your workbook saves on this device. Guided checkpoints are self-reviewed; reference-case matches do not establish verified solves.',
-        style: TextStyle(fontSize: 12, color: StudyColors.muted, height: 1.6),
+        style: TextStyle(fontSize: 12, color: context.palette.muted, height: 1.6),
       ),
     ],
   );
@@ -520,9 +585,9 @@ class _LearningHomeState extends State<LearningHome> {
                       width: 42,
                       child: Text(
                         number.toString().padLeft(2, '0'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'monospace',
-                          color: StudyColors.muted,
+                          color: context.palette.muted,
                           fontSize: 14,
                         ),
                       ),
@@ -543,10 +608,10 @@ class _LearningHomeState extends State<LearningHome> {
                           const SizedBox(height: 5),
                           Text(
                             lesson.summary,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               height: 1.55,
-                              color: StudyColors.muted,
+                              color: context.palette.muted,
                             ),
                           ),
                           if (tag != null) ...[
@@ -570,9 +635,9 @@ class _LearningHomeState extends State<LearningHome> {
                         ),
                         Text(
                           progressFor(lesson),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: StudyColors.muted,
+                            color: context.palette.muted,
                           ),
                         ),
                       ],
@@ -595,8 +660,8 @@ class _LearningHomeState extends State<LearningHome> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: StudyColors.sheet,
-        border: Border.all(color: StudyColors.line),
+        color: context.palette.sheet,
+        border: Border.all(color: context.palette.line),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -609,9 +674,9 @@ class _LearningHomeState extends State<LearningHome> {
                 due.isEmpty
                     ? '${schedule.length} scheduled'
                     : '${due.length} due',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: StudyColors.muted,
+                  color: context.palette.muted,
                 ),
               ),
             ],
@@ -624,10 +689,10 @@ class _LearningHomeState extends State<LearningHome> {
           const SizedBox(height: 5),
           Text(
             'After self-review, revisit a problem in 1, 3, 7, then 14 days. Reviews are practice, not verified solves.',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               height: 1.55,
-              color: StudyColors.muted,
+              color: context.palette.muted,
             ),
           ),
           if (visible.isEmpty) ...[
@@ -692,8 +757,8 @@ class _LearningHomeState extends State<LearningHome> {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: StudyColors.sheet,
-            border: Border.all(color: StudyColors.line),
+            color: context.palette.sheet,
+            border: Border.all(color: context.palette.line),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -706,7 +771,7 @@ class _LearningHomeState extends State<LearningHome> {
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.6,
-                  color: StudyColors.muted,
+                  color: context.palette.muted,
                 ),
               ),
               const SizedBox(height: 6),
@@ -798,7 +863,7 @@ class _LearningHomeState extends State<LearningHome> {
         const SizedBox(height: 12),
         Text(
           '${visibleEntries.length} of ${milestoneEntries.length} problems · ${visibleEntries.map((entry) => entry.lesson.id).where((id) => store.sessions.any((session) => session.lesson.id == id && session.stage == CoachingStage.complete)).toSet().length} self-reviewed',
-          style: const TextStyle(fontSize: 14, color: StudyColors.muted),
+          style: TextStyle(fontSize: 14, color: context.palette.muted),
         ),
         if (visibleEntries.isEmpty)
           const Padding(
@@ -887,9 +952,9 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ),
       const SizedBox(height: 12),
-      const Text(
+      Text(
         'Choose a focused track. Every lesson is available from the start; return to a pattern whenever you need it.',
-        style: TextStyle(height: 1.6, color: StudyColors.muted),
+        style: TextStyle(height: 1.6, color: context.palette.muted),
       ),
       const SizedBox(height: 32),
       trackPicker(),
@@ -903,7 +968,7 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 10),
       Text(
         '${reviewedInTrack()} of ${trackLessons.length} self-reviewed · no test-verified solves yet',
-        style: const TextStyle(fontSize: 13, color: StudyColors.muted),
+        style: TextStyle(fontSize: 13, color: context.palette.muted),
       ),
       const SizedBox(height: 18),
       LinearProgressIndicator(
@@ -921,7 +986,7 @@ class _LearningHomeState extends State<LearningHome> {
           'A 75-question interview-preparation path arranged by patterns and study phases, with one guided reasoning sequence per problem.',
         _ =>
           'A 300-problem interview path across core and advanced patterns. Each challenge has five guided reasoning checkpoints and links to its official statement.',
-      }, style: const TextStyle(fontSize: 13, height: 1.65, color: StudyColors.muted)),
+      }, style: TextStyle(fontSize: 13, height: 1.65, color: context.palette.muted)),
       const SizedBox(height: 16),
       if (track == 3 || track == 4) ...[
         _curriculumPath(track == 3 ? blind75Entries : mastery300Entries),
@@ -935,9 +1000,9 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 14),
       _mastery300Plan(),
       const SizedBox(height: 16),
-      const Text(
+      Text(
         'The available 30 lessons are original drafts with five guided checkpoints each. They are useful for practice, but still need independent editorial review before a reviewed interview curriculum can be claimed.',
-        style: TextStyle(fontSize: 12, height: 1.65, color: StudyColors.muted),
+        style: TextStyle(fontSize: 12, height: 1.65, color: context.palette.muted),
       ),
     ],
   );
@@ -981,9 +1046,9 @@ class _LearningHomeState extends State<LearningHome> {
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             'A staged interview path: learn the core patterns, widen coverage, then practice advanced variants and mixed-pattern problems. All 300 challenge entries are available; official challenge pages provide full problem statements.',
-            style: TextStyle(height: 1.6, color: StudyColors.muted),
+            style: TextStyle(height: 1.6, color: context.palette.muted),
           ),
           const SizedBox(height: 16),
           for (final milestone in milestones)
@@ -1016,12 +1081,12 @@ class _LearningHomeState extends State<LearningHome> {
               ),
             ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Problem choices will favor reusable interview techniques and topic coverage. “Interview relevant” is a curation goal, not a promise about any specific company or interview.',
             style: TextStyle(
               fontSize: 13,
               height: 1.55,
-              color: StudyColors.muted,
+              color: context.palette.muted,
             ),
           ),
         ],
@@ -1043,14 +1108,14 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ),
       const SizedBox(height: 12),
-      const Text(
+      Text(
         'Your attempts, drafts, and the questions that helped.',
-        style: TextStyle(color: StudyColors.muted, height: 1.6),
+        style: TextStyle(color: context.palette.muted, height: 1.6),
       ),
       const SizedBox(height: 10),
-      const Text(
+      Text(
         'Saved on this device. Clearing browser data or uninstalling the app removes local work.',
-        style: TextStyle(fontSize: 12, color: StudyColors.muted),
+        style: TextStyle(fontSize: 12, color: context.palette.muted),
       ),
       const SizedBox(height: 18),
       _savedProblems(),

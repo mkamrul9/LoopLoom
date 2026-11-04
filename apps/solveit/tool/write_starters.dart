@@ -1,8 +1,8 @@
 // Emits trusted authored scaffolds for developer syntax checks, never learner drafts.
 import 'dart:convert';
 import 'dart:io';
-import 'package:solveit/data/code_specs.dart';
-import 'package:solveit/domain/lesson.dart';
+import 'package:looploom/data/code_specs.dart';
+import 'package:looploom/domain/lesson.dart';
 
 void main() {
   final output = Directory('../../.local/starter-validation')

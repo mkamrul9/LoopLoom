@@ -6,7 +6,7 @@ The user's confirmed direction is a distinctive, focus-oriented workbook. Do not
 
 The visual identity combines the one-line LoopLoom wordmark, numbered notebook sections, quiet monospace metadata, and generous reading/writing space. Each pair of `o` letters forms a continuous infinity stroke aligned with the lowercase letters. Use a modestly rounded writing sheet rather than oversized promotional hero blocks. Pattern lessons use open ruled rows. The workspace leads with the current problem and one next coaching question; save earlier conversation in an expandable Session notes section.
 
-Focus view is an explicit toggle. It centers the current step in a narrower reading column and folds the problem into an accessible Problem & examples disclosure. Toggling it must preserve reasoning and code drafts. Overview restores the full context, including the side-by-side layout on wide screens. The current question, active checkpoint, hint state, and draft correctness limitations remain visible. Support a dark theme after validating this flow.
+Focus view is an explicit toggle. It centers the current step in a narrower reading column and folds the problem into an accessible Problem & examples disclosure. Toggling it must preserve reasoning and code drafts. Overview restores the full context, including the side-by-side layout on wide screens. The current question, active checkpoint, hint state, and draft correctness limitations remain visible. System, Light, and Dark appearances are available and saved in the local workbook; validate focus view and editor contrast in both palettes before release.
 
 ## Navigation
 
