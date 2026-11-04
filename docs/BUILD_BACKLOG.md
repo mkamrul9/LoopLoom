@@ -13,6 +13,8 @@
   while distinguishing pattern-guided drafts from independently reviewed content.
 - An eight-scenario, on-device interview diagnostic explains each choice,
   recommends matching guided problems, and saves its latest result locally.
+- Learn resumes unfinished work, then follows diagnostic-flagged patterns or
+  advances to the next unreviewed lesson in the selected path.
 - Domain/widget tests and small-screen layout checks where tooling permits.
 
 ## Next slice: real coaching

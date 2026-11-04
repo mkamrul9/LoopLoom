@@ -14,6 +14,10 @@ Added Android Storage Access Framework save/open flows and browser JSON download
 
 Added a persistent 1.5× Extra large text option and increased bottom navigation room for scaled labels. Guided practice now exposes its active checkpoint as a screen-reader progress value and announces stage changes without relying on color. Dart analysis passed with no issues. Automated and manual accessibility checks were not run; screen-reader, large-text, and narrow-screen layout checks remain outstanding.
 
+## Guided path progression — 4 November 2026
+
+Changed the Learn recommendation so it resumes the active attempt, then advances to an unreviewed problem in the chosen path. When a diagnostic result exists, the next unreviewed problem in a flagged pattern is offered first. Fully self-reviewed paths offer a fresh attempt and label progress as self-reviewed. Dart analysis passed with no issues; automated and manual user-flow checks were not run.
+
 ## Interview catalog expansion — batch 8 — 30 October 2026
 
 Added three backtracking lessons: one-use subset feasibility, order-independent combinations with reuse, and counting signed target assignments. The draft catalog now has thirty original lessons: three warm-ups and twenty-seven intermediate. The new contracts specify reuse, ordering, duplicate positions, zero behavior, and input preservation; all have four-language fixtures and local-coach rubrics.

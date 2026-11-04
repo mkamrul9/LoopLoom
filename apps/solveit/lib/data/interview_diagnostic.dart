@@ -32,7 +32,7 @@ const interviewDiagnostic = <DiagnosticQuestion>[
   DiagnosticQuestion(
     id: 'pair-sum',
     pattern: 'Arrays & hashing',
-    patternNeedle: 'arrays & hashing',
+    patternNeedle: 'hashing',
     prompt:
         'An unsorted list can contain negative values and duplicates. You need two distinct indices whose values add to a target. Which method gives expected linear time while retaining the original indices?',
     choices: [
@@ -98,7 +98,7 @@ const interviewDiagnostic = <DiagnosticQuestion>[
   DiagnosticQuestion(
     id: 'merge-intervals',
     pattern: 'Sorting & intervals',
-    patternNeedle: 'sorting & intervals',
+    patternNeedle: 'interval',
     prompt:
         'You are given intervals in arbitrary order and must merge all overlapping ranges. What makes a one-pass merge possible?',
     choices: [

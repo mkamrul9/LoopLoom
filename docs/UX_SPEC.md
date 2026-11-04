@@ -10,10 +10,11 @@ Focus view is an explicit toggle. It centers the current step in a narrower read
 
 ## Navigation
 
-Learn: resume the current session, see the next suggested lesson, browse patterns,
-and open an eight-scenario interview diagnostic. The diagnostic gives short
-pattern explanations and routes learners to matching guided problems. It is a
-practice guide, not a readiness score; the latest result is stored on-device.
+Learn: resume unfinished work; otherwise use a diagnostic-flagged pattern or
+continue to the next unreviewed lesson in the selected path. After a path is
+self-reviewed, offer a fresh recall attempt. Learners can browse patterns and
+open the eight-scenario interview diagnostic, which explains choices and routes
+to matching guided problems. It is a practice guide, not a readiness score.
 
 Roadmaps: choose a path, inspect prerequisites, switch support level, and see completed/review-due items. Counts reflect published content only.
 

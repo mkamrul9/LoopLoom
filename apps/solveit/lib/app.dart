@@ -5,6 +5,7 @@ import 'data/lesson_catalog.dart';
 import 'data/mastery300_curriculum.dart';
 import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
+import 'data/interview_diagnostic.dart';
 import 'domain/learner_preferences.dart';
 import 'domain/lesson.dart';
 import 'features/coaching/interview_diagnostic_screen.dart';
@@ -134,6 +135,24 @@ class _LearningHomeState extends State<LearningHome> {
       .map((s) => s.lesson.id)
       .toSet()
       .length;
+  Lesson? _diagnosticNextLesson(Set<String> selfReviewedIds) {
+    if (track < 3 || store.preferences.diagnosticCompletedAt == null) {
+      return null;
+    }
+    for (final question in interviewDiagnostic) {
+      if (store.preferences.diagnosticScores[question.pattern] != 0) continue;
+      final lesson = trackLessons
+          .where(
+            (item) =>
+                item.pattern.toLowerCase().contains(question.patternNeedle) &&
+                !selfReviewedIds.contains(item.id),
+          )
+          .firstOrNull;
+      if (lesson != null) return lesson;
+    }
+    return null;
+  }
+
   String progressFor(Lesson lesson) {
     final attempts = store.sessions.where((s) => s.lesson.id == lesson.id);
     if (attempts.any((s) => s.stage != CoachingStage.complete)) {
@@ -378,7 +397,47 @@ class _LearningHomeState extends State<LearningHome> {
     ),
   );
 
-  Widget _learn(bool wide) => Column(
+  Widget _learn(bool wide) {
+    final selfReviewedIds = {
+      for (final session in store.sessions)
+        if (session.stage == CoachingStage.complete) session.lesson.id,
+    };
+    final activeSession = store.latestIncomplete;
+    final diagnosticLesson = activeSession == null
+        ? _diagnosticNextLesson(selfReviewedIds)
+        : null;
+    final allTrackLessonsReviewed = trackLessons.every(
+      (lesson) => selfReviewedIds.contains(lesson.id),
+    );
+    final nextLesson =
+        activeSession?.lesson ??
+        diagnosticLesson ??
+        trackLessons
+            .where((lesson) => !selfReviewedIds.contains(lesson.id))
+            .firstOrNull ??
+        trackLessons.first;
+    final nextNumber = trackLessons.indexWhere(
+      (lesson) => lesson.id == nextLesson.id,
+    );
+
+    return _learnBody(
+      wide,
+      activeSession: activeSession,
+      diagnosticLesson: diagnosticLesson,
+      allTrackLessonsReviewed: allTrackLessonsReviewed,
+      nextLesson: nextLesson,
+      nextNumber: nextNumber,
+    );
+  }
+
+  Widget _learnBody(
+    bool wide, {
+    required SessionController? activeSession,
+    required Lesson? diagnosticLesson,
+    required bool allTrackLessonsReviewed,
+    required Lesson nextLesson,
+    required int nextNumber,
+  }) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const Text('THE INTERVIEW WORKBOOK', style: noteLabel),
@@ -452,9 +511,24 @@ class _LearningHomeState extends State<LearningHome> {
           children: [
             Row(
               children: [
-                Expanded(child: Text('NEXT ON YOUR DESK', style: noteLabel)),
+                Expanded(
+                  child: Text(
+                    activeSession != null
+                        ? 'RESUME YOUR SESSION'
+                        : diagnosticLesson != null
+                        ? 'FROM YOUR QUICK CHECK'
+                        : allTrackLessonsReviewed
+                        ? 'REVISIT A LESSON'
+                        : 'NEXT IN YOUR TRACK',
+                    style: noteLabel,
+                  ),
+                ),
                 Text(
-                  '01',
+                  activeSession != null
+                      ? 'RESUME'
+                      : allTrackLessonsReviewed
+                      ? 'REVIEW'
+                      : (nextNumber + 1).toString().padLeft(2, '0'),
                   style: TextStyle(
                     fontFamily: 'monospace',
                     color: context.palette.muted,
@@ -465,7 +539,7 @@ class _LearningHomeState extends State<LearningHome> {
             ),
             const SizedBox(height: 28),
             Text(
-              store.latestIncomplete?.lesson.title ?? trackLessons.first.title,
+              nextLesson.title,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w500,
@@ -474,9 +548,13 @@ class _LearningHomeState extends State<LearningHome> {
             ),
             const SizedBox(height: 10),
             Text(
-              store.latestIncomplete == null
-                  ? 'Understand the task, shape an approach, trace it, write code, and reflect.'
-                  : 'Continue from your ${store.latestIncomplete!.stage.label.toLowerCase()} checkpoint.',
+              activeSession != null
+                  ? 'Continue from your ${activeSession.stage.label.toLowerCase()} checkpoint.'
+                  : diagnosticLesson != null
+                  ? 'Your check suggests revisiting ${nextLesson.pattern}. Start here, then continue through the unreviewed problems in this path.'
+                  : allTrackLessonsReviewed
+                  ? 'You have self-reviewed every lesson in $trackTitle. Start another attempt to practice recall, or choose another path.'
+                  : 'Next unreviewed lesson in $trackTitle. Work through the approach, trace, code, and reflection at your pace.',
               style: TextStyle(
                 fontSize: 15,
                 height: 1.55,
@@ -488,25 +566,14 @@ class _LearningHomeState extends State<LearningHome> {
               spacing: 14,
               runSpacing: 8,
               children: [
+                Text(nextLesson.pattern.toUpperCase(), style: noteLabel),
                 Text(
-                  (store.latestIncomplete?.lesson.pattern ??
-                          trackLessons.first.pattern)
-                      .toUpperCase(),
-                  style: noteLabel,
-                ),
-                Text(
-                  pilotLessons.any(
-                        (l) =>
-                            l.id ==
-                            (store.latestIncomplete?.lesson ??
-                                    trackLessons.first)
-                                .id,
-                      )
+                  pilotLessons.any((l) => l.id == nextLesson.id)
                       ? 'INTERVIEW WARM-UP'
-                      : (store.latestIncomplete?.lesson ?? trackLessons.first)
-                            .id
-                            .startsWith('blind75-')
+                      : nextLesson.id.startsWith('blind75-')
                       ? 'BLIND 75'
+                      : nextLesson.id.startsWith('mastery300-')
+                      ? 'MASTERY 300'
                       : 'INTERMEDIATE',
                   style: noteLabel,
                 ),
@@ -514,14 +581,14 @@ class _LearningHomeState extends State<LearningHome> {
             ),
             const SizedBox(height: 26),
             FilledButton.icon(
-              onPressed: () => openLesson(
-                store.latestIncomplete?.lesson ?? trackLessons.first,
-              ),
+              onPressed: () => openLesson(nextLesson),
               icon: const Icon(Icons.arrow_forward, size: 17),
               label: Text(
-                store.latestIncomplete == null
-                    ? 'Start guided practice'
-                    : 'Resume practice',
+                activeSession != null
+                    ? 'Resume practice'
+                    : allTrackLessonsReviewed
+                    ? 'Practice again'
+                    : 'Start guided practice',
               ),
             ),
           ],
@@ -554,7 +621,7 @@ class _LearningHomeState extends State<LearningHome> {
             ),
           ),
           Text(
-            '${reviewedInTrack()}/${trackLessons.length} REVIEWED',
+            '${reviewedInTrack()}/${trackLessons.length} SELF-REVIEWED',
             style: noteLabel,
           ),
         ],
