@@ -17,6 +17,9 @@
   advances to the next unreviewed lesson in the selected path.
 - Learn now puts the next due spaced-recall problem on the primary action card,
   after any unfinished session and before a new lesson recommendation.
+- Learn shows a Monday–Sunday weekly practice view against the learner's chosen
+  days-per-week goal, based on saved attempt start/completion dates; it does not
+  imply that study minutes are measured.
 - Blind 75 and Mastery 300 Roadmaps show self-reviewed and in-progress counts
   for each pattern and the selected milestone; learners can filter to problems
   not yet self-reviewed while keeping the labels clear that these are not judge

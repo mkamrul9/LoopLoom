@@ -501,6 +501,8 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ),
       const SizedBox(height: 16),
+      _weeklyPracticeCard(),
+      const SizedBox(height: 16),
       _diagnosticCard(),
       const SizedBox(height: 16),
       _reviewPlan(),
@@ -728,6 +730,149 @@ class _LearningHomeState extends State<LearningHome> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _weeklyPracticeCard() {
+    final now = DateTime.now();
+    final weekStart = DateTime.utc(
+      now.year,
+      now.month,
+      now.day - now.weekday + 1,
+    );
+    final weekEnd = weekStart.add(const Duration(days: 7));
+    final practiceDays = <int>{};
+    for (final session in store.sessions) {
+      final dates = [
+        session.startedAt,
+        ?session.completedAt,
+      ];
+      for (final date in dates) {
+        final local = date.toLocal();
+        final day = DateTime.utc(local.year, local.month, local.day);
+        if (!day.isBefore(weekStart) && day.isBefore(weekEnd)) {
+          practiceDays.add(day.weekday);
+        }
+      }
+    }
+    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const fullDayLabels = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    final goal = store.preferences.weeklyGoalDays;
+    final goalMet = practiceDays.length >= goal;
+    final progress = (practiceDays.length / goal).clamp(0.0, 1.0).toDouble();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: context.palette.sheet,
+        border: Border.all(color: context.palette.line),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(child: Text('WEEKLY PRACTICE', style: noteLabel)),
+              Text(
+                '${practiceDays.length} of $goal days',
+                style: TextStyle(
+                  color: context.palette.muted,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            goalMet
+                ? 'You reached your weekly target.'
+                : '${goal - practiceDays.length} more practice '
+                      '${goal - practiceDays.length == 1 ? 'day' : 'days'} to meet your weekly target.',
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(value: progress, minHeight: 5),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: List.generate(7, (index) {
+              final weekday = index + 1;
+              final practiced = practiceDays.contains(weekday);
+              final isToday = now.weekday == weekday;
+              return Expanded(
+                child: Semantics(
+                  label:
+                      '${fullDayLabels[index]}, ${practiced ? 'practice recorded' : 'no saved attempt'}${isToday ? ', today' : ''}',
+                  child: ExcludeSemantics(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: practiced
+                                ? context.palette.accent
+                                : context.palette.recess,
+                            border: isToday && !practiced
+                                ? Border.all(
+                                    color: context.palette.accent,
+                                    width: 2,
+                                  )
+                                : null,
+                          ),
+                          child: practiced
+                              ? Icon(
+                                  Icons.check,
+                                  size: 17,
+                                  color: context.palette.onAccent,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          dayLabels[index],
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isToday
+                                ? context.palette.ink
+                                : context.palette.muted,
+                            fontWeight: isToday
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Monday–Sunday. A day counts when a practice attempt starts or is completed; study time is not tracked.',
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.5,
+              color: context.palette.muted,
+            ),
+          ),
+        ],
       ),
     );
   }
