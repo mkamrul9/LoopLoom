@@ -7,6 +7,7 @@ import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
 import 'domain/learner_preferences.dart';
 import 'domain/lesson.dart';
+import 'features/coaching/interview_diagnostic_screen.dart';
 import 'features/coaching/practice_screen.dart';
 import 'features/coaching/session_controller.dart';
 import 'ui/looploom_theme.dart';
@@ -188,6 +189,16 @@ class _LearningHomeState extends State<LearningHome> {
         builder: (_) => PracticeScreen(session: session, store: store),
       ),
     );
+  }
+
+  Future<void> openDiagnostic() async {
+    final lesson = await Navigator.of(context).push<Lesson>(
+      MaterialPageRoute<Lesson>(
+        builder: (_) => InterviewDiagnosticScreen(store: store),
+      ),
+    );
+    if (!mounted) return;
+    if (lesson != null) openLesson(lesson);
   }
 
   Future<void> toggleSaved(Lesson lesson) async {
@@ -424,6 +435,8 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ),
       const SizedBox(height: 16),
+      _diagnosticCard(),
+      const SizedBox(height: 16),
       _reviewPlan(),
       const SizedBox(height: 32),
       Container(
@@ -568,6 +581,74 @@ class _LearningHomeState extends State<LearningHome> {
       ),
     ],
   );
+
+  Widget _diagnosticCard() {
+    final completedAt = store.preferences.diagnosticCompletedAt;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: context.palette.sheet,
+        border: Border.all(color: context.palette.line),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 560;
+          final copy = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('A QUICK STARTING POINT', style: noteLabel),
+              const SizedBox(height: 8),
+              Text(
+                completedAt == null
+                    ? 'Choose what to practice next.'
+                    : 'Your next patterns are ready.',
+                style: const TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                completedAt == null
+                    ? 'Answer eight short interview scenarios. Get a focused path from your results.'
+                    : 'Retake the short check anytime to refresh your suggested practice order.',
+                style: TextStyle(color: context.palette.muted, height: 1.5),
+              ),
+              if (completedAt != null) ...[
+                const SizedBox(height: 7),
+                Text(
+                  'Last completed ${MaterialLocalizations.of(context).formatMediumDate(completedAt.toLocal())}',
+                  style: TextStyle(fontSize: 13, color: context.palette.muted),
+                ),
+              ],
+            ],
+          );
+          final action = FilledButton.icon(
+            onPressed: openDiagnostic,
+            icon: const Icon(Icons.route_outlined),
+            label: Text(
+              completedAt == null ? 'Start diagnostic' : 'View or retake',
+            ),
+          );
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [copy, const SizedBox(height: 16), action],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: copy),
+              const SizedBox(width: 16),
+              action,
+            ],
+          );
+        },
+      ),
+    );
+  }
 
   Widget _lessonTile(Lesson lesson, int number, {String? title, String? tag}) =>
       Column(

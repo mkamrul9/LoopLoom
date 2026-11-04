@@ -10,7 +10,10 @@ Focus view is an explicit toggle. It centers the current step in a narrower read
 
 ## Navigation
 
-Learn: resume the current session, see the next suggested lesson, and browse patterns.
+Learn: resume the current session, see the next suggested lesson, browse patterns,
+and open an eight-scenario interview diagnostic. The diagnostic gives short
+pattern explanations and routes learners to matching guided problems. It is a
+practice guide, not a readiness score; the latest result is stored on-device.
 
 Roadmaps: choose a path, inspect prerequisites, switch support level, and see completed/review-due items. Counts reflect published content only.
 
@@ -24,7 +27,7 @@ Compact screens use a bottom bar; wide screens use a rail. The coach and problem
 
 The first release targets intermediate interview candidates. Lead with the Blind 75 guided path, tradeoffs, invariants, edge cases, and interview follow-ups. Use warm-up and intermediate lessons as refreshers. The current 75-entry path is a draft curriculum: fifteen entries reuse Starter 30 lessons and sixty have original LoopLoom prompts. It still needs independent editorial review and broader tested reference cases before it can be presented as a reviewed interview curriculum.
 
-Allow guest start. Ask preferred language, experience level, and daily time budget without a long form. Recommend one small lesson. Introduce the teaching contract: "Explain your idea. I will help you improve it before you code."
+Allow guest start. Ask preferred language, experience level, and daily time budget without a long form. Offer the optional pattern diagnostic and recommend one small lesson. Introduce the teaching contract: "Explain your idea. I will help you improve it before you code."
 
 Keep the problem/constraints readily available during conversation. Display the current checkpoint and a compact session step indicator. Use one main action per stage. Keep the composer visible above the keyboard and preserve drafts when navigating.
 

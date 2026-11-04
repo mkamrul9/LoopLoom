@@ -57,6 +57,9 @@ class LearnerPreferences {
     this.weeklyGoalDays = 5,
     this.dailyGoalMinutes = 30,
     this.targetInterviewDate,
+    this.diagnosticCompletedAt,
+    this.diagnosticScores = const {},
+    this.diagnosticAnswers = const {},
     this.savedLessonIds = const {},
   });
 
@@ -69,6 +72,8 @@ class LearnerPreferences {
   final String displayName, targetRole;
   final int weeklyGoalDays, dailyGoalMinutes;
   final DateTime? targetInterviewDate;
+  final DateTime? diagnosticCompletedAt;
+  final Map<String, int> diagnosticScores, diagnosticAnswers;
   final Set<String> savedLessonIds;
 
   Map<String, Object?> toJson() => {
@@ -81,6 +86,9 @@ class LearnerPreferences {
     'weeklyGoalDays': weeklyGoalDays,
     'dailyGoalMinutes': dailyGoalMinutes,
     'targetInterviewDate': targetInterviewDate?.toIso8601String(),
+    'diagnosticCompletedAt': diagnosticCompletedAt?.toIso8601String(),
+    'diagnosticScores': diagnosticScores,
+    'diagnosticAnswers': diagnosticAnswers,
     'savedLessonIds': savedLessonIds.toList()..sort(),
   };
 
@@ -97,6 +105,23 @@ class LearnerPreferences {
     final parsedDate = rawDate is String ? DateTime.tryParse(rawDate) : null;
     final rawDays = json['weeklyGoalDays'];
     final rawMinutes = json['dailyGoalMinutes'];
+    Map<String, int> parseDiagnosticMap(Object? raw, {required int maxValue}) {
+      final parsed = <String, int>{};
+      if (raw is Map) {
+        for (final entry in raw.entries.take(20)) {
+          if (entry.key is String &&
+              (entry.key as String).isNotEmpty &&
+              (entry.key as String).length <= 80 &&
+              entry.value is int &&
+              (entry.value as int) >= 0 &&
+              (entry.value as int) <= maxValue) {
+            parsed[entry.key as String] = entry.value as int;
+          }
+        }
+      }
+      return parsed;
+    }
+
     final rawSaved = json['savedLessonIds'];
     return LearnerPreferences(
       pace: parse(CoachingPace.values, json['pace'], CoachingPace.intermediate),
@@ -125,8 +150,23 @@ class LearnerPreferences {
           ? rawMinutes
           : 30,
       targetInterviewDate: parsedDate,
+      diagnosticCompletedAt: json['diagnosticCompletedAt'] is String
+          ? DateTime.tryParse(json['diagnosticCompletedAt'] as String)
+          : null,
+      diagnosticScores: parseDiagnosticMap(
+        json['diagnosticScores'],
+        maxValue: 1,
+      ),
+      diagnosticAnswers: parseDiagnosticMap(
+        json['diagnosticAnswers'],
+        maxValue: 3,
+      ),
       savedLessonIds: rawSaved is List
-          ? rawSaved.whereType<String>().where((id) => id.isNotEmpty && id.length <= 200).take(500).toSet()
+          ? rawSaved
+                .whereType<String>()
+                .where((id) => id.isNotEmpty && id.length <= 200)
+                .take(500)
+                .toSet()
           : const {},
     );
   }
@@ -142,6 +182,10 @@ class LearnerPreferences {
     int? dailyGoalMinutes,
     DateTime? targetInterviewDate,
     bool clearTargetInterviewDate = false,
+    DateTime? diagnosticCompletedAt,
+    bool clearDiagnosticResult = false,
+    Map<String, int>? diagnosticScores,
+    Map<String, int>? diagnosticAnswers,
     Set<String>? savedLessonIds,
   }) => LearnerPreferences(
     pace: pace ?? this.pace,
@@ -155,6 +199,15 @@ class LearnerPreferences {
     targetInterviewDate: clearTargetInterviewDate
         ? null
         : targetInterviewDate ?? this.targetInterviewDate,
+    diagnosticCompletedAt: clearDiagnosticResult
+        ? null
+        : diagnosticCompletedAt ?? this.diagnosticCompletedAt,
+    diagnosticScores: clearDiagnosticResult
+        ? const {}
+        : diagnosticScores ?? this.diagnosticScores,
+    diagnosticAnswers: clearDiagnosticResult
+        ? const {}
+        : diagnosticAnswers ?? this.diagnosticAnswers,
     savedLessonIds: savedLessonIds ?? this.savedLessonIds,
   );
 }

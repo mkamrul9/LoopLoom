@@ -1,6 +1,6 @@
 # Build backlog
 
-## Current slice: guided practice pilot
+## Current slice: guided interview practice
 
 - Responsive Flutter shell with Learn, Roadmaps, and History.
 - Thirty original lesson drafts across warm-up and intermediate tracks, with a gradual hint ladder.
@@ -9,8 +9,10 @@
 - Clear distinction between self-reviewed and verified solved.
 - Beginner, intermediate, and advanced coaching paces with stage-specific
   prompts; preferred language and pace persist locally and seed new attempts.
-- Learn and Roadmaps show the complete 30-lesson starter alongside warm-up and
-  intermediate subsets; unfinished 75/300 roadmaps remain explicitly planned.
+- Learn and Roadmaps expose Starter 30, Blind 75, and Interview Mastery 300,
+  while distinguishing pattern-guided drafts from independently reviewed content.
+- An eight-scenario, on-device interview diagnostic explains each choice,
+  recommends matching guided problems, and saves its latest result locally.
 - Domain/widget tests and small-screen layout checks where tooling permits.
 
 ## Next slice: real coaching
@@ -18,8 +20,9 @@
 Implemented after the interaction prototype: versioned local persistence, unsent draft recovery, resume card, save status/retry, stale-tab write protection, and an optional local-only AI client/gateway. Portable Ollama, repeatable start/stop scripts, and two local models are installed. Three 16-case smoke runs exposed poor coaching quality; no model is enabled by default. See [results](LOCAL_AI_VALIDATION.md) and [local development](LOCAL_DEVELOPMENT.md).
 
 1. Independently review the thirty original lesson drafts and runtime-tested
-   solutions to publish the reviewed 30-problem interview starter. Add an
-   interview diagnostic and finalize identity/package name and target devices.
+   solutions to publish the reviewed 30-problem interview starter. The local
+   interview diagnostic is implemented; validate it with interview candidates
+   and finalize supported target devices.
 2. Copy/paste JSON backup and restore are implemented with validation, preview, duplicate preservation, and atomic imports. Validate recovery on physical Android devices; add native file pickers/downloads and broader accessibility coverage.
 3. Stand up the application API with a versioned published-content endpoint and ownership checks.
 4. Find a model/configuration that clears independent correctness, teaching, injection, and latency review on available hardware. The initial small-model experiments failed. Keep guided practice until a candidate qualifies; hosted adapters are deferred under the zero-spend constraint.

@@ -34,6 +34,7 @@ Roadmaps reference one shared problem catalog. A solved problem contributes to e
 - Mastery 300: the app now contains 300 guided challenge entries across interview patterns, including the existing Blind 75. Each entry links to the official external challenge and has five reasoning checkpoints. Full problem statements remain on linked challenge pages. Ninety extensions have problem-specific original prompts, examples, edge cases, hints, and explanations; 135 still use pattern-level guidance and need editorial customization and review. Pattern-family targets, selection criteria, and progression are specified in [the Mastery 300 curriculum plan](MASTER_300_CURRICULUM.md).
 - A local in-app review queue now schedules each self-reviewed lesson after 1, 3, 7, then 14 days, based on completed attempts. The queue appears on Learn and History and starts a fresh guided attempt. It does not send notifications or claim mastery.
 - Learners can save problems from curriculum rows or the practice screen, filter the 75/300 paths to saved problems, and open saved problems from History. Saved IDs persist locally and merge when a workbook backup is restored.
+- An eight-scenario local interview diagnostic gives short pattern explanations and recommends matching lessons. Its result is a practice aid, not a readiness score; broader placement needs learner validation.
 - Beginner, intermediate, and advanced are learner support modes as well as difficulty filters. Beginners get smaller checkpoints and worked traces; advanced learners get fewer prompts and more proof/optimization questions.
 - Editorial review, provenance review, and tested code remain required before calling the 75-entry path a reviewed curriculum. Only the fifteen reused entries currently have LoopLoom reference-case specifications; the other sixty rely on LeetCode's external judge. Do not treat reference-case matches or self-review as a verified solve.
 
@@ -79,7 +80,7 @@ Exit: real testers complete sessions reliably; costs per session are measurable;
 
 Estimated 4–6 additional weeks, strongly dependent on content throughput.
 
-- Expand to 75 reviewed problems; add diagnostic placement, pattern mastery, and spaced review.
+- Expand to 75 reviewed problems; validate and expand diagnostic placement, pattern mastery, and spaced review.
 - Ship web layouts with keyboard navigation, URL-based routing, browser history, and a larger editor workspace.
 - Add a small public HTML marketing/content site if search discovery matters. Flutter is suitable for the interactive learning application; document-heavy public articles can use a separate web rendering approach. [Flutter web guidance](https://docs.flutter.dev/platform-integration/web).
 - Run acquisition and pricing experiments with university clubs and interview-preparation communities.

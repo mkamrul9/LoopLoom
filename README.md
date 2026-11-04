@@ -37,6 +37,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 
 - **Guided interview practice** across five checkpoints: Understand, Approach, Trace, Code, and Reflect.
 - **Three study paths:** Starter 30, Blind 75, and Interview Mastery 300, organized around interview patterns and phases.
+- **An interview diagnostic** with eight short scenarios, plain-language explanations, and saved pattern recommendations linked to guided lessons.
 - **Four coding languages:** C++, Python, JavaScript, and TypeScript, with a saved draft for each language.
 - **A local workbook** for attempts, notes, saved problems, study goals, and review history. Export a backup to move your work between devices.
 - **Readable study settings** with device text scaling and persistent System, Light, and Dark themes.

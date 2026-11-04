@@ -1,5 +1,11 @@
 # Pilot validation
 
+## Interview pattern diagnostic — 4 November 2026
+
+Added an eight-scenario local interview diagnostic covering array hashing, two pointers, sliding windows, intervals, graphs, dynamic programming, heaps, and stacks. It explains each answer, recommends matching guided problems, supports retakes, and persists the latest answers and pattern guidance with learner preferences. The screen labels the result as practice guidance rather than an interview-readiness score. No AI service or new package is required.
+
+The Dart analyzer reported no issues. Automated tests were not run for this change. A web build could not start because the Flutter SDK cache lockfile is outside the writable workspace; Android build and device checks remain outstanding.
+
 ## Interview catalog expansion — batch 8 — 30 October 2026
 
 Added three backtracking lessons: one-use subset feasibility, order-independent combinations with reuse, and counting signed target assignments. The draft catalog now has thirty original lessons: three warm-ups and twenty-seven intermediate. The new contracts specify reuse, ordering, duplicate positions, zero behavior, and input preservation; all have four-language fixtures and local-coach rubrics.
