@@ -1,4 +1,4 @@
-# SolveIt Flutter app
+# LoopLoom Flutter app
 
 Android-first and responsive web problem-solving workbook.
 
@@ -22,7 +22,7 @@ or automatic paid fallback.
 - Learn, Warm-ups, Intermediate, Interview Starter 30, Roadmaps, and History
   views with local resume, self-review counts, Focus view, and copy/paste
   workbook backup/restore.
-- A quiet warm-paper and graphite interface with no green or purple accents.
+- A quiet warm-paper and charcoal interface with a muted-clay loop accent and no green or purple accents.
 
 The 75-problem and 300-problem roadmaps are not complete. The thirty available
 lessons are original drafts awaiting independent editorial review. Completing
@@ -65,6 +65,4 @@ reveal only on explicit request and record assistance. See
 
 Production work includes auth/sync, evaluated AI coaching, isolated
 execution, reviewed four-language solutions, purchases, and operational controls.
-The generated Android identity `dev.solveit.solveit`, prototype vector icon, and debug
-signing are development placeholders. Configure owned identity and secure release
-signing before publishing. See the root `docs/` for the delivery plan.
+The Android identity `dev.solveit.solveit` remains stable so existing local installs keep their workbook. The launcher now uses the LoopLoom wordmark. Configure an owned release identity and secure signing before publishing. See the root `docs/` for the delivery plan.

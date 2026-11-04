@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/coaching/session_controller.dart';
-import 'solveit_theme.dart';
+import 'looploom_theme.dart';
 
 class SaveStatus extends StatelessWidget {
   const SaveStatus({super.key, required this.store, this.compact = false});

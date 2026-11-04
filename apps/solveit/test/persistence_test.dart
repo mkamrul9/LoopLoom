@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sembast/sembast_io.dart';
 import 'package:sembast/sembast_memory.dart';
-import 'package:solveit/data/pilot_lessons.dart';
-import 'package:solveit/data/session_repository.dart';
-import 'package:solveit/domain/lesson.dart';
-import 'package:solveit/features/coaching/session_controller.dart';
+import 'package:looploom/data/pilot_lessons.dart';
+import 'package:looploom/data/session_repository.dart';
+import 'package:looploom/domain/lesson.dart';
+import 'package:looploom/features/coaching/session_controller.dart';
 
 class FailingRepository extends MemorySessionRepository {
   bool failing = true;

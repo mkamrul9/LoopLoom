@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/code_specs.dart';
 import '../domain/lesson.dart';
 import '../features/coaching/reference_runner.dart';
-import 'solveit_theme.dart';
+import 'looploom_theme.dart';
 
 class ReferenceRunPanel extends StatefulWidget {
   const ReferenceRunPanel({
@@ -130,7 +130,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Text(
-          'SolveIt does not have local reference cases for this problem yet. Your draft is saved here; use the linked challenge page to run its official tests.',
+          'LoopLoom does not have local reference cases for this problem yet. Your draft is saved here; use the linked challenge page to run its official tests.',
           style: TextStyle(fontSize: 14, height: 1.6, color: StudyColors.muted),
         ),
       );

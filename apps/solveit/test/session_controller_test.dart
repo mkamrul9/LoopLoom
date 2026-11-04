@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:solveit/data/pilot_lessons.dart';
-import 'package:solveit/domain/lesson.dart';
-import 'package:solveit/features/coaching/session_controller.dart';
+import 'package:looploom/data/pilot_lessons.dart';
+import 'package:looploom/domain/lesson.dart';
+import 'package:looploom/features/coaching/session_controller.dart';
 
 void main() {
   test('saved work and explicit self-review are required to advance', () {

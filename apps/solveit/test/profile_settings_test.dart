@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:solveit/features/coaching/session_controller.dart';
-import 'package:solveit/ui/settings_screen.dart';
-import 'package:solveit/ui/solveit_theme.dart';
+import 'package:looploom/features/coaching/session_controller.dart';
+import 'package:looploom/ui/settings_screen.dart';
+import 'package:looploom/ui/looploom_theme.dart';
 
 void main() {
   testWidgets('profile, practice targets, and readable size can be saved', (

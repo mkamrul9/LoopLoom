@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 278" role="img" aria-label="LoopLoom — Think, Trace, Code">
+  <g fill="#262B2D" font-family="Segoe UI, Arial, sans-serif" font-size="130" font-weight="700">
+    <text x="152.00" y="168">L</text><text x="350.00" y="168">pL</text><text x="629.00" y="168">m</text>
+  </g>
+  <g fill="none" stroke="#914B36" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 284.00 135.00 C 262.76 91.44 225.00 91.44 225.00 135.00 C 225.00 178.56 262.76 178.56 284.00 135.00 C 305.24 91.44 343.00 91.44 343.00 135.00 C 343.00 178.56 305.24 178.56 284.00 135.00"/>
+    <path d="M 563.00 135.00 C 541.76 91.44 504.00 91.44 504.00 135.00 C 504.00 178.56 541.76 178.56 563.00 135.00 C 584.24 91.44 622.00 91.44 622.00 135.00 C 622.00 178.56 584.24 178.56 563.00 135.00"/>
+  </g>
+  <text x="450" y="239" text-anchor="middle" fill="#5F6466" font-family="Segoe UI, Arial, sans-serif" font-size="23" letter-spacing="4">THINK · TRACE · CODE</text>
+</svg>

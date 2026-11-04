@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/mastery300_curriculum.dart';
 import '../../domain/lesson.dart';
-import '../../ui/solveit_theme.dart';
+import '../../ui/looploom_theme.dart';
 import '../../ui/save_status.dart';
 import '../../ui/code_workspace.dart';
 import '../../ui/readable_surface.dart';

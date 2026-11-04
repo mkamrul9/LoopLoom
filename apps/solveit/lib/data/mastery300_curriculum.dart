@@ -2,7 +2,7 @@ import '../domain/lesson.dart';
 import 'blind75_curriculum.dart';
 
 /// Additional curated interview problems that extend the stable Blind 75.
-/// SolveIt uses original coaching prompts and links to the external challenge;
+/// LoopLoom uses original coaching prompts and links to the external challenge;
 /// it does not reproduce LeetCode statements or claim affiliation.
 class MasteryProblemSeed {
   const MasteryProblemSeed(
@@ -42,7 +42,7 @@ class MasteryProblemSeed {
       summary: guide?.summary ?? 'Practice $cue through $title.',
       statement:
           guide?.statement ??
-          'Open the linked challenge and restate its input, required output, and constraints in your own words. Then solve $title by identifying when $cue is useful. SolveIt’s guided prompts help you reason through the external challenge; the challenge page supplies its full statement and examples.',
+          'Open the linked challenge and restate its input, required output, and constraints in your own words. Then solve $title by identifying when $cue is useful. LoopLoom’s guided prompts help you reason through the external challenge; the challenge page supplies its full statement and examples.',
       example:
           guide?.example ??
           'Use one official example from the linked challenge. Before coding, write the expected result and the intermediate state that best tests $cue.',

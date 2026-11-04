@@ -4,7 +4,7 @@ import '../data/code_specs.dart';
 import '../data/blind75_curriculum.dart';
 import '../data/mastery300_curriculum.dart';
 import '../domain/lesson.dart';
-import 'solveit_theme.dart';
+import 'looploom_theme.dart';
 import 'reference_run_panel.dart';
 
 class CodeWorkspace extends StatelessWidget {
@@ -76,7 +76,7 @@ class CodeWorkspace extends StatelessWidget {
                 Text(
                   blindEntry.hasReferenceCases
                       ? 'Blind 75 · ${blindEntry.difficulty}'
-                      : 'SolveIt practice draft · ${blindEntry.difficulty}',
+                      : 'LoopLoom practice draft · ${blindEntry.difficulty}',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -84,7 +84,7 @@ class CodeWorkspace extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'This is an independently written study prompt. The official page has LeetCode’s canonical statement and judge. SolveIt does not submit code or sync results; adapt your draft to that page’s signature when you submit.',
+                  'This is an independently written study prompt. The official page has LeetCode’s canonical statement and judge. LoopLoom does not submit code or sync results; adapt your draft to that page’s signature when you submit.',
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.55,

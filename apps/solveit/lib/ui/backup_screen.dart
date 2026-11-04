@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../data/lesson_catalog.dart';
 import 'readable_surface.dart';
 import '../features/coaching/session_controller.dart';
-import 'solveit_theme.dart';
+import 'looploom_theme.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key, required this.store});
@@ -63,7 +63,7 @@ class _BackupScreenState extends State<BackupScreen> {
       setState(() {
         plan = null;
         status =
-            'This backup could not be read. Use a complete SolveIt version 1 backup, up to 2 MB and 500 attempts.';
+            'This backup could not be read. Use a complete LoopLoom version 1 backup, up to 2 MB and 500 attempts.';
       });
     }
   }

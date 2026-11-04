@@ -1,4 +1,4 @@
-# SolveIt product and delivery roadmap
+# LoopLoom product and delivery roadmap
 
 Planning baseline: 29 October 2026. Scope, timing, prices, and success targets below are proposals, not achieved results or revenue forecasts.
 
@@ -29,13 +29,13 @@ Progress states: not started, in progress, self-reviewed, verified solved with a
 Roadmaps reference one shared problem catalog. A solved problem contributes to every roadmap containing it; attempts remain tied to the content version and language.
 
 - Foundation track: optional diagnostic refreshers in syntax, arrays, strings, complexity, maps/sets, two pointers, fixed/variable windows, stacks, binary search, and recursion basics. Experienced learners can skip mastered refreshers.
-- Blind 75 (available as a draft path): 75 community-list entries grouped into four phases and sixteen patterns, with a guided five-checkpoint lesson for each entry. Fifteen entries reuse matching Starter 30 lesson IDs and retain progress; sixty use original SolveIt prompts. The path filters by difficulty and opens the official LeetCode challenge externally. SolveIt is not affiliated with LeetCode and does not submit code or synchronize results.
+- Blind 75 (available as a draft path): 75 community-list entries grouped into four phases and sixteen patterns, with a guided five-checkpoint lesson for each entry. Fifteen entries reuse matching Starter 30 lesson IDs and retain progress; sixty use original LoopLoom prompts. The path filters by difficulty and opens the official LeetCode challenge externally. LoopLoom is not affiliated with LeetCode and does not submit code or synchronize results.
 - Starter 30: three warm-ups and twenty-seven intermediate foundation lessons remain available as a separate track.
 - Mastery 300: the app now contains 300 guided challenge entries across interview patterns, including the existing Blind 75. Each entry links to the official external challenge and has five reasoning checkpoints. Full problem statements remain on linked challenge pages. Ninety extensions have problem-specific original prompts, examples, edge cases, hints, and explanations; 135 still use pattern-level guidance and need editorial customization and review. Pattern-family targets, selection criteria, and progression are specified in [the Mastery 300 curriculum plan](MASTER_300_CURRICULUM.md).
 - A local in-app review queue now schedules each self-reviewed lesson after 1, 3, 7, then 14 days, based on completed attempts. The queue appears on Learn and History and starts a fresh guided attempt. It does not send notifications or claim mastery.
 - Learners can save problems from curriculum rows or the practice screen, filter the 75/300 paths to saved problems, and open saved problems from History. Saved IDs persist locally and merge when a workbook backup is restored.
 - Beginner, intermediate, and advanced are learner support modes as well as difficulty filters. Beginners get smaller checkpoints and worked traces; advanced learners get fewer prompts and more proof/optimization questions.
-- Editorial review, provenance review, and tested code remain required before calling the 75-entry path a reviewed curriculum. Only the fifteen reused entries currently have SolveIt reference-case specifications; the other sixty rely on LeetCode's external judge. Do not treat reference-case matches or self-review as a verified solve.
+- Editorial review, provenance review, and tested code remain required before calling the 75-entry path a reviewed curriculum. Only the fifteen reused entries currently have LoopLoom reference-case specifications; the other sixty rely on LeetCode's external judge. Do not treat reference-case matches or self-review as a verified solve.
 
 Start with original problem statements and examples. Familiar algorithmic ideas can be taught with original scenarios. Maintain authorship, license, provenance, reviewers, and version metadata. [LeetCode's terms](https://leetcode.com/terms/) are relevant before incorporating its content; a public URL is not a redistribution license.
 

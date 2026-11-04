@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:solveit/data/interview_lessons.dart';
-import 'package:solveit/data/lesson_catalog.dart';
-import 'package:solveit/data/blind75_curriculum.dart';
-import 'package:solveit/data/mastery300_curriculum.dart';
-import 'package:solveit/domain/lesson.dart';
-import 'package:solveit/features/coaching/session_controller.dart';
+import 'package:looploom/data/interview_lessons.dart';
+import 'package:looploom/data/lesson_catalog.dart';
+import 'package:looploom/data/blind75_curriculum.dart';
+import 'package:looploom/data/mastery300_curriculum.dart';
+import 'package:looploom/domain/lesson.dart';
+import 'package:looploom/features/coaching/session_controller.dart';
 
 // Trusted authoring references only. The app does not execute learner code.
 int ranges(List<int> a, int target) {

@@ -1,11 +1,11 @@
 {
-    "name": "SolveIt",
-    "short_name": "SolveIt",
+    "name": "LoopLoom",
+    "short_name": "LoopLoom",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#F6F4F0",
-    "theme_color": "#F6F4F0",
-    "description": "A quiet workbook for interview problem solving.",
+    "background_color": "#F7F4EF",
+    "theme_color": "#F7F4EF",
+    "description": "A focused coding interview coach for thinking through problems, patterns, and code.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

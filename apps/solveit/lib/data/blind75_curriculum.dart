@@ -3,9 +3,9 @@ import 'code_specs.dart';
 import 'interview_lessons.dart';
 import 'pilot_lessons.dart';
 
-/// SolveIt's independently written learning prompts for the community Blind 75
+/// LoopLoom's independently written learning prompts for the community Blind 75
 /// question set. External challenge links point to LeetCode; statements and
-/// editorials here are authored for SolveIt.
+/// editorials here are authored for LoopLoom.
 enum BlindValueKind {
   integer,
   boolean,

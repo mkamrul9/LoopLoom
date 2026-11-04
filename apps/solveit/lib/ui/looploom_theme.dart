@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 /// A quiet workbook palette. Accent color identifies an action or focus state.
 abstract final class StudyColors {
-  static const paper = Color(0xFFF6F4F0);
-  static const sheet = Color(0xFFFFFEFC);
-  static const ink = Color(0xFF272630);
-  static const muted = Color(0xFF66636D);
-  static const line = Color(0xFFDCD8D2);
-  static const recess = Color(0xFFEDEAE5);
-  static const accent = Color(0xFF272630);
-  static const accentWash = Color(0xFFE7E3DD);
-  static const hint = Color(0xFF66636D);
+  static const paper = Color(0xFFF7F4EF);
+  static const sheet = Color(0xFFFFFDF9);
+  static const ink = Color(0xFF262B2D);
+  static const muted = Color(0xFF5F6466);
+  static const line = Color(0xFFD9D3CC);
+  static const recess = Color(0xFFECE7DF);
+  static const accent = Color(0xFF914B36);
+  static const accentWash = Color(0xFFF2E1D6);
+  static const hint = Color(0xFF5F6466);
 }
 
 const noteLabel = TextStyle(
@@ -143,24 +143,66 @@ ThemeData studyTheme() {
   );
 }
 
-class StudyMark extends StatelessWidget {
-  const StudyMark({super.key});
+class LoopLoomWordmark extends StatelessWidget {
+  const LoopLoomWordmark({super.key});
+
   @override
-  Widget build(BuildContext context) => const Text.rich(
-    TextSpan(
-      children: [
-        TextSpan(text: 's'),
-        TextSpan(
-          text: '/',
-          style: TextStyle(color: StudyColors.accent),
-        ),
-      ],
-    ),
-    style: TextStyle(
-      fontFamily: 'monospace',
-      fontSize: 27,
+  Widget build(BuildContext context) {
+    const style = TextStyle(
+      color: StudyColors.ink,
+      fontSize: 21,
       fontWeight: FontWeight.w700,
-      letterSpacing: -5,
-    ),
+      letterSpacing: -.8,
+    );
+    return Semantics(
+      label: 'LoopLoom',
+      child: ExcludeSemantics(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Text('L', style: style),
+            _LoopPair(),
+            Text('pL', style: style),
+            _LoopPair(),
+            Text('m', style: style),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LoopPair extends StatelessWidget {
+  const _LoopPair();
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+    width: 28,
+    height: 27,
+    child: CustomPaint(painter: _LoopPairPainter()),
   );
+}
+
+class _LoopPairPainter extends CustomPainter {
+  const _LoopPairPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = StudyColors.accent
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.6;
+    // One crossing stroke keeps both lowercase o shapes legible.
+    // The lower optical center aligns with the neighboring letters.
+    final loop = Path()
+      ..moveTo(14, 15.5)
+      ..cubicTo(10, 4.5, 1.5, 4.5, 1.5, 15.5)
+      ..cubicTo(1.5, 26.5, 10, 26.5, 14, 15.5)
+      ..cubicTo(18, 4.5, 26.5, 4.5, 26.5, 15.5)
+      ..cubicTo(26.5, 26.5, 18, 26.5, 14, 15.5);
+    canvas.drawPath(loop, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

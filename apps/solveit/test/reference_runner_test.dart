@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:solveit/data/code_specs.dart';
-import 'package:solveit/domain/lesson.dart';
-import 'package:solveit/features/coaching/reference_runner.dart';
-import 'package:solveit/ui/reference_run_panel.dart';
+import 'package:looploom/data/code_specs.dart';
+import 'package:looploom/domain/lesson.dart';
+import 'package:looploom/features/coaching/reference_runner.dart';
+import 'package:looploom/ui/reference_run_panel.dart';
 
 Map<String, Object?> goodReply({String language = 'javascript'}) => {
   'suite': 'reference-v1',

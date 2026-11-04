@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:solveit/data/pilot_lessons.dart';
-import 'package:solveit/data/session_repository.dart';
-import 'package:solveit/domain/learner_preferences.dart';
-import 'package:solveit/domain/lesson.dart';
-import 'package:solveit/features/coaching/session_controller.dart';
+import 'package:looploom/data/pilot_lessons.dart';
+import 'package:looploom/data/session_repository.dart';
+import 'package:looploom/domain/learner_preferences.dart';
+import 'package:looploom/domain/lesson.dart';
+import 'package:looploom/features/coaching/session_controller.dart';
 
 class FailingPreferenceRepository extends MemorySessionRepository {
   bool failPreferences = true;

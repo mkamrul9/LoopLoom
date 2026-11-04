@@ -19,13 +19,13 @@ function Get-SolveItOwnedProcess([string]$RecordPath) {
 $solveItGateway = Get-SolveItOwnedProcess $solveItGatewayRecord
 if ($null -ne $solveItGateway) {
     Stop-Process -Id $solveItGateway.Id
-    Write-Output 'Stopped the Solveit development gateway.'
+    Write-Output 'Stopped the LoopLoom development gateway.'
 }
 $solveItDaemon = Get-SolveItOwnedProcess $solveItRuntimeRecord
 if ($null -ne $solveItDaemon) {
     if ($Runtime) {
         Stop-Process -Id $solveItDaemon.Id
-        Write-Output 'Stopped the Solveit portable runtime.'
+        Write-Output 'Stopped the LoopLoom portable runtime.'
     } else {
         $solveItLoaded = Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/ps' -TimeoutSec 5
         foreach ($solveItModel in $solveItLoaded.models) {

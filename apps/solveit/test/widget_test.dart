@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:solveit/app.dart';
-import 'package:solveit/data/pilot_lessons.dart';
-import 'package:solveit/data/interview_lessons.dart';
-import 'package:solveit/features/coaching/practice_screen.dart';
-import 'package:solveit/features/coaching/session_controller.dart';
-import 'package:solveit/domain/learner_preferences.dart';
-import 'package:solveit/domain/lesson.dart';
+import 'package:looploom/app.dart';
+import 'package:looploom/data/pilot_lessons.dart';
+import 'package:looploom/data/interview_lessons.dart';
+import 'package:looploom/features/coaching/practice_screen.dart';
+import 'package:looploom/features/coaching/session_controller.dart';
+import 'package:looploom/domain/learner_preferences.dart';
+import 'package:looploom/domain/lesson.dart';
 
 void main() {
   testWidgets(
@@ -50,7 +50,7 @@ void main() {
         session.advanceAfterSelfCheck();
       }
     }
-    await tester.pumpWidget(SolveItApp(store: store));
+    await tester.pumpWidget(LoopLoomApp(store: store));
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Intermediate · 27'));
@@ -75,7 +75,7 @@ void main() {
         .saveReasoningDraft('Recover this draft');
     final backup = source.exportBackup();
     final target = PracticeStore();
-    await tester.pumpWidget(SolveItApp(store: target));
+    await tester.pumpWidget(LoopLoomApp(store: target));
     await tester.tap(find.byTooltip('Workbook options'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Workbook backup'));
@@ -98,7 +98,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     expect(tester.takeException(), isNull);
     await tester.ensureVisible(find.text('Start guided practice'));
     await tester.pumpAndSettle();
@@ -118,7 +118,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final store = PracticeStore()
       ..preferences = const LearnerPreferences(textScale: 1.3);
-    await tester.pumpWidget(SolveItApp(store: store));
+    await tester.pumpWidget(LoopLoomApp(store: store));
     final homeException = tester.takeException();
     if (homeException is FlutterError) {
       debugPrint(homeException.toStringDeep());
@@ -140,7 +140,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     expect(find.byType(NavigationRail), findsOneWidget);
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
@@ -163,7 +163,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Starter 30 · 30'));
@@ -182,7 +182,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final store = PracticeStore();
-    await tester.pumpWidget(SolveItApp(store: store));
+    await tester.pumpWidget(LoopLoomApp(store: store));
     await tester.tap(find.byTooltip('Workbook options'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Profile & settings'));
@@ -213,7 +213,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
     expect(find.textContaining('0 of 75 self-reviewed'), findsOneWidget);
@@ -237,7 +237,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Interview Mastery · 300'));
@@ -264,7 +264,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     await tester.tap(find.text('Roadmaps'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Mastery · 300'));
@@ -302,7 +302,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(SolveItApp(store: PracticeStore()));
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     await tester.ensureVisible(find.text('Start guided practice'));
     await tester.tap(find.text('Start guided practice'));
     await tester.pumpAndSettle();

@@ -54,7 +54,7 @@ def main():
     if not (WEB_ROOT / "main.dart.js").is_file():
         parser.error("Run flutter build web from apps/solveit first")
     server = ThreadingHTTPServer(("127.0.0.1", args.port), PreviewHandler)
-    print(f"SolveIt guided/development preview: http://127.0.0.1:{args.port}/", flush=True)
+    print(f"LoopLoom guided/development preview: http://127.0.0.1:{args.port}/", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -5,7 +5,7 @@ import '../features/coaching/session_controller.dart';
 import 'backup_screen.dart';
 import 'readable_surface.dart';
 import 'save_status.dart';
-import 'solveit_theme.dart';
+import 'looploom_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, required this.store});
@@ -335,7 +335,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'SolveIt respects your device text setting as well.',
+              'LoopLoom respects your device text setting as well.',
               style: TextStyle(fontSize: 14, color: StudyColors.muted),
             ),
             const SizedBox(height: 34),
@@ -392,7 +392,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _sectionHeading(
               'Your data',
               'Private by default',
-              'SolveIt currently works without an online account. Practice history, profile details, and settings remain in this workbook on this device.',
+              'LoopLoom currently works without an online account. Practice history, profile details, and settings remain in this workbook on this device.',
             ),
             const SizedBox(height: 14),
             const Text(

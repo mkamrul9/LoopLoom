@@ -8,19 +8,19 @@ import 'data/interview_lessons.dart';
 import 'domain/lesson.dart';
 import 'features/coaching/practice_screen.dart';
 import 'features/coaching/session_controller.dart';
-import 'ui/solveit_theme.dart';
+import 'ui/looploom_theme.dart';
 import 'ui/save_status.dart';
 import 'ui/workbook_bootstrap.dart';
 import 'ui/backup_screen.dart';
 import 'ui/settings_screen.dart';
 import 'ui/readable_surface.dart';
 
-class SolveItApp extends StatelessWidget {
-  const SolveItApp({super.key, this.store});
+class LoopLoomApp extends StatelessWidget {
+  const LoopLoomApp({super.key, this.store});
   final PracticeStore? store;
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'SolveIt — Think it through',
+    title: 'LoopLoom — Think it through',
     debugShowCheckedModeBanner: false,
     theme: studyTheme(),
     home: store == null
@@ -150,18 +150,22 @@ class _LearningHomeState extends State<LearningHome> {
               title: const Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  StudyMark(),
-                  SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      'solveit',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -.7,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LoopLoomWordmark(),
+                        Text(
+                          'THINK · TRACE · CODE',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: .8,
+                            color: StudyColors.muted,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -697,8 +701,8 @@ class _LearningHomeState extends State<LearningHome> {
             children: [
               Text(
                 entries.length == 75
-                    ? 'SolveIt’s prompts and explanations are original. This community study path links to the official LeetCode questions; SolveIt is not affiliated with LeetCode.'
-                    : 'This 300-problem path combines the Blind 75 with 225 curated interview challenges. Prompts guide your reasoning; official challenge pages provide full statements. SolveIt is not affiliated with LeetCode.',
+                    ? 'LoopLoom’s prompts and explanations are original. This community study path links to the official LeetCode questions; LoopLoom is not affiliated with LeetCode.'
+                    : 'This 300-problem path combines the Blind 75 with 225 curated interview challenges. Prompts guide your reasoning; official challenge pages provide full statements. LoopLoom is not affiliated with LeetCode.',
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.6,

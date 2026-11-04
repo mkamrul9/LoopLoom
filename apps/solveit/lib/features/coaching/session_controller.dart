@@ -569,7 +569,7 @@ class PracticeStore extends ChangeNotifier {
     if (data['format'] != 'solveit-workbook' ||
         data['version'] != 1 ||
         data['sessions'] is! List) {
-      throw const FormatException('Use a SolveIt workbook backup (version 1).');
+      throw const FormatException('Use a LoopLoom workbook backup (version 1).');
     }
     final rows = data['sessions'] as List;
     final rawSaved = data['savedLessonIds'];

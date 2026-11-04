@@ -1,4 +1,4 @@
-# SolveIt Interview Mastery 300
+# LoopLoom Interview Mastery 300
 
 ## Purpose
 
@@ -9,7 +9,7 @@ Build a 300-problem interview curriculum with deliberate coverage and progressio
 - NeetCode 250 publicly groups 250 interview practice problems across 18 topics, with 60 Easy, 155 Medium, and 35 Hard problems. Its categories provide a useful breadth baseline.
 - NeetCode 150 is described as Blind 75 plus 75 additional questions and provides a familiar intermediate milestone.
 - The Tech Interview Handbook recommends topic-first preparation followed by mixed practice; its study guide marks arrays, strings, sorting/search, matrices, trees, and graphs as high priority and hash tables, linked lists, stacks/queues, heaps, tries, and intervals as mid priority.
-- These collections are editorial signals, not measured evidence that a question is likely at a particular employer. SolveIt should not label a problem “frequently asked” without employer-specific and dated evidence.
+- These collections are editorial signals, not measured evidence that a question is likely at a particular employer. LoopLoom should not label a problem “frequently asked” without employer-specific and dated evidence.
 
 ## Planned coverage (300 total)
 
@@ -39,7 +39,7 @@ The baseline is the official NeetCode 250 topic allocation. The additional 50 de
 
 ## Learning progression
 
-1. **Core 75:** preserve the existing community Blind 75 order as the first recognizable milestone; keep SolveIt-authored coaching text and external challenge links distinct from LeetCode content.
+1. **Core 75:** preserve the existing community Blind 75 order as the first recognizable milestone; keep LoopLoom-authored coaching text and external challenge links distinct from LeetCode content.
 2. **Core 150:** add canonical medium problems that extend the same patterns, especially arrays, trees, graphs, binary search, and dynamic programming.
 3. **Breadth 250:** add approachable coverage across every family, including implementation and common edge cases, before concentrating on hard variants.
 4. **Mastery 300:** add 50 deliberately selected extensions: answer-space search, monotonic stacks, union-find/shortest paths, stateful graph problems, DP reconstruction, and mixed-pattern transfer.
@@ -50,7 +50,7 @@ Within each family, order by prerequisite and technique; do not sort only by pla
 
 - Deduplicate by canonical challenge slug and retain stable IDs when a problem is already in the catalog.
 - Store source, external challenge URL, platform difficulty, topic tags, tier, and rationale as explicit metadata.
-- Keep original SolveIt prompts, examples, hints, and explanations. Do not copy third-party statements or editorials.
+- Keep original LoopLoom prompts, examples, hints, and explanations. Do not copy third-party statements or editorials.
 - Each guided problem must ask for a contract, baseline, pattern choice, trace, complexity, implementation, and reflection, with progressive hints and an optional explanation.
 - Mark reference cases and runnable languages per problem. Never imply that an external judge, unreviewed explanation, or self-check verified a solution.
 - Review prompt correctness, edge cases, difficulty, overlap, accessibility, and language starter signatures before calling the curriculum reviewed.

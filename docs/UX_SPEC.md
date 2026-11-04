@@ -2,9 +2,9 @@
 
 ## Calm, focused, encouraging
 
-The user's confirmed direction is a distinctive, focus-oriented, essentially monochrome workbook. Do not introduce green or purple accents. Use warm paper (#F6F4F0), graphite text and primary buttons (#272630), a near-white writing surface (#FFFEFC), and soft stone-gray active surfaces (#E7E3DD). Hints use the same quiet gray as secondary text. Keep body text high contrast, surfaces flat, and dividers subtle. Distinction comes from typography, numbered sections, whitespace, and thoughtful interaction rather than saturated color. No gradients, decorative motion, confetti, invented streaks, or competing colored cards.
+The user's confirmed direction is a distinctive, focus-oriented workbook. Do not introduce green or purple accents. Use warm paper (#F7F4EF), charcoal text (#262B2D), a near-white writing surface (#FFFDF9), soft stone active surfaces (#ECE7DF), and muted clay (#914B36) only for focus and the four linked `o` loops in the LoopLoom name. Hints use the same quiet gray as secondary text. Keep body text high contrast, surfaces flat, and dividers subtle. Distinction comes from the woven wordmark, typography, numbered sections, whitespace, and thoughtful interaction. No gradients, decorative motion, confetti, invented streaks, or competing colored cards. The logo uses the name itself with “Think · Trace · Code” beneath it; there is no separate abstract icon.
 
-The visual identity combines a small `s/` mark, numbered notebook sections, quiet monospace metadata, and generous reading/writing space. Use a modestly rounded writing sheet rather than oversized promotional hero blocks. Pattern lessons use open ruled rows. The workspace leads with the current problem and one next coaching question; save earlier conversation in an expandable Session notes section.
+The visual identity combines the one-line LoopLoom wordmark, numbered notebook sections, quiet monospace metadata, and generous reading/writing space. Each pair of `o` letters forms a continuous infinity stroke aligned with the lowercase letters. Use a modestly rounded writing sheet rather than oversized promotional hero blocks. Pattern lessons use open ruled rows. The workspace leads with the current problem and one next coaching question; save earlier conversation in an expandable Session notes section.
 
 Focus view is an explicit toggle. It centers the current step in a narrower reading column and folds the problem into an accessible Problem & examples disclosure. Toggling it must preserve reasoning and code drafts. Overview restores the full context, including the side-by-side layout on wide screens. The current question, active checkpoint, hint state, and draft correctness limitations remain visible. Support a dark theme after validating this flow.
 
@@ -22,7 +22,7 @@ Compact screens use a bottom bar; wide screens use a rail. The coach and problem
 
 ## First session
 
-The first release targets intermediate interview candidates. Lead with the Blind 75 guided path, tradeoffs, invariants, edge cases, and interview follow-ups. Use warm-up and intermediate lessons as refreshers. The current 75-entry path is a draft curriculum: fifteen entries reuse Starter 30 lessons and sixty have original SolveIt prompts. It still needs independent editorial review and broader tested reference cases before it can be presented as a reviewed interview curriculum.
+The first release targets intermediate interview candidates. Lead with the Blind 75 guided path, tradeoffs, invariants, edge cases, and interview follow-ups. Use warm-up and intermediate lessons as refreshers. The current 75-entry path is a draft curriculum: fifteen entries reuse Starter 30 lessons and sixty have original LoopLoom prompts. It still needs independent editorial review and broader tested reference cases before it can be presented as a reviewed interview curriculum.
 
 Allow guest start. Ask preferred language, experience level, and daily time budget without a long form. Recommend one small lesson. Introduce the teaching contract: "Explain your idea. I will help you improve it before you code."
 

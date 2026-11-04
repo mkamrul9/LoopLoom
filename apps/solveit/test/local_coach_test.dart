@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:solveit/data/pilot_lessons.dart';
-import 'package:solveit/domain/lesson.dart';
-import 'package:solveit/features/coaching/coach_provider.dart';
-import 'package:solveit/features/coaching/session_controller.dart';
+import 'package:looploom/data/pilot_lessons.dart';
+import 'package:looploom/domain/lesson.dart';
+import 'package:looploom/features/coaching/coach_provider.dart';
+import 'package:looploom/features/coaching/session_controller.dart';
 
 class WaitingCoach implements CoachProvider {
   final reply = Completer<CoachReview>();
