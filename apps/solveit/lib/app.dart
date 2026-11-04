@@ -42,6 +42,7 @@ class _LearningHomeState extends State<LearningHome> {
   int track = 3;
   String blindQuery = '';
   String blindDifficulty = 'All';
+  bool savedOnly = false;
   String masteryMilestone = 'All';
   List<Lesson> get trackLessons => switch (track) {
     0 => pilotLessons,
@@ -122,6 +123,18 @@ class _LearningHomeState extends State<LearningHome> {
         builder: (_) => PracticeScreen(session: session, store: store),
       ),
     );
+  }
+
+  Future<void> toggleSaved(Lesson lesson) async {
+    try {
+      await store.toggleSaved(lesson);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not save this change locally. Try again.')),
+        );
+      }
+    }
   }
 
   @override
@@ -540,12 +553,25 @@ class _LearningHomeState extends State<LearningHome> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      progressFor(lesson),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: StudyColors.muted,
-                      ),
+                    Column(
+                      children: [
+                        IconButton(
+                          tooltip: store.isSaved(lesson)
+                              ? 'Remove saved problem'
+                              : 'Save problem',
+                          icon: Icon(store.isSaved(lesson)
+                              ? Icons.bookmark
+                              : Icons.bookmark_border),
+                          onPressed: () => toggleSaved(lesson),
+                        ),
+                        Text(
+                          progressFor(lesson),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: StudyColors.muted,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -649,7 +675,8 @@ class _LearningHomeState extends State<LearningHome> {
           entry.lesson.summary.toLowerCase().contains(normalizedQuery);
       final matchesDifficulty =
           blindDifficulty == 'All' || entry.difficulty == blindDifficulty;
-      return matchesQuery && matchesDifficulty;
+      return matchesQuery && matchesDifficulty &&
+          (!savedOnly || store.isSaved(entry.lesson));
     }).toList();
     final phases = <String, List<Blind75Entry>>{};
     for (final entry in visibleEntries) {
@@ -723,6 +750,12 @@ class _LearningHomeState extends State<LearningHome> {
                 ),
               )
               .toList(),
+        ),
+        const SizedBox(height: 8),
+        FilterChip(
+          label: const Text('Saved problems'),
+          selected: savedOnly,
+          onSelected: (value) => setState(() => savedOnly = value),
         ),
         if (entries.length == 300) ...[
           const SizedBox(height: 12),
@@ -1016,6 +1049,8 @@ class _LearningHomeState extends State<LearningHome> {
         style: TextStyle(fontSize: 12, color: StudyColors.muted),
       ),
       const SizedBox(height: 18),
+      _savedProblems(),
+      const SizedBox(height: 18),
       _reviewPlan(showAll: true),
       const SizedBox(height: 32),
       if (store.unavailableAttempts > 0)
@@ -1067,4 +1102,29 @@ class _LearningHomeState extends State<LearningHome> {
       ),
     ],
   );
+
+  Widget _savedProblems() {
+    final lessons = allLessons.where(store.isSaved).toList();
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        leading: const Icon(Icons.bookmark_border),
+        title: const Text('Saved problems'),
+        subtitle: Text('${lessons.length} saved'),
+        children: lessons.isEmpty
+            ? const [
+                Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Text('Save a problem from a roadmap to return to it here.'),
+                ),
+              ]
+            : lessons.map((lesson) => ListTile(
+                title: Text(lesson.title),
+                subtitle: Text(lesson.pattern),
+                trailing: const Icon(Icons.north_east, size: 17),
+                onTap: () => openLesson(lesson),
+              )).toList(),
+      ),
+    );
+  }
 }

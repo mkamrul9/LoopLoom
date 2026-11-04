@@ -117,6 +117,25 @@ class _PracticeScreenState extends State<PracticeScreen> {
             overflow: TextOverflow.ellipsis,
           ),
           actions: [
+            IconButton(
+              tooltip: widget.store.isSaved(session.lesson)
+                  ? 'Remove saved problem'
+                  : 'Save problem',
+              icon: Icon(widget.store.isSaved(session.lesson)
+                  ? Icons.bookmark
+                  : Icons.bookmark_border),
+              onPressed: () async {
+                try {
+                  await widget.store.toggleSaved(session.lesson);
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Could not save this change locally. Try again.')),
+                    );
+                  }
+                }
+              },
+            ),
             TextButton.icon(
               onPressed: () {
                 session.toggleFocus();

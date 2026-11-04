@@ -366,16 +366,19 @@ class SessionController extends ChangeNotifier {
 }
 
 class WorkbookBackupPlan {
-  WorkbookBackupPlan._(this._records, this.existing);
+  WorkbookBackupPlan._(this._records, this.existing, this.savedLessonIds);
   final List<Map<String, Object?>> _records;
   final int existing;
+  final Set<String> savedLessonIds;
   int get total => _records.length;
   int get additions => total - existing;
 }
 
 class BackupImportResult {
-  const BackupImportResult(this.added, this.skipped);
+  const BackupImportResult(this.added, this.skipped, this.savedAdded, this.savedFailed);
   final int added, skipped;
+  final int savedAdded;
+  final bool savedFailed;
 }
 
 class ReviewAssignment {
@@ -423,6 +426,13 @@ class PracticeStore extends ChangeNotifier {
       .map((s) => s.lesson.id)
       .toSet()
       .length;
+  bool isSaved(Lesson lesson) => preferences.savedLessonIds.contains(lesson.id);
+
+  Future<void> toggleSaved(Lesson lesson) async {
+    final next = {...preferences.savedLessonIds};
+    if (!next.remove(lesson.id)) next.add(lesson.id);
+    await updatePreferences(preferences.copyWith(savedLessonIds: next));
+  }
 
   List<ReviewAssignment> get reviewSchedule {
     const intervals = [1, 3, 7, 14];
@@ -521,6 +531,7 @@ class PracticeStore extends ChangeNotifier {
     'format': 'solveit-workbook',
     'version': 1,
     'exportedAt': DateTime.now().toUtc().toIso8601String(),
+    'savedLessonIds': preferences.savedLessonIds.toList()..sort(),
     'sessions': [
       ..._sessions.map((session) => session.toJson()),
       ..._unavailableRecords.values,
@@ -561,6 +572,15 @@ class PracticeStore extends ChangeNotifier {
       throw const FormatException('Use a SolveIt workbook backup (version 1).');
     }
     final rows = data['sessions'] as List;
+    final rawSaved = data['savedLessonIds'];
+    if (rawSaved != null &&
+        (rawSaved is! List ||
+            rawSaved.length > 500 ||
+            rawSaved.any((id) => id is! String || id.isEmpty || id.length > 200))) {
+      throw const FormatException('Invalid saved problems in backup.');
+    }
+    final savedIds = <String>{};
+    if (rawSaved is List) savedIds.addAll(rawSaved.cast<String>());
     if (rows.length > 500) {
       throw const FormatException('A backup can contain at most 500 attempts.');
     }
@@ -589,7 +609,7 @@ class PracticeStore extends ChangeNotifier {
         records.add(record); // Keep future/unknown content without opening it.
       }
     }
-    return WorkbookBackupPlan._(records, ids.intersection(_recordIds).length);
+    return WorkbookBackupPlan._(records, ids.intersection(_recordIds).length, savedIds);
   }
 
   Future<BackupImportResult> importBackup(
@@ -605,9 +625,10 @@ class PracticeStore extends ChangeNotifier {
       for (final row in plan._records)
         if (!existing.contains(row['id'])) row['id'] as String: row,
     };
-    if (additions.isEmpty) return BackupImportResult(0, plan.total);
-    // Repository implementations commit the whole import before the UI changes.
-    await repository.saveAll(additions);
+    if (additions.isNotEmpty) {
+      // Repository implementations commit all attempt additions before the UI changes.
+      await repository.saveAll(additions);
+    }
     for (final row in additions.values) {
       final lesson = lessons
           .where((item) => item.id == row['lessonId'])
@@ -624,7 +645,23 @@ class PracticeStore extends ChangeNotifier {
     }
     _sessions.sort((a, b) => a.startedAt.compareTo(b.startedAt));
     notifyListeners();
-    return BackupImportResult(additions.length, plan.total - additions.length);
+    final newSaved = plan.savedLessonIds.difference(preferences.savedLessonIds);
+    var savedFailed = false;
+    if (newSaved.isNotEmpty) {
+      try {
+        await updatePreferences(preferences.copyWith(
+          savedLessonIds: {...preferences.savedLessonIds, ...newSaved},
+        ));
+      } catch (_) {
+        savedFailed = true;
+      }
+    }
+    return BackupImportResult(
+      additions.length,
+      plan.total - additions.length,
+      savedFailed ? 0 : newSaved.length,
+      savedFailed,
+    );
   }
 
   void _scheduleSave(SessionController session) {

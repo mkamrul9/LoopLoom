@@ -198,3 +198,7 @@ Added thirty problem-specific guides across arrays and hashing, two pointers, sl
 ## Local spaced-review queue
 
 Completed guided attempts now persist their completion timestamp while keeping the existing session schema version and accepting older backups without a completion timestamp. Older completed attempts use their saved start time as an approximate review baseline. PracticeStore schedules the next fresh attempt after 1, 3, 7, and 14 days, then repeats the 14-day interval. The Learn dashboard shows due or upcoming lessons; History shows the full queue. Starting a queued review creates a new attempt when no unfinished attempt exists. Due dates are computed locally when the app is open; no notification permission or background scheduler was added. `git diff --check` passed. Flutter analysis/build and widget/regression checks were not run because the Flutter SDK is unavailable in this shell.
+
+## Saved problems
+
+Added local saved-problem state to learner preferences, a save control in roadmap rows and guided practice, a Saved filter for the 75/300 curriculum, and a Saved section in History. Version 1 workbook backups now include saved lesson IDs; older backups without that field remain readable. Import unions saved IDs with the device's current set and preserves existing attempts. A saved-ID write failure is reported separately after attempt import. The backup continues to omit other profile preferences. Flutter analysis/build and UI checks remain pending because the Flutter SDK is unavailable in this shell.

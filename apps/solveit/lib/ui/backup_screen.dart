@@ -82,7 +82,7 @@ class _BackupScreenState extends State<BackupScreen> {
           plan = null;
           input.clear();
           status =
-              '${result.added} attempts restored. ${result.skipped} existing attempts kept. Saved locally.';
+              '${result.added} attempts restored. ${result.skipped} existing attempts kept. ${result.savedAdded} saved problems added.${result.savedFailed ? ' Saved problems could not be written; retry the local save.' : ' Saved locally.'}';
         });
       }
     } catch (_) {
@@ -120,7 +120,7 @@ class _BackupScreenState extends State<BackupScreen> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Back up your attempts, code drafts, explanations, and session notes. The copy includes current unsaved edits and retained older records.',
+                    'Back up your attempts, code drafts, explanations, session notes, and saved problems. The copy includes current unsaved edits and retained older records.',
                     style: TextStyle(height: 1.65),
                   ),
                   const SizedBox(height: 12),
@@ -158,7 +158,7 @@ class _BackupScreenState extends State<BackupScreen> {
                   const Text('Restore a copy', style: TextStyle(fontSize: 22)),
                   const SizedBox(height: 12),
                   const Text(
-                    'Paste the full backup text below. Existing attempts stay as they are, including when the backup contains a different draft with the same attempt ID. Unknown lesson versions are retained but may not open.',
+                    'Paste the full backup text below. Existing attempts stay as they are, including when the backup contains a different draft with the same attempt ID. Saved problems are combined. Unknown lesson versions are retained but may not open.',
                     style: TextStyle(
                       height: 1.65,
                       fontSize: 13,
@@ -190,14 +190,14 @@ class _BackupScreenState extends State<BackupScreen> {
                   if (plan case final checked?) ...[
                     const SizedBox(height: 20),
                     Text(
-                      '${checked.total} attempts in this backup. ${checked.additions} to add; ${checked.existing} already on this device.',
+                      '${checked.total} attempts in this backup. ${checked.additions} to add; ${checked.existing} already on this device. ${checked.savedLessonIds.length} saved problems to merge.',
                       style: const TextStyle(height: 1.65),
                     ),
                     const SizedBox(height: 12),
                     FilledButton(
                       onPressed: busy ? null : restore,
                       child: Text(
-                        busy ? 'Restoring…' : 'Restore missing attempts',
+                        busy ? 'Restoring…' : 'Restore workbook',
                       ),
                     ),
                   ],
@@ -209,6 +209,20 @@ class _BackupScreenState extends State<BackupScreen> {
                         status!,
                         style: const TextStyle(height: 1.65),
                       ),
+                    ),
+                  ],
+                  if (widget.store.preferencesSaveFailed) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: busy ? null : () async {
+                        try {
+                          await widget.store.retrySave();
+                          if (mounted) setState(() => status = 'Saved problems saved locally.');
+                        } catch (_) {
+                          if (mounted) setState(() => status = 'Local save still failed. Try again.');
+                        }
+                      },
+                      child: const Text('Retry local save'),
                     ),
                   ],
                   const SizedBox(height: 24),

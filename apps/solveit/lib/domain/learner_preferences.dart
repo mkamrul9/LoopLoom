@@ -47,6 +47,7 @@ class LearnerPreferences {
     this.weeklyGoalDays = 5,
     this.dailyGoalMinutes = 30,
     this.targetInterviewDate,
+    this.savedLessonIds = const {},
   });
 
   static const textScaleOptions = <double>[1.0, 1.15, 1.3];
@@ -57,6 +58,7 @@ class LearnerPreferences {
   final String displayName, targetRole;
   final int weeklyGoalDays, dailyGoalMinutes;
   final DateTime? targetInterviewDate;
+  final Set<String> savedLessonIds;
 
   Map<String, Object?> toJson() => {
     'pace': pace.name,
@@ -67,6 +69,7 @@ class LearnerPreferences {
     'weeklyGoalDays': weeklyGoalDays,
     'dailyGoalMinutes': dailyGoalMinutes,
     'targetInterviewDate': targetInterviewDate?.toIso8601String(),
+    'savedLessonIds': savedLessonIds.toList()..sort(),
   };
 
   factory LearnerPreferences.fromJson(Map<String, Object?> json) {
@@ -82,6 +85,7 @@ class LearnerPreferences {
     final parsedDate = rawDate is String ? DateTime.tryParse(rawDate) : null;
     final rawDays = json['weeklyGoalDays'];
     final rawMinutes = json['dailyGoalMinutes'];
+    final rawSaved = json['savedLessonIds'];
     return LearnerPreferences(
       pace: parse(CoachingPace.values, json['pace'], CoachingPace.intermediate),
       preferredLanguage: parse(
@@ -104,6 +108,9 @@ class LearnerPreferences {
           ? rawMinutes
           : 30,
       targetInterviewDate: parsedDate,
+      savedLessonIds: rawSaved is List
+          ? rawSaved.whereType<String>().where((id) => id.isNotEmpty && id.length <= 200).take(500).toSet()
+          : const {},
     );
   }
 
@@ -117,6 +124,7 @@ class LearnerPreferences {
     int? dailyGoalMinutes,
     DateTime? targetInterviewDate,
     bool clearTargetInterviewDate = false,
+    Set<String>? savedLessonIds,
   }) => LearnerPreferences(
     pace: pace ?? this.pace,
     preferredLanguage: preferredLanguage ?? this.preferredLanguage,
@@ -128,5 +136,6 @@ class LearnerPreferences {
     targetInterviewDate: clearTargetInterviewDate
         ? null
         : targetInterviewDate ?? this.targetInterviewDate,
+    savedLessonIds: savedLessonIds ?? this.savedLessonIds,
   );
 }
