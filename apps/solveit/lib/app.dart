@@ -404,7 +404,10 @@ class _LearningHomeState extends State<LearningHome> {
         if (session.stage == CoachingStage.complete) session.lesson.id,
     };
     final activeSession = store.latestIncomplete;
-    final diagnosticLesson = activeSession == null
+    final dueReview = activeSession == null
+        ? store.dueReviewsAt(DateTime.now()).firstOrNull
+        : null;
+    final diagnosticLesson = activeSession == null && dueReview == null
         ? _diagnosticNextLesson(selfReviewedIds)
         : null;
     final allTrackLessonsReviewed = trackLessons.every(
@@ -412,6 +415,7 @@ class _LearningHomeState extends State<LearningHome> {
     );
     final nextLesson =
         activeSession?.lesson ??
+        dueReview?.lesson ??
         diagnosticLesson ??
         trackLessons
             .where((lesson) => !selfReviewedIds.contains(lesson.id))
@@ -424,6 +428,7 @@ class _LearningHomeState extends State<LearningHome> {
     return _learnBody(
       wide,
       activeSession: activeSession,
+      dueReview: dueReview,
       diagnosticLesson: diagnosticLesson,
       allTrackLessonsReviewed: allTrackLessonsReviewed,
       nextLesson: nextLesson,
@@ -434,6 +439,7 @@ class _LearningHomeState extends State<LearningHome> {
   Widget _learnBody(
     bool wide, {
     required SessionController? activeSession,
+    required ReviewAssignment? dueReview,
     required Lesson? diagnosticLesson,
     required bool allTrackLessonsReviewed,
     required Lesson nextLesson,
@@ -516,6 +522,8 @@ class _LearningHomeState extends State<LearningHome> {
                   child: Text(
                     activeSession != null
                         ? 'RESUME YOUR SESSION'
+                        : dueReview != null
+                        ? "TODAY'S REVIEW"
                         : diagnosticLesson != null
                         ? 'FROM YOUR QUICK CHECK'
                         : allTrackLessonsReviewed
@@ -527,6 +535,8 @@ class _LearningHomeState extends State<LearningHome> {
                 Text(
                   activeSession != null
                       ? 'RESUME'
+                      : dueReview != null
+                      ? 'DUE'
                       : allTrackLessonsReviewed
                       ? 'REVIEW'
                       : (nextNumber + 1).toString().padLeft(2, '0'),
@@ -551,6 +561,8 @@ class _LearningHomeState extends State<LearningHome> {
             Text(
               activeSession != null
                   ? 'Continue from your ${activeSession.stage.label.toLowerCase()} checkpoint.'
+                  : dueReview != null
+                  ? 'A ${dueReview.intervalDays}-day recall check is due. Try the problem from memory before reviewing your notes.'
                   : diagnosticLesson != null
                   ? 'Your check suggests revisiting ${nextLesson.pattern}. Start here, then continue through the unreviewed problems in this path.'
                   : allTrackLessonsReviewed
@@ -587,6 +599,8 @@ class _LearningHomeState extends State<LearningHome> {
               label: Text(
                 activeSession != null
                     ? 'Resume practice'
+                    : dueReview != null
+                    ? 'Review now'
                     : allTrackLessonsReviewed
                     ? 'Practice again'
                     : 'Start guided practice',
