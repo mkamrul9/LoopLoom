@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../data/lesson_catalog.dart';
 import 'readable_surface.dart';
 import '../features/coaching/session_controller.dart';
+import 'backup_file_transfer.dart';
 import 'looploom_theme.dart';
 
 class BackupScreen extends StatefulWidget {
@@ -13,11 +16,23 @@ class BackupScreen extends StatefulWidget {
 }
 
 class _BackupScreenState extends State<BackupScreen> {
+  static const maxBackupBytes = 2000000;
   final input = TextEditingController();
   final exportText = TextEditingController();
   WorkbookBackupPlan? plan;
   bool busy = false;
   String? status;
+
+  String _exportBackup() {
+    final text = widget.store.exportBackup();
+    if (utf8.encode(text).length > maxBackupBytes) {
+      throw const FormatException(
+        'This workbook is larger than the 2 MB restore limit. Remove older or unusually large drafts before creating a portable backup.',
+      );
+    }
+    return text;
+  }
+
   @override
   void dispose() {
     input.dispose();
@@ -29,9 +44,10 @@ class _BackupScreenState extends State<BackupScreen> {
     setState(() {
       busy = true;
       status = null;
+      exportText.clear();
     });
     try {
-      final text = widget.store.exportBackup();
+      final text = _exportBackup();
       setState(() => exportText.text = text);
       await Clipboard.setData(ClipboardData(text: text));
       if (mounted) {
@@ -40,11 +56,92 @@ class _BackupScreenState extends State<BackupScreen> {
               'Backup copied. Paste it into a text file and keep that file for recovery.',
         );
       }
+    } on FormatException catch (error) {
+      if (mounted) setState(() => status = error.message);
     } catch (_) {
       if (mounted) {
         setState(
           () => status =
               'Clipboard access was unavailable. Select and copy the backup text below. Your workbook has not changed.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> saveBackupFile() async {
+    setState(() {
+      busy = true;
+      status = null;
+      exportText.clear();
+    });
+    try {
+      final text = _exportBackup();
+      setState(() => exportText.text = text);
+      final date = DateTime.now().toIso8601String().substring(0, 10);
+      final saved = await saveWorkbookBackupFile(
+        text,
+        'LoopLoom-workbook-$date.json',
+      );
+      if (mounted) {
+        setState(
+          () => status = saved
+              ? 'Backup file saved. Keep it somewhere you trust; it contains readable private study data.'
+              : 'File saving was cancelled. Your workbook has not changed.',
+        );
+      }
+    } on FormatException catch (error) {
+      if (mounted) setState(() => status = error.message);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => status =
+              'File saving is unavailable here. Use Copy workbook backup and save the text as a .json file.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> openBackupFile() async {
+    setState(() {
+      busy = true;
+      status = null;
+      plan = null;
+    });
+    try {
+      final text = await openWorkbookBackupFile();
+      if (!mounted) return;
+      if (text == null) {
+        setState(
+          () => status = 'File selection was cancelled. Nothing changed.',
+        );
+        return;
+      }
+      input.text = text;
+      reviewBackup();
+      if (plan != null) {
+        setState(
+          () => status =
+              'Backup file loaded. Review the summary below before restoring it.',
+        );
+      }
+    } on FormatException catch (error) {
+      if (mounted) setState(() => status = error.message);
+    } on PlatformException catch (error) {
+      if (mounted) {
+        setState(
+          () =>
+              status = error.message ?? 'The backup file could not be opened.',
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => status =
+              'File selection is unavailable here. Paste the backup JSON below instead.',
         );
       }
     } finally {
@@ -125,7 +222,7 @@ class _BackupScreenState extends State<BackupScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Backups are plain JSON text and are not encrypted. Copy the text into a file and store it somewhere you trust. Nothing is uploaded.',
+                    'Backups are plain JSON text and are not encrypted. Save the file or copy the text, then store it somewhere you trust. Nothing is uploaded.',
                     style: TextStyle(
                       height: 1.65,
                       color: context.palette.muted,
@@ -133,10 +230,21 @@ class _BackupScreenState extends State<BackupScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  OutlinedButton.icon(
-                    onPressed: busy ? null : copyBackup,
-                    icon: const Icon(Icons.copy_outlined, size: 18),
-                    label: const Text('Copy workbook backup'),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      FilledButton.icon(
+                        onPressed: busy ? null : saveBackupFile,
+                        icon: const Icon(Icons.download_outlined, size: 18),
+                        label: const Text('Save backup file'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: busy ? null : copyBackup,
+                        icon: const Icon(Icons.copy_outlined, size: 18),
+                        label: const Text('Copy backup text'),
+                      ),
+                    ],
                   ),
                   if (exportText.text.isNotEmpty) ...[
                     const SizedBox(height: 16),
@@ -158,7 +266,7 @@ class _BackupScreenState extends State<BackupScreen> {
                   const Text('Restore a copy', style: TextStyle(fontSize: 22)),
                   const SizedBox(height: 12),
                   Text(
-                    'Paste the full backup text below. Existing attempts stay as they are, including when the backup contains a different draft with the same attempt ID. Saved problems are combined. Unknown lesson versions are retained but may not open.',
+                    'Choose a backup file or paste its full JSON text below. Existing attempts stay as they are, including when the backup contains a different draft with the same attempt ID. Saved problems are combined. Unknown lesson versions are retained but may not open.',
                     style: TextStyle(
                       height: 1.65,
                       fontSize: 13,
@@ -166,6 +274,12 @@ class _BackupScreenState extends State<BackupScreen> {
                     ),
                   ),
                   const SizedBox(height: 18),
+                  OutlinedButton.icon(
+                    onPressed: busy ? null : openBackupFile,
+                    icon: const Icon(Icons.folder_open_outlined),
+                    label: const Text('Choose a backup file'),
+                  ),
+                  const SizedBox(height: 14),
                   TextField(
                     controller: input,
                     enabled: !busy,
@@ -196,9 +310,7 @@ class _BackupScreenState extends State<BackupScreen> {
                     const SizedBox(height: 12),
                     FilledButton(
                       onPressed: busy ? null : restore,
-                      child: Text(
-                        busy ? 'Restoring…' : 'Restore workbook',
-                      ),
+                      child: Text(busy ? 'Restoring…' : 'Restore workbook'),
                     ),
                   ],
                   if (status != null) ...[
@@ -214,14 +326,26 @@ class _BackupScreenState extends State<BackupScreen> {
                   if (widget.store.preferencesSaveFailed) ...[
                     const SizedBox(height: 12),
                     OutlinedButton(
-                      onPressed: busy ? null : () async {
-                        try {
-                          await widget.store.retrySave();
-                          if (mounted) setState(() => status = 'Saved problems saved locally.');
-                        } catch (_) {
-                          if (mounted) setState(() => status = 'Local save still failed. Try again.');
-                        }
-                      },
+                      onPressed: busy
+                          ? null
+                          : () async {
+                              try {
+                                await widget.store.retrySave();
+                                if (mounted) {
+                                  setState(
+                                    () => status =
+                                        'Saved problems saved locally.',
+                                  );
+                                }
+                              } catch (_) {
+                                if (mounted) {
+                                  setState(
+                                    () => status =
+                                        'Local save still failed. Try again.',
+                                  );
+                                }
+                              }
+                            },
                       child: const Text('Retry local save'),
                     ),
                   ],

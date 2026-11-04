@@ -6,6 +6,10 @@ Added an eight-scenario local interview diagnostic covering array hashing, two p
 
 The Dart analyzer reported no issues. Automated tests were not run for this change. A web build could not start because the Flutter SDK cache lockfile is outside the writable workspace; Android build and device checks remain outstanding.
 
+## File-based workbook backup — 4 November 2026
+
+Added Android Storage Access Framework save/open flows and browser JSON download/file selection while keeping copy/paste available. File restore fills the existing validated preview; it never imports immediately. File reads and writes enforce the existing 2 MB limit, and the UI explains cancellation, fallback, and plaintext privacy. Dart analysis passed with no issues. Android/web builds and device/browser execution were not run: Flutter could not access its SDK cache lockfile outside the writable workspace. Physical Android and browser verification remains outstanding.
+
 ## Interview catalog expansion — batch 8 — 30 October 2026
 
 Added three backtracking lessons: one-use subset feasibility, order-independent combinations with reuse, and counting signed target assignments. The draft catalog now has thirty original lessons: three warm-ups and twenty-seven intermediate. The new contracts specify reuse, ordering, duplicate positions, zero behavior, and input preservation; all have four-language fixtures and local-coach rubrics.

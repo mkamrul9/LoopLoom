@@ -19,7 +19,7 @@ Roadmaps: choose a path, inspect prerequisites, switch support level, and see co
 
 History: inspect attempts, feedback, code, hints, solution reveals, verified outcomes, and reflections. Filter by problem, pattern, language, and state when history grows.
 
-Profile/settings (available): local display name, target role and interview date, weekly and daily practice targets, default language, coaching pace, readable-text scale, save status, and workbook backup. Profile details are device-local; there is no account or sync. Theme controls, AI mode, subscription, deletion tooling, and support workflows remain future work.
+Profile/settings (available): local display name, target role and interview date, weekly and daily practice targets, default language, coaching pace, readable-text scale, save status, and workbook backup. Learners can save or choose a plain JSON backup file on Android and web, or use copy/paste; restore always previews and validates before merging. Profile details are device-local; there is no account or sync. AI mode, subscription, deletion tooling, and support workflows remain future work.
 
 Compact screens use a bottom bar; wide screens use a rail. The coach and problem statement become a split workspace with an editor on large screens. Adapt by available width rather than device brand. Keep routes shareable on web before web beta.
 
