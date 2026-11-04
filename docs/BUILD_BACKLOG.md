@@ -23,7 +23,7 @@ Implemented after the interaction prototype: versioned local persistence, unsent
    solutions to publish the reviewed 30-problem interview starter. The local
    interview diagnostic is implemented; validate it with interview candidates
    and finalize supported target devices.
-2. Copy/paste and file-based JSON backup/restore are implemented for Android and web with validation, preview, duplicate preservation, and atomic imports. Validate recovery on physical Android devices and web browsers; broaden accessibility coverage.
+2. Copy/paste and file-based JSON backup/restore are implemented for Android and web with validation, preview, duplicate preservation, and atomic imports. Validate recovery on physical devices and browsers. Extra large text and screen-reader checkpoint progress are implemented; continue accessibility and small-screen checks.
 3. Stand up the application API with a versioned published-content endpoint and ownership checks.
 4. Find a model/configuration that clears independent correctness, teaching, injection, and latency review on available hardware. The initial small-model experiments failed. Keep guided practice until a candidate qualifies; hosted adapters are deferred under the zero-spend constraint.
 5. Author accepted-strategy rubrics and a held-out benchmark before enabling automatic semantic approval.

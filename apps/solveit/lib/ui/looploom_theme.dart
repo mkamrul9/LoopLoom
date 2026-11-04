@@ -171,7 +171,7 @@ ThemeData studyTheme([Brightness brightness = Brightness.light]) {
       backgroundColor: colors.paper,
       surfaceTintColor: Colors.transparent,
       indicatorColor: colors.accentWash,
-      height: 72,
+      height: 80,
       labelTextStyle: WidgetStatePropertyAll(
         TextStyle(fontSize: 13, color: colors.ink),
       ),

@@ -303,6 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         (1.0, 'Standard'),
                         (1.15, 'Comfortable'),
                         (1.3, 'Large'),
+                        (1.5, 'Extra large'),
                       ]
                       .map(
                         (option) => ChoiceChip(

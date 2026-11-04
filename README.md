@@ -40,7 +40,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 - **An interview diagnostic** with eight short scenarios, plain-language explanations, and saved pattern recommendations linked to guided lessons.
 - **Four coding languages:** C++, Python, JavaScript, and TypeScript, with a saved draft for each language.
 - **A local workbook** for attempts, notes, saved problems, study goals, and review history. Save or restore JSON backup files on Android and web, with a validated preview before importing; copy/paste remains available.
-- **Readable study settings** with device text scaling and persistent System, Light, and Dark themes.
+- **Readable study settings** with an Extra large 1.5× option, device text scaling, and persistent System, Light, and Dark themes.
 - **Responsive Flutter screens** for Android and web.
 - **Optional local AI experiments** through a development gateway. Guided practice works without an AI service or paid API.
 

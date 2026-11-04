@@ -10,6 +10,10 @@ The Dart analyzer reported no issues. Automated tests were not run for this chan
 
 Added Android Storage Access Framework save/open flows and browser JSON download/file selection while keeping copy/paste available. File restore fills the existing validated preview; it never imports immediately. File reads and writes enforce the existing 2 MB limit, and the UI explains cancellation, fallback, and plaintext privacy. Dart analysis passed with no issues. Android/web builds and device/browser execution were not run: Flutter could not access its SDK cache lockfile outside the writable workspace. Physical Android and browser verification remains outstanding.
 
+## Accessibility follow-up — 4 November 2026
+
+Added a persistent 1.5× Extra large text option and increased bottom navigation room for scaled labels. Guided practice now exposes its active checkpoint as a screen-reader progress value and announces stage changes without relying on color. Dart analysis passed with no issues. Automated and manual accessibility checks were not run; screen-reader, large-text, and narrow-screen layout checks remain outstanding.
+
 ## Interview catalog expansion — batch 8 — 30 October 2026
 
 Added three backtracking lessons: one-use subset feasibility, order-independent combinations with reuse, and counting signed target assignments. The draft catalog now has thirty original lessons: three warm-ups and twenty-seven intermediate. The new contracts specify reuse, ordering, duplicate positions, zero behavior, and input preservation; all have four-language fixtures and local-coach rubrics.

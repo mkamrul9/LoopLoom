@@ -63,7 +63,7 @@ class LearnerPreferences {
     this.savedLessonIds = const {},
   });
 
-  static const textScaleOptions = <double>[1.0, 1.15, 1.3];
+  static const textScaleOptions = <double>[1.0, 1.15, 1.3, 1.5];
 
   final CoachingPace pace;
   final CodeLanguage preferredLanguage;

@@ -308,36 +308,49 @@ class _PracticeScreenState extends State<PracticeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                complete ? 'SELF-REVIEW COMPLETE' : 'YOUR NEXT STEP',
-                style: noteLabel,
-              ),
-            ),
-            Text(
-              complete ? '05 / 05' : '0${session.stage.index + 1} / 05',
-              style: noteLabel,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: List.generate(
-            5,
-            (i) => Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: i < 4 ? 5 : 0),
-                child: Container(
-                  height: 3,
-                  color: complete || i < session.stage.index
-                      ? context.palette.accent
-                      : i == session.stage.index
-                      ? context.palette.ink
-                      : context.palette.line,
+        Semantics(
+          label: 'Guided practice progress',
+          value: complete
+              ? 'Self-review complete. Five of five steps.'
+              : 'Step ${session.stage.index + 1} of five. ${session.stage.label}.',
+          liveRegion: true,
+          child: ExcludeSemantics(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        complete ? 'SELF-REVIEW COMPLETE' : 'YOUR NEXT STEP',
+                        style: noteLabel,
+                      ),
+                    ),
+                    Text(
+                      complete ? '05 / 05' : '0${session.stage.index + 1} / 05',
+                      style: noteLabel,
+                    ),
+                  ],
                 ),
-              ),
+                const SizedBox(height: 12),
+                Row(
+                  children: List.generate(
+                    5,
+                    (i) => Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: i < 4 ? 5 : 0),
+                        child: Container(
+                          height: 3,
+                          color: complete || i < session.stage.index
+                              ? context.palette.accent
+                              : i == session.stage.index
+                              ? context.palette.ink
+                              : context.palette.line,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
