@@ -109,6 +109,7 @@ class _LearningHomeState extends State<LearningHome> {
   int track = 3;
   String blindQuery = '';
   String blindDifficulty = 'All';
+  String curriculumProgressFilter = 'All progress';
   bool savedOnly = false;
   String masteryMilestone = 'All';
   List<Lesson> get trackLessons => switch (track) {
@@ -884,6 +885,38 @@ class _LearningHomeState extends State<LearningHome> {
     final milestoneEntries = entries.where((entry) {
       return entries.length != 300 || entry.number <= milestoneLimit;
     }).toList();
+    final completedIds = store.sessions
+        .where((session) => session.stage == CoachingStage.complete)
+        .map((session) => session.lesson.id)
+        .toSet();
+    final activeIds = store.sessions
+        .where((session) => session.stage != CoachingStage.complete)
+        .map((session) => session.lesson.id)
+        .toSet();
+    String statusFor(Blind75Entry entry) {
+      if (activeIds.contains(entry.lesson.id)) return 'In progress';
+      if (completedIds.contains(entry.lesson.id)) return 'Self-reviewed';
+      return 'Not started';
+    }
+    final pathPatterns = <String, List<Blind75Entry>>{};
+    for (final entry in milestoneEntries) {
+      pathPatterns.putIfAbsent(entry.pattern, () => []).add(entry);
+    }
+    final patternsStarted = pathPatterns.values
+        .where(
+          (pattern) => pattern.any((entry) => statusFor(entry) != 'Not started'),
+        )
+        .length;
+    final reviewedCount = milestoneEntries
+        .where((entry) => statusFor(entry) == 'Self-reviewed')
+        .map((entry) => entry.lesson.id)
+        .toSet()
+        .length;
+    final inProgressCount = milestoneEntries
+        .where((entry) => statusFor(entry) == 'In progress')
+        .map((entry) => entry.lesson.id)
+        .toSet()
+        .length;
     final visibleEntries = milestoneEntries.where((entry) {
       final matchesQuery =
           normalizedQuery.isEmpty ||
@@ -892,8 +925,14 @@ class _LearningHomeState extends State<LearningHome> {
           entry.lesson.summary.toLowerCase().contains(normalizedQuery);
       final matchesDifficulty =
           blindDifficulty == 'All' || entry.difficulty == blindDifficulty;
+      final status = statusFor(entry);
+      final matchesProgress = switch (curriculumProgressFilter) {
+        'Not self-reviewed' => status != 'Self-reviewed',
+        'Self-reviewed' => status == 'Self-reviewed',
+        _ => true,
+      };
       return matchesQuery && matchesDifficulty &&
-          (!savedOnly || store.isSaved(entry.lesson));
+          matchesProgress && (!savedOnly || store.isSaved(entry.lesson));
     }).toList();
     final phases = <String, List<Blind75Entry>>{};
     for (final entry in visibleEntries) {
@@ -974,6 +1013,23 @@ class _LearningHomeState extends State<LearningHome> {
           selected: savedOnly,
           onSelected: (value) => setState(() => savedOnly = value),
         ),
+        const SizedBox(height: 8),
+        const Text('PRACTICE STATUS', style: noteLabel),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: ['All progress', 'Not self-reviewed', 'Self-reviewed']
+              .map(
+                (status) => ChoiceChip(
+                  label: Text(status),
+                  selected: curriculumProgressFilter == status,
+                  onSelected: (_) =>
+                      setState(() => curriculumProgressFilter = status),
+                ),
+              )
+              .toList(),
+        ),
         if (entries.length == 300) ...[
           const SizedBox(height: 12),
           const Text('STUDY MILESTONE', style: noteLabel),
@@ -1009,9 +1065,20 @@ class _LearningHomeState extends State<LearningHome> {
           ),
         ],
         const SizedBox(height: 12),
-        Text(
-          '${visibleEntries.length} of ${milestoneEntries.length} problems · ${visibleEntries.map((entry) => entry.lesson.id).where((id) => store.sessions.any((session) => session.lesson.id == id && session.stage == CoachingStage.complete)).toSet().length} self-reviewed',
-          style: TextStyle(fontSize: 14, color: context.palette.muted),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: context.palette.sheet,
+            border: Border.all(color: context.palette.line),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '${visibleEntries.length} of ${milestoneEntries.length} problems shown · '
+            '$reviewedCount self-reviewed · $inProgressCount in progress · '
+            '$patternsStarted of ${pathPatterns.length} patterns practiced',
+            style: TextStyle(fontSize: 14, color: context.palette.muted),
+          ),
         ),
         if (visibleEntries.isEmpty)
           const Padding(
@@ -1050,35 +1117,51 @@ class _LearningHomeState extends State<LearningHome> {
               initiallyExpanded:
                   normalizedQuery.isNotEmpty ||
                   phase.key == entries.first.phase,
-              children: patterns.entries
-                  .map(
-                    (pattern) => ExpansionTile(
-                      key: PageStorageKey<String>(
-                        'blind-pattern-${phase.key}-${pattern.key}',
-                      ),
-                      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-                      title: Text(
-                        pattern.key,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      subtitle: Text(
-                        '${pattern.value.length} problems',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      initiallyExpanded: normalizedQuery.isNotEmpty,
-                      children: pattern.value
-                          .map(
-                            (entry) => _lessonTile(
-                              entry.lesson,
-                              entry.number,
-                              title: entry.title,
-                              tag: entry.difficulty,
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  )
-                  .toList(),
+              children: patterns.entries.map((pattern) {
+                final patternEntries = milestoneEntries
+                    .where(
+                      (entry) =>
+                          entry.phase == phase.key &&
+                          entry.pattern == pattern.key,
+                    )
+                    .toList();
+                final patternReviewed = patternEntries
+                    .where((entry) => statusFor(entry) == 'Self-reviewed')
+                    .map((entry) => entry.lesson.id)
+                    .toSet()
+                    .length;
+                final patternInProgress = patternEntries
+                    .where((entry) => statusFor(entry) == 'In progress')
+                    .map((entry) => entry.lesson.id)
+                    .toSet()
+                    .length;
+                return ExpansionTile(
+                  key: PageStorageKey<String>(
+                    'blind-pattern-${phase.key}-${pattern.key}',
+                  ),
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+                  title: Text(
+                    pattern.key,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  subtitle: Text(
+                    '$patternReviewed of ${patternEntries.length} self-reviewed · '
+                    '$patternInProgress in progress',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  initiallyExpanded: normalizedQuery.isNotEmpty,
+                  children: pattern.value
+                      .map(
+                        (entry) => _lessonTile(
+                          entry.lesson,
+                          entry.number,
+                          title: entry.title,
+                          tag: entry.difficulty,
+                        ),
+                      )
+                      .toList(),
+                );
+              }).toList(),
             );
           }),
         const SizedBox(height: 10),

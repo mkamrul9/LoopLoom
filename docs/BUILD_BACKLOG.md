@@ -15,6 +15,10 @@
   recommends matching guided problems, and saves its latest result locally.
 - Learn resumes unfinished work, then follows diagnostic-flagged patterns or
   advances to the next unreviewed lesson in the selected path.
+- Blind 75 and Mastery 300 Roadmaps show self-reviewed and in-progress counts
+  for each pattern and the selected milestone; learners can filter to problems
+  not yet self-reviewed while keeping the labels clear that these are not judge
+  verified solves.
 - Domain/widget tests and small-screen layout checks where tooling permits.
 
 ## Next slice: real coaching
