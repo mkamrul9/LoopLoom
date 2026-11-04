@@ -224,7 +224,7 @@ class _LearningHomeState extends State<LearningHome> {
                         Text(
                           'THINK · TRACE · CODE',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             letterSpacing: .8,
                             color: context.palette.muted,
