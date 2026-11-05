@@ -105,13 +105,23 @@ class LearningHome extends StatefulWidget {
 
 class _LearningHomeState extends State<LearningHome> {
   PracticeStore get store => widget.store;
+  late final TextEditingController _historySearchController;
   int selected = 0;
   int track = 3;
   String blindQuery = '';
   String blindDifficulty = 'All';
   String curriculumProgressFilter = 'All progress';
+  String historyQuery = '';
+  String historyFilter = 'All attempts';
   bool savedOnly = false;
   String masteryMilestone = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    _historySearchController = TextEditingController();
+  }
+
   List<Lesson> get trackLessons => switch (track) {
     0 => pilotLessons,
     1 => interviewLessons,
@@ -127,6 +137,20 @@ class _LearningHomeState extends State<LearningHome> {
     3 => 'Blind 75 · guided path',
     _ => 'Interview Mastery · 300',
   };
+
+  void _clearHistorySearch() {
+    _historySearchController.clear();
+    setState(() => historyQuery = '');
+  }
+
+  void _resetHistoryFilters() {
+    _historySearchController.clear();
+    setState(() {
+      historyQuery = '';
+      historyFilter = 'All attempts';
+    });
+  }
+
   int reviewedInTrack() => store.sessions
       .where(
         (s) =>
@@ -198,6 +222,7 @@ class _LearningHomeState extends State<LearningHome> {
   );
   @override
   void dispose() {
+    _historySearchController.dispose();
     store.dispose();
     super.dispose();
   }
@@ -1484,83 +1509,155 @@ class _LearningHomeState extends State<LearningHome> {
     );
   }
 
-  Widget _history() => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text('YOUR WORK, REVISITED', style: noteLabel),
-      const SizedBox(height: 18),
-      const Text(
-        'A record of your thinking.',
-        style: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w500,
-          letterSpacing: -1,
+  Widget _history() {
+    final allSessions = store.sessions;
+    final query = historyQuery.trim().toLowerCase();
+    final visibleSessions = allSessions.where((session) {
+      final matchesStatus = switch (historyFilter) {
+        'In progress' => session.stage != CoachingStage.complete,
+        'Self-reviewed' => session.stage == CoachingStage.complete,
+        _ => true,
+      };
+      final searchText =
+          '${session.lesson.title} ${session.lesson.pattern} '
+                  '${session.lesson.id} ${session.language.label} '
+                  '${session.stage.label} ${session.attemptNumber}'
+              .toLowerCase();
+      return matchesStatus && (query.isEmpty || searchText.contains(query));
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('YOUR WORK, REVISITED', style: noteLabel),
+        const SizedBox(height: 18),
+        const Text(
+          'A record of your thinking.',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w500,
+            letterSpacing: -1,
+          ),
         ),
-      ),
-      const SizedBox(height: 12),
-      Text(
-        'Your attempts, drafts, and the questions that helped.',
-        style: TextStyle(color: context.palette.muted, height: 1.6),
-      ),
-      const SizedBox(height: 10),
-      Text(
-        'Saved on this device. Clearing browser data or uninstalling the app removes local work.',
-        style: TextStyle(fontSize: 12, color: context.palette.muted),
-      ),
-      const SizedBox(height: 18),
-      _savedProblems(),
-      const SizedBox(height: 18),
-      _reviewPlan(showAll: true),
-      const SizedBox(height: 32),
-      if (store.unavailableAttempts > 0)
+        const SizedBox(height: 12),
         Text(
-          '${store.unavailableAttempts} older attempts could not be opened. Their saved records have been kept.',
-          style: const TextStyle(fontSize: 12, height: 1.6),
+          'Your attempts, drafts, and the questions that helped.',
+          style: TextStyle(color: context.palette.muted, height: 1.6),
         ),
-      if (store.sessions.isEmpty)
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Divider(),
-            const SizedBox(height: 24),
-            const Text(
-              'Your first attempt starts here.',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 18),
-            FilledButton(
-              onPressed: () => openLesson(interviewLessons.first),
-              child: const Text('Try a lesson'),
-            ),
-          ],
+        const SizedBox(height: 10),
+        Text(
+          'Saved on this device. Clearing browser data or uninstalling the app removes local work.',
+          style: TextStyle(fontSize: 12, color: context.palette.muted),
         ),
-      ...store.sessions.map(
-        (session) => Column(
-          children: [
-            const Divider(),
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(vertical: 16),
-              title: Text(
-                session.lesson.title,
-                style: const TextStyle(fontWeight: FontWeight.w500),
+        const SizedBox(height: 18),
+        _savedProblems(),
+        const SizedBox(height: 18),
+        _reviewPlan(showAll: true),
+        const SizedBox(height: 32),
+        TextField(
+          controller: _historySearchController,
+          onChanged: (value) => setState(() => historyQuery = value),
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            labelText: 'Find an attempt',
+            hintText: 'Problem, pattern, language, or stage',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: historyQuery.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear search',
+                    onPressed: _clearHistorySearch,
+                    icon: const Icon(Icons.close),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: ['All attempts', 'In progress', 'Self-reviewed']
+              .map(
+                (filter) => ChoiceChip(
+                  label: Text(filter),
+                  selected: historyFilter == filter,
+                  onSelected: (_) => setState(() => historyFilter = filter),
+                ),
+              )
+              .toList(),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          '${visibleSessions.length} of ${allSessions.length} attempts',
+          style: TextStyle(fontSize: 14, color: context.palette.muted),
+        ),
+        const SizedBox(height: 12),
+        if (store.unavailableAttempts > 0)
+          Text(
+            '${store.unavailableAttempts} older attempts could not be opened. Their saved records have been kept.',
+            style: const TextStyle(fontSize: 12, height: 1.6),
+          ),
+        if (store.sessions.isEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Divider(),
+              const SizedBox(height: 24),
+              const Text(
+                'Your first attempt starts here.',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
               ),
-              subtitle: Text(
-                'Attempt ${session.attemptNumber} · ${session.stage.label}\n${session.language.label} · ${session.hintsUsed} hints${session.solutionRevealed ? ' · solution viewed' : ''}',
+              const SizedBox(height: 18),
+              FilledButton(
+                onPressed: () => openLesson(interviewLessons.first),
+                child: const Text('Try a lesson'),
               ),
-              isThreeLine: true,
-              trailing: const Icon(Icons.north_east, size: 17),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) =>
-                      PracticeScreen(session: session, store: store),
+            ],
+          ),
+        if (allSessions.isNotEmpty && visibleSessions.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'No attempts match this search and filter.',
+                  style: TextStyle(color: context.palette.muted),
+                ),
+                TextButton(
+                  onPressed: _resetHistoryFilters,
+                  child: const Text('Clear search and filters'),
+                ),
+              ],
+            ),
+          ),
+        ...visibleSessions.map(
+          (session) => Column(
+            children: [
+              const Divider(),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                title: Text(
+                  session.lesson.title,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: Text(
+                  'Attempt ${session.attemptNumber} · ${session.stage.label}\n${session.language.label} · ${session.hintsUsed} hints${session.solutionRevealed ? ' · solution viewed' : ''}',
+                ),
+                isThreeLine: true,
+                trailing: const Icon(Icons.north_east, size: 17),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) =>
+                        PracticeScreen(session: session, store: store),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 
   Widget _savedProblems() {
     final lessons = allLessons.where(store.isSaved).toList();

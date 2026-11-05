@@ -20,6 +20,8 @@
 - Learn shows a Monday–Sunday weekly practice view against the learner's chosen
   days-per-week goal, based on saved attempt start/completion dates; it does not
   imply that study minutes are measured.
+- History can search attempts by problem, pattern, language, or checkpoint stage
+  and filter between in-progress and self-reviewed sessions.
 - Blind 75 and Mastery 300 Roadmaps show self-reviewed and in-progress counts
   for each pattern and the selected milestone; learners can filter to problems
   not yet self-reviewed while keeping the labels clear that these are not judge
