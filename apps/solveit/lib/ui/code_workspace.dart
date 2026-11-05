@@ -16,6 +16,7 @@ class CodeWorkspace extends StatelessWidget {
     required this.onChanged,
     required this.onLanguageChanged,
     required this.enabled,
+    this.editorAction,
   });
   final String lessonId;
   final CodeLanguage language;
@@ -23,6 +24,7 @@ class CodeWorkspace extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final ValueChanged<CodeLanguage> onLanguageChanged;
   final bool enabled;
+  final Widget? editorAction;
 
   void insertSpaces() {
     final selection = editor.selection;
@@ -38,6 +40,7 @@ class CodeWorkspace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 600;
     final spec = codeSpecs[lessonId];
     final blindEntry =
         mastery300ByLessonId[lessonId] ?? blind75ByLessonId[lessonId];
@@ -117,8 +120,8 @@ class CodeWorkspace extends StatelessWidget {
         TextField(
           controller: editor,
           enabled: enabled,
-          minLines: 9,
-          maxLines: 24,
+          minLines: compact ? 8 : 9,
+          maxLines: compact ? 16 : 24,
           autocorrect: false,
           enableSuggestions: false,
           keyboardType: TextInputType.multiline,
@@ -154,6 +157,10 @@ class CodeWorkspace extends StatelessWidget {
             ),
           ],
         ),
+        if (editorAction != null) ...[
+          const SizedBox(height: 8),
+          editorAction!,
+        ],
         if (spec != null) ...[
           const SizedBox(height: 8),
           ExpansionTile(

@@ -33,6 +33,8 @@
   next available problem.
 - The selected roadmap persists with local learner preferences and is restored
   when the workbook is reopened.
+- On narrow screens, the code editor uses a shorter starting height and keeps
+  the self-review action directly below the draft instead of after case details.
 - Domain/widget tests and small-screen layout checks where tooling permits.
 
 ## Next slice: real coaching

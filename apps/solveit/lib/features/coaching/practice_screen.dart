@@ -75,6 +75,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
     revealTarget(questionKey);
   }
 
+  void _saveCodeForSelfReview() {
+    FocusScope.of(context).unfocus();
+    session.submit(editor.text);
+    unawaited(widget.store.flush());
+    revealTarget(checkpointKey);
+  }
+
   void revealTarget(GlobalKey target) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final targetContext = target.currentContext;
@@ -400,17 +407,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
               session.changeLanguage(language);
               editor.text = session.draft;
             },
-          ),
-          FilledButton(
-            onPressed: session.reviewing
-                ? null
-                : () {
-                    FocusScope.of(context).unfocus();
-                    session.submit(editor.text);
-                    unawaited(widget.store.flush());
-                    revealTarget(checkpointKey);
-                  },
-            child: const Text('Save code for self-review'),
+            editorAction: FilledButton(
+              onPressed: session.reviewing ? null : _saveCodeForSelfReview,
+              child: const Text('Save code for self-review'),
+            ),
           ),
         ] else if (!complete) ...[
           TextField(
