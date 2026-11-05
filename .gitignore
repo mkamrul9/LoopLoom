@@ -13,3 +13,4 @@ key.properties
 **/__pycache__/
 *.pyc
 .local/
+dist/*.apk

@@ -712,24 +712,31 @@ class _LearningHomeState extends State<LearningHome> {
         ],
       ),
       const SizedBox(height: 38),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          const Expanded(
-            child: Text(
-              'Practice by pattern',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -.4,
-              ),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final heading = const Text(
+            'Practice by pattern',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -.4,
             ),
-          ),
-          Text(
+          );
+          final progress = Text(
             '${reviewedInTrack()}/${trackLessons.length} SELF-REVIEWED',
             style: noteLabel,
-          ),
-        ],
+          );
+          if (constraints.maxWidth < 420) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [heading, const SizedBox(height: 4), progress],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [Expanded(child: heading), progress],
+          );
+        },
       ),
       const SizedBox(height: 16),
       trackPicker(),

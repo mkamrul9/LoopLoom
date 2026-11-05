@@ -85,8 +85,8 @@ void main() {
     await tester.tap(find.text('Review backup'));
     await tester.pumpAndSettle();
     expect(target.sessions, isEmpty);
-    await tester.ensureVisible(find.text('Restore missing attempts'));
-    await tester.tap(find.text('Restore missing attempts'));
+    await tester.ensureVisible(find.text('Restore workbook'));
+    await tester.tap(find.text('Restore workbook'));
     await tester.pumpAndSettle();
     expect(target.sessions.single.reasoningDraft, 'Recover this draft');
     expect(find.textContaining('1 attempts restored.'), findsOneWidget);
@@ -289,6 +289,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('1 of 300 problems'), findsOneWidget);
     expect(find.text('Ransom Note'), findsNWidgets(2));
+    await tester.ensureVisible(find.text('Ransom Note').last);
     await tester.tap(find.text('Ransom Note').last);
     await tester.pumpAndSettle();
     expect(find.text('Open official problem statement'), findsOneWidget);

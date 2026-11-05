@@ -90,7 +90,13 @@ class StudyPalette extends ThemeExtension<StudyPalette> {
 }
 
 extension StudyPaletteContext on BuildContext {
-  StudyPalette get palette => Theme.of(this).extension<StudyPalette>()!;
+  StudyPalette get palette {
+    final theme = Theme.of(this);
+    return theme.extension<StudyPalette>() ??
+        (theme.brightness == Brightness.dark
+            ? StudyPalette.dark
+            : StudyPalette.light);
+  }
 }
 
 const noteLabel = TextStyle(
