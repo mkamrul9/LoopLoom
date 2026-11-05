@@ -31,6 +31,8 @@
   verified solves.
 - Each expanded roadmap pattern offers a one-tap start or resume action for its
   next available problem.
+- The selected roadmap persists with local learner preferences and is restored
+  when the workbook is reopened.
 - Domain/widget tests and small-screen layout checks where tooling permits.
 
 ## Next slice: real coaching

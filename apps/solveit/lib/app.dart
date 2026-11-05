@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'data/blind75_curriculum.dart';
@@ -120,6 +121,7 @@ class _LearningHomeState extends State<LearningHome> {
   void initState() {
     super.initState();
     _historySearchController = TextEditingController();
+    track = store.preferences.selectedTrack;
   }
 
   List<Lesson> get trackLessons => switch (track) {
@@ -149,6 +151,27 @@ class _LearningHomeState extends State<LearningHome> {
       historyQuery = '';
       historyFilter = 'All attempts';
     });
+  }
+
+  void _selectTrack(int value) {
+    if (track == value) return;
+    setState(() => track = value);
+    unawaited(_persistSelectedTrack(value));
+  }
+
+  Future<void> _persistSelectedTrack(int value) async {
+    try {
+      await store.updatePreferences(
+        store.preferences.copyWith(selectedTrack: value),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('The selected roadmap could not be saved on this device.'),
+        ),
+      );
+    }
   }
 
   Future<void> _confirmDeleteAttempt(SessionController session) async {
@@ -236,27 +259,27 @@ class _LearningHomeState extends State<LearningHome> {
       ChoiceChip(
         label: const Text('Warm-ups · 3'),
         selected: track == 0,
-        onSelected: (_) => setState(() => track = 0),
+        onSelected: (_) => _selectTrack(0),
       ),
       ChoiceChip(
         label: Text('Intermediate · ${interviewLessons.length}'),
         selected: track == 1,
-        onSelected: (_) => setState(() => track = 1),
+        onSelected: (_) => _selectTrack(1),
       ),
       ChoiceChip(
         label: Text('Starter 30 · ${starter30Lessons.length}'),
         selected: track == 2,
-        onSelected: (_) => setState(() => track = 2),
+        onSelected: (_) => _selectTrack(2),
       ),
       ChoiceChip(
         label: Text('Blind 75 · ${blind75Entries.length}'),
         selected: track == 3,
-        onSelected: (_) => setState(() => track = 3),
+        onSelected: (_) => _selectTrack(3),
       ),
       ChoiceChip(
         label: Text('Mastery · ${mastery300Entries.length}'),
         selected: track == 4,
-        onSelected: (_) => setState(() => track = 4),
+        onSelected: (_) => _selectTrack(4),
       ),
     ],
   );

@@ -56,6 +56,7 @@ class LearnerPreferences {
     this.targetRole = '',
     this.weeklyGoalDays = 5,
     this.dailyGoalMinutes = 30,
+    this.selectedTrack = 3,
     this.targetInterviewDate,
     this.diagnosticCompletedAt,
     this.diagnosticScores = const {},
@@ -71,6 +72,7 @@ class LearnerPreferences {
   final double textScale;
   final String displayName, targetRole;
   final int weeklyGoalDays, dailyGoalMinutes;
+  final int selectedTrack;
   final DateTime? targetInterviewDate;
   final DateTime? diagnosticCompletedAt;
   final Map<String, int> diagnosticScores, diagnosticAnswers;
@@ -85,6 +87,7 @@ class LearnerPreferences {
     'targetRole': targetRole,
     'weeklyGoalDays': weeklyGoalDays,
     'dailyGoalMinutes': dailyGoalMinutes,
+    'selectedTrack': selectedTrack,
     'targetInterviewDate': targetInterviewDate?.toIso8601String(),
     'diagnosticCompletedAt': diagnosticCompletedAt?.toIso8601String(),
     'diagnosticScores': diagnosticScores,
@@ -105,6 +108,7 @@ class LearnerPreferences {
     final parsedDate = rawDate is String ? DateTime.tryParse(rawDate) : null;
     final rawDays = json['weeklyGoalDays'];
     final rawMinutes = json['dailyGoalMinutes'];
+    final rawTrack = json['selectedTrack'];
     Map<String, int> parseDiagnosticMap(Object? raw, {required int maxValue}) {
       final parsed = <String, int>{};
       if (raw is Map) {
@@ -149,6 +153,9 @@ class LearnerPreferences {
           rawMinutes is int && rawMinutes >= 10 && rawMinutes <= 240
           ? rawMinutes
           : 30,
+      selectedTrack: rawTrack is int && rawTrack >= 0 && rawTrack <= 4
+          ? rawTrack
+          : 3,
       targetInterviewDate: parsedDate,
       diagnosticCompletedAt: json['diagnosticCompletedAt'] is String
           ? DateTime.tryParse(json['diagnosticCompletedAt'] as String)
@@ -180,6 +187,7 @@ class LearnerPreferences {
     String? targetRole,
     int? weeklyGoalDays,
     int? dailyGoalMinutes,
+    int? selectedTrack,
     DateTime? targetInterviewDate,
     bool clearTargetInterviewDate = false,
     DateTime? diagnosticCompletedAt,
@@ -196,6 +204,7 @@ class LearnerPreferences {
     targetRole: targetRole ?? this.targetRole,
     weeklyGoalDays: weeklyGoalDays ?? this.weeklyGoalDays,
     dailyGoalMinutes: dailyGoalMinutes ?? this.dailyGoalMinutes,
+    selectedTrack: selectedTrack ?? this.selectedTrack,
     targetInterviewDate: clearTargetInterviewDate
         ? null
         : targetInterviewDate ?? this.targetInterviewDate,
