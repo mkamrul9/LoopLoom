@@ -410,6 +410,7 @@ class PracticeStore extends ChangeNotifier {
   final List<SessionController> _sessions = [];
   final Map<String, Map<String, Object?>> _pending = {};
   final Map<String, Map<String, Object?>> _unavailableRecords = {};
+  final Set<String> _deleting = {};
   Timer? _timer;
   Future<void>? _saving, _closing;
   bool _disposed = false;
@@ -627,7 +628,7 @@ class PracticeStore extends ChangeNotifier {
     };
     if (additions.isNotEmpty) {
       // Repository implementations commit all attempt additions before the UI changes.
-      await repository.saveAll(additions);
+      await repository.restoreDeleted(additions);
     }
     for (final row in additions.values) {
       final lesson = lessons
@@ -665,12 +666,31 @@ class PracticeStore extends ChangeNotifier {
   }
 
   void _scheduleSave(SessionController session) {
-    if (_disposed) return;
+    if (_disposed || _deleting.contains(session.id)) return;
     _pending[session.id] = session.toJson();
     saveFailed = false;
     _timer?.cancel();
     _timer = Timer(const Duration(milliseconds: 250), () => unawaited(flush()));
     notifyListeners();
+  }
+
+  Future<void> deleteAttempt(String id) async {
+    if (!_deleting.add(id)) return;
+    try {
+      await flush();
+      if (saveFailed) {
+        throw StateError('Save your workbook before deleting an attempt.');
+      }
+      final session = _sessions.where((item) => item.id == id).firstOrNull;
+      if (session == null) return;
+      await repository.deleteSession(id);
+      _pending.remove(id);
+      _sessions.remove(session);
+      session.dispose();
+      notifyListeners();
+    } finally {
+      _deleting.remove(id);
+    }
   }
 
   SessionController startOrResume(Lesson lesson) {

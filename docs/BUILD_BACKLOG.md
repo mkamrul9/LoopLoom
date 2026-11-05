@@ -22,6 +22,9 @@
   imply that study minutes are measured.
 - History can search attempts by problem, pattern, language, or checkpoint stage
   and filter between in-progress and self-reviewed sessions.
+- History can permanently remove one local attempt after confirmation. Its
+  reasoning and drafts are deleted while saved problems and other attempts stay;
+  stale writes cannot recreate a deleted record, and a backup can restore it.
 - Blind 75 and Mastery 300 Roadmaps show self-reviewed and in-progress counts
   for each pattern and the selected milestone; learners can filter to problems
   not yet self-reviewed while keeping the labels clear that these are not judge

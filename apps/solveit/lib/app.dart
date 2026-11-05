@@ -151,6 +151,46 @@ class _LearningHomeState extends State<LearningHome> {
     });
   }
 
+  Future<void> _confirmDeleteAttempt(SessionController session) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete this attempt?'),
+        content: Text(
+          'This removes attempt ${session.attemptNumber} for '
+          '${session.lesson.title}, including its saved reasoning, code drafts, '
+          'and coach history. This cannot be undone. Other attempts and saved '
+          'problems will stay in your workbook.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Keep attempt'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete attempt'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await store.deleteAttempt(session.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Attempt deleted from this device.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not delete the attempt. Your history is unchanged.'),
+        ),
+      );
+    }
+  }
+
   int reviewedInTrack() => store.sessions
       .where(
         (s) =>
@@ -1644,7 +1684,11 @@ class _LearningHomeState extends State<LearningHome> {
                   'Attempt ${session.attemptNumber} · ${session.stage.label}\n${session.language.label} · ${session.hintsUsed} hints${session.solutionRevealed ? ' · solution viewed' : ''}',
                 ),
                 isThreeLine: true,
-                trailing: const Icon(Icons.north_east, size: 17),
+                trailing: IconButton(
+                  tooltip: 'Delete attempt',
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () => _confirmDeleteAttempt(session),
+                ),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) =>
