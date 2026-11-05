@@ -1359,6 +1359,12 @@ class _LearningHomeState extends State<LearningHome> {
                     .map((entry) => entry.lesson.id)
                     .toSet()
                     .length;
+                final nextPatternEntry = pattern.value
+                        .where((entry) => statusFor(entry) == 'In progress')
+                        .firstOrNull ??
+                    pattern.value
+                        .where((entry) => statusFor(entry) != 'Self-reviewed')
+                        .firstOrNull;
                 return ExpansionTile(
                   key: PageStorageKey<String>(
                     'blind-pattern-${phase.key}-${pattern.key}',
@@ -1374,16 +1380,32 @@ class _LearningHomeState extends State<LearningHome> {
                     style: const TextStyle(fontSize: 14),
                   ),
                   initiallyExpanded: normalizedQuery.isNotEmpty,
-                  children: pattern.value
-                      .map(
-                        (entry) => _lessonTile(
-                          entry.lesson,
-                          entry.number,
-                          title: entry.title,
-                          tag: entry.difficulty,
+                  children: [
+                    if (nextPatternEntry != null)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 2, 12, 8),
+                          child: TextButton.icon(
+                            onPressed: () => openLesson(nextPatternEntry.lesson),
+                            icon: const Icon(Icons.arrow_forward, size: 17),
+                            label: Text(
+                              statusFor(nextPatternEntry) == 'In progress'
+                                  ? 'Resume this pattern'
+                                  : 'Start this pattern',
+                            ),
+                          ),
                         ),
-                      )
-                      .toList(),
+                      ),
+                    ...pattern.value.map(
+                      (entry) => _lessonTile(
+                        entry.lesson,
+                        entry.number,
+                        title: entry.title,
+                        tag: entry.difficulty,
+                      ),
+                    ),
+                  ],
                 );
               }).toList(),
             );

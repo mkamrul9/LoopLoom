@@ -29,6 +29,8 @@
   for each pattern and the selected milestone; learners can filter to problems
   not yet self-reviewed while keeping the labels clear that these are not judge
   verified solves.
+- Each expanded roadmap pattern offers a one-tap start or resume action for its
+  next available problem.
 - Domain/widget tests and small-screen layout checks where tooling permits.
 
 ## Next slice: real coaching
