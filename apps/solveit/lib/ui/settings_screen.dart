@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../domain/learner_preferences.dart';
 import '../domain/lesson.dart';
 import '../features/coaching/session_controller.dart';
@@ -610,6 +611,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'LoopLoom currently works without an online account. Practice history, profile details, and settings remain in this workbook on this device.',
             ),
             const SizedBox(height: 14),
+            if (kIsWeb) ...[
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: context.palette.recess,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('INSTALL ON YOUR PHONE', style: noteLabel),
+                    SizedBox(height: 8),
+                    Text(
+                      'Open your browser menu and choose Install app or Add to Home Screen. LoopLoom then opens like an app. Download the lessons once while online before practicing offline.',
+                      style: TextStyle(fontSize: 15, height: 1.55),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             Text(
               'Use a workbook backup to move your attempts to another device. Backups are plain text and are not encrypted; store them somewhere you trust.',
               style: TextStyle(

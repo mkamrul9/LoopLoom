@@ -43,6 +43,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 - **A local workbook** for attempts, notes, saved problems, study goals, and review history. Save or restore JSON backup files on Android and web, with a validated preview before importing; copy/paste remains available.
 - **Readable study settings** with an Extra large 1.5× option, device text scaling, and persistent System, Light, and Dark themes.
 - **Responsive Flutter screens** for Android and web.
+- **Installable web app** with a home-screen icon and an offline app shell. Open the web app once while online, then use the browser menu’s Install app or Add to Home Screen action. Saved practice and the authored offline coach work without a connection; Gemini and external challenge pages still require one.
 - **Optional Gemini AI coach** through Firebase AI Logic, enabled only after Firebase and App Check are configured and the learner opts in. It sends bounded text only when requested; no model weights are bundled in the APK. The default checkout has no Firebase project config, so cloud AI is off and guided practice still works offline.
 - **Experimental local-model gateway** for development only. The tested small models are not approved for learner feedback.
 

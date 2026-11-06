@@ -23,6 +23,29 @@ import 'ui/onboarding_screen.dart';
 import 'ui/feedback_screen.dart';
 import 'ui/readable_surface.dart';
 
+CustomTransitionPage<T> _studyPage<T>(
+  GoRouterState state,
+  Widget child,
+) => CustomTransitionPage<T>(
+  key: state.pageKey,
+  child: child,
+  transitionDuration: const Duration(milliseconds: 190),
+  reverseTransitionDuration: const Duration(milliseconds: 150),
+  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0, .025), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+            ),
+        child: child,
+      ),
+    );
+  },
+);
+
 class LoopLoomApp extends StatefulWidget {
   const LoopLoomApp({super.key, this.store, this.initialLocation});
   final PracticeStore? store;
@@ -70,17 +93,22 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
     GoRoute practiceRoute(String name) => GoRoute(
       path: 'problem/:lessonId',
       name: name,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final lessonId = state.pathParameters['lessonId'];
         final lesson = allLessons
             .where((item) => item.id == lessonId)
             .firstOrNull;
-        if (lesson == null) return const _RouteNotFound();
+        if (lesson == null) {
+          return _studyPage<void>(state, const _RouteNotFound());
+        }
         final attemptId = state.uri.queryParameters['attempt'];
         final session =
             store.sessions.where((item) => item.id == attemptId).firstOrNull ??
             store.startOrResume(lesson);
-        return PracticeScreen(session: session, store: store);
+        return _studyPage<void>(
+          state,
+          PracticeScreen(session: session, store: store),
+        );
       },
     );
 
@@ -148,31 +176,40 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
             GoRoute(
               path: '/diagnostic',
               name: 'diagnostic',
-              builder: (_, _) => InterviewDiagnosticScreen(store: store),
+              pageBuilder: (_, state) => _studyPage<Lesson>(
+                state,
+                InterviewDiagnosticScreen(store: store),
+              ),
             ),
             GoRoute(
               path: '/settings',
               name: 'settings',
-              builder: (context, _) => SettingsScreen(
-                store: store,
-                onOpenBackup: () => context.pushNamed('backup'),
-                onOpenFeedback: () => context.pushNamed('feedback'),
+              pageBuilder: (context, state) => _studyPage<void>(
+                state,
+                SettingsScreen(
+                  store: store,
+                  onOpenBackup: () => context.pushNamed('backup'),
+                  onOpenFeedback: () => context.pushNamed('feedback'),
+                ),
               ),
             ),
             GoRoute(
               path: '/onboarding',
               name: 'onboarding',
-              builder: (_, _) => OnboardingScreen(store: store),
+              pageBuilder: (_, state) =>
+                  _studyPage<bool>(state, OnboardingScreen(store: store)),
             ),
             GoRoute(
               path: '/feedback',
               name: 'feedback',
-              builder: (_, _) => const FeedbackScreen(),
+              pageBuilder: (_, state) =>
+                  _studyPage<void>(state, const FeedbackScreen()),
             ),
             GoRoute(
               path: '/backup',
               name: 'backup',
-              builder: (_, _) => BackupScreen(store: store),
+              pageBuilder: (_, state) =>
+                  _studyPage<void>(state, BackupScreen(store: store)),
             ),
           ],
         ),
@@ -759,11 +796,24 @@ class _LearningHomeState extends State<LearningHome> {
                       child: Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 960),
-                          child: selected == 0
-                              ? _learn(wide)
-                              : selected == 1
-                              ? _roadmaps()
-                              : _history(),
+                          child: AnimatedSwitcher(
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 180),
+                            transitionBuilder: (child, animation) =>
+                                FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                            child: KeyedSubtree(
+                              key: ValueKey(selected),
+                              child: selected == 0
+                                  ? _learn(wide)
+                                  : selected == 1
+                                  ? _roadmaps()
+                                  : _history(),
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -17,6 +17,7 @@
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="LoopLoom: build problem-solving skill through guided practice.">
   <meta name="theme-color" content="#F7F4EF" media="(prefers-color-scheme: light)">
@@ -40,6 +41,14 @@
 
   <title>LoopLoom — Think it through</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/looploom-sw.js', {scope: '/'})
+          .catch((error) => console.warn('Offline install is unavailable:', error));
+      });
+    }
+  </script>
 </head>
 <body>
   <!--
