@@ -1,8 +1,17 @@
+import org.gradle.api.GradleException
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val uploadStoreFile = System.getenv("LOOPLOOM_UPLOAD_KEYSTORE")
+val uploadStorePassword = System.getenv("LOOPLOOM_UPLOAD_STORE_PASSWORD")
+val uploadKeyAlias = System.getenv("LOOPLOOM_UPLOAD_KEY_ALIAS")
+val uploadKeyPassword = System.getenv("LOOPLOOM_UPLOAD_KEY_PASSWORD")
+val hasPlaySigning = listOf(uploadStoreFile, uploadStorePassword, uploadKeyAlias, uploadKeyPassword)
+    .all { !it.isNullOrBlank() }
 
 android {
     namespace = "dev.solveit.solveit"
@@ -17,7 +26,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "dev.solveit.solveit"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
@@ -27,13 +35,35 @@ android {
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+    signingConfigs {
+        if (hasPlaySigning) {
+            create("playUpload") {
+                storeFile = file(uploadStoreFile!!)
+                storePassword = uploadStorePassword!!
+                keyAlias = uploadKeyAlias!!
+                keyPassword = uploadKeyPassword!!
+            }
         }
     }
+
+    buildTypes {
+        release {
+            // Local APKs keep their existing signing identity. A Play bundle
+            // requires the separate upload key and cannot use the debug key.
+            signingConfig = signingConfigs.getByName(if (hasPlaySigning) "playUpload" else "debug")
+        }
+    }
+}
+
+val verifyPlaySigning = tasks.register("verifyPlaySigning") {
+    doLast {
+        if (!hasPlaySigning || !file(uploadStoreFile!!).isFile) {
+            throw GradleException("A Play app bundle requires LOOPLOOM_UPLOAD_KEYSTORE, LOOPLOOM_UPLOAD_STORE_PASSWORD, LOOPLOOM_UPLOAD_KEY_ALIAS, and LOOPLOOM_UPLOAD_KEY_PASSWORD.")
+        }
+    }
+}
+tasks.matching { it.name == "bundleRelease" }.configureEach {
+    dependsOn(verifyPlaySigning)
 }
 
 kotlin {

@@ -8,8 +8,8 @@ The app now has a Firebase AI Logic provider for Gemini 3.8 Flash. It is disable
 - The ARM64 release APK measured 19.13 MB with the Firebase SDK, up 1.09 MB (6.1%) from the previous 18.03 MB build. The model itself adds no bundled asset.
 - No request runs in the background. The app sends a request only after the learner taps **Ask AI coach** and accepts the data notice.
 - A request includes the current answer, the current lesson's short problem context, and at most two earlier answers. It excludes authored hints, the solution explanation, profile details, and saved history.
-- Requests are bounded to about 11 KB of prompt data, 220 response tokens, an 8-second secure setup timeout, and a 15-second model timeout. Slow or failed requests leave the learner's work saved and the offline coach available.
-- AI output is a coaching suggestion and one follow-up question. It cannot mark an answer correct, advance a step, or run code.
+- Requests are bounded to about 11 KB of prompt data, 512 response tokens with low thinking, an 8-second secure setup timeout, and a 15-second model timeout. Slow or failed requests leave the learner's work saved and the offline review available.
+- AI output gives a cautious, evidence-based assessment and one follow-up question. It cannot establish a verified solve, advance a step by itself, or run code.
 - Gemini's Developer API free tier currently has limited capacity and may use submitted content to improve Google's products. The app asks for consent before the first request. Do not send personal or confidential information.
 
 The free tier is not a promise of unlimited service. LoopLoom does not attach a paid provider or automatically fall back to one; if the free quota is unavailable, use the offline coach and try AI later.

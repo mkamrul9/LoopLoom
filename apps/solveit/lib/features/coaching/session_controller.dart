@@ -312,7 +312,7 @@ class SessionController extends ChangeNotifier {
       if (!_disposed && revision == _revision) {
         _messages.add(
           const CoachMessage(
-            'The local coach could not reply. Your draft is available for guided practice.',
+            'The AI coach could not reply. Your draft is saved. Use offline review to continue.',
             kind: MessageKind.error,
           ),
         );

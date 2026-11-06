@@ -55,7 +55,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 4. Write a code draft in your preferred language.
 5. State the complexity and reflect on a follow-up.
 
-Progress is labeled **self-reviewed**. It does not claim a verified solve when code has not been judged.
+At each step, save your thinking, review it with the AI coach or the authored offline self-check, then choose to continue or revise. Only the action needed for the current step is prominent; hints remain available. Progress is labeled **self-reviewed**. It does not claim a verified solve when code has not been judged.
 
 ## The curriculum, honestly described
 
