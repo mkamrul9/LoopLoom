@@ -1947,7 +1947,7 @@ class _LearningHomeState extends State<LearningHome> {
       _mastery300Plan(),
       const SizedBox(height: 16),
       Text(
-        'The available 30 lessons are original drafts with five guided checkpoints each. They are useful for practice, but still need independent editorial review before a reviewed interview curriculum can be claimed.',
+        'The 300 guided entries use original LoopLoom coaching prompts and five checkpoints each. Content remains under editorial review. Reference-case execution covers the one-week track and other supported lessons.',
         style: TextStyle(
           fontSize: 12,
           height: 1.65,
