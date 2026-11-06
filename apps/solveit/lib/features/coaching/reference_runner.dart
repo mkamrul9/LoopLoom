@@ -9,21 +9,37 @@ class ReferenceRun {
 }
 
 class ReferenceRunnerClient {
-  ReferenceRunnerClient(String address, {http.Client? client})
-    : client = client ?? http.Client() {
+  ReferenceRunnerClient(
+    String address, {
+    String token = '',
+    http.Client? client,
+  }) : client = client ?? http.Client() {
     final uri = Uri.parse(address);
+    final loopback = {'127.0.0.1', 'localhost', '10.0.2.2'}.contains(uri.host);
+    final octets = uri.host.split('.').map(int.tryParse).toList();
+    final privateLan =
+        octets.length == 4 &&
+        octets.every((part) => part != null && part >= 0 && part <= 255) &&
+        (octets[0] == 10 ||
+            (octets[0] == 172 && octets[1]! >= 16 && octets[1]! <= 31) ||
+            (octets[0] == 192 && octets[1] == 168));
     if (uri.scheme != 'http' ||
-        !{'127.0.0.1', 'localhost', '10.0.2.2'}.contains(uri.host) ||
+        !(loopback || privateLan) ||
         uri.userInfo.isNotEmpty ||
         uri.hasQuery ||
         uri.hasFragment ||
         !{'', '/'}.contains(uri.path) ||
-        uri.port < 1) {
-      throw ArgumentError('Use a local development runner address');
+        uri.port < 1 ||
+        (privateLan && token.length < 32)) {
+      throw ArgumentError(
+        'Use a private runner address and a 32-character LAN token',
+      );
     }
     endpoint = uri.resolve('/run');
+    this.token = token;
   }
   final http.Client client;
+  late final String token;
   late final Uri endpoint;
   Future<ReferenceRun> run(
     String lesson,
@@ -56,6 +72,7 @@ class ReferenceRunnerClient {
         'language': language,
         'source': source,
       });
+    if (token.isNotEmpty) request.headers['Authorization'] = 'Bearer $token';
     final response = await client.send(request);
     final bytes = <int>[];
     await for (final chunk in response.stream) {

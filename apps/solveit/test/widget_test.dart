@@ -105,7 +105,7 @@ void main() {
     await tester.tap(find.text('Start guided practice'));
     await tester.pumpAndSettle();
     expect(find.text('The problem'), findsOneWidget);
-    expect(find.textContaining('No AI grading'), findsOneWidget);
+    expect(find.textContaining('Offline coach'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

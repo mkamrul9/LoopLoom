@@ -8,9 +8,19 @@ import '../../domain/learner_preferences.dart';
 import '../../data/code_specs.dart';
 import '../../data/blind75_curriculum.dart';
 import '../../data/mastery300_curriculum.dart';
+import '../../data/sprint_references.dart';
 import 'coach_provider.dart';
 
-enum MessageKind { question, checkpoint, hint, solution, note, feedback, error }
+enum MessageKind {
+  question,
+  checkpoint,
+  hint,
+  solution,
+  note,
+  offlineCoach,
+  feedback,
+  error,
+}
 
 class CoachMessage {
   const CoachMessage(
@@ -87,7 +97,7 @@ class SessionController extends ChangeNotifier {
   final List<CoachMessage> _messages = [];
   bool _checkpointReady = false, _solutionRevealed = false, _focusView = false;
   bool _reviewing = false, _disposed = false;
-  int _hintsUsed = 0, _aiReviews = 0, _revision = 0;
+  int _hintsUsed = 0, _aiReviews = 0, _offlineGuidance = 0, _revision = 0;
   DateTime? _completedAt;
 
   CoachingStage get stage => _stage;
@@ -101,7 +111,9 @@ class SessionController extends ChangeNotifier {
   bool get reviewing => _reviewing;
   int get hintsUsed => _hintsUsed;
   int get aiReviews => _aiReviews;
-  bool get assisted => hintsUsed > 0 || solutionRevealed || aiReviews > 0;
+  int get offlineGuidance => _offlineGuidance;
+  bool get assisted =>
+      hintsUsed > 0 || solutionRevealed || aiReviews > 0 || offlineGuidance > 0;
   bool get verifiedSolved => false;
   String get starter =>
       codeSpecs[lesson.id]?.starter(_language) ??
@@ -190,14 +202,24 @@ class SessionController extends ChangeNotifier {
   }
 
   void requestHint() {
-    if (_stage == CoachingStage.complete ||
-        _hintsUsed >= lesson.hints.length ||
-        reviewing) {
+    if (_stage == CoachingStage.complete || _hintsUsed >= lesson.hints.length) {
       return;
     }
     _messages.add(
       CoachMessage(lesson.hints[_hintsUsed++], kind: MessageKind.hint),
     );
+    _changed();
+  }
+
+  /// Saves authored, problem-specific coaching without grading or changing
+  /// the learner's answer, draft, or current step.
+  void addOfflineGuidance(String text) {
+    final guidance = text.trim();
+    if (_stage == CoachingStage.complete || guidance.isEmpty) {
+      return;
+    }
+    _messages.add(CoachMessage(guidance, kind: MessageKind.offlineCoach));
+    _offlineGuidance++;
     _changed();
   }
 
@@ -241,6 +263,36 @@ class SessionController extends ChangeNotifier {
                   answer.length > 2000 ? answer.substring(0, 2000) : answer,
             )
             .toList(),
+        'conversation': _messages
+            .where(
+              (message) =>
+                  message.isLearner || message.kind == MessageKind.feedback,
+            )
+            .toList()
+            .reversed
+            .take(4)
+            .toList()
+            .reversed
+            .map(
+              (message) => {
+                'role': message.isLearner ? 'learner' : 'coach',
+                'text': message.text.length > 600
+                    ? message.text.substring(0, 600)
+                    : message.text,
+              },
+            )
+            .toList(),
+        'lesson_context': {
+          'title': lesson.title,
+          'pattern': lesson.pattern,
+          'summary': lesson.summary,
+          'statement': lesson.statement,
+          'example': lesson.example,
+          'constraints': lesson.constraints,
+          'question': question,
+          'self_check': selfCheck,
+          'pace': pace.name,
+        },
       });
       if (_disposed || revision != _revision) return;
       _messages.add(CoachMessage(answer, isLearner: true));
@@ -251,7 +303,6 @@ class SessionController extends ChangeNotifier {
         ),
       );
       _aiReviews++;
-      _revision++;
       // Model feedback never approves a checkpoint or establishes a solve.
     } on CoachUnavailable catch (error) {
       if (!_disposed && revision == _revision) {
@@ -290,6 +341,7 @@ class SessionController extends ChangeNotifier {
     'focusView': focusView,
     'hintsUsed': hintsUsed,
     'aiReviews': aiReviews,
+    'offlineGuidance': offlineGuidance,
     'messages': _messages.map((message) => message.toJson()).toList(),
   };
 
@@ -307,6 +359,9 @@ class SessionController extends ChangeNotifier {
         (json['hintsUsed'] as int) > lesson.hints.length ||
         json['aiReviews'] is! int ||
         (json['aiReviews'] as int) < 0 ||
+        (json.containsKey('offlineGuidance') &&
+            (json['offlineGuidance'] is! int ||
+                (json['offlineGuidance'] as int) < 0)) ||
         (json['completedAt'] != null && json['completedAt'] is! String) ||
         json['messages'] is! List ||
         (json['messages'] as List).isEmpty) {
@@ -331,6 +386,7 @@ class SessionController extends ChangeNotifier {
     session._focusView = _boolean(json, 'focusView');
     session._hintsUsed = json['hintsUsed'] as int;
     session._aiReviews = json['aiReviews'] as int;
+    session._offlineGuidance = json['offlineGuidance'] as int? ?? 0;
     for (final entry in _map(json['drafts']).entries) {
       session._drafts[_enum(CodeLanguage.values, entry.key)] = _string({
         'value': entry.value,
@@ -366,16 +422,29 @@ class SessionController extends ChangeNotifier {
 }
 
 class WorkbookBackupPlan {
-  WorkbookBackupPlan._(this._records, this.existing, this.savedLessonIds);
+  WorkbookBackupPlan._(
+    this._records,
+    this.existing,
+    this.savedLessonIds,
+    this.unlockedReferenceIds,
+    this.pointsBalance,
+  );
   final List<Map<String, Object?>> _records;
   final int existing;
   final Set<String> savedLessonIds;
+  final Set<String> unlockedReferenceIds;
+  final int? pointsBalance;
   int get total => _records.length;
   int get additions => total - existing;
 }
 
 class BackupImportResult {
-  const BackupImportResult(this.added, this.skipped, this.savedAdded, this.savedFailed);
+  const BackupImportResult(
+    this.added,
+    this.skipped,
+    this.savedAdded,
+    this.savedFailed,
+  );
   final int added, skipped;
   final int savedAdded;
   final bool savedFailed;
@@ -429,6 +498,27 @@ class PracticeStore extends ChangeNotifier {
       .length;
   bool isSaved(Lesson lesson) => preferences.savedLessonIds.contains(lesson.id);
 
+  Future<bool> unlockReferenceCode(String lessonId) async {
+    if (!sprintReferences.containsKey(lessonId)) return false;
+    if (preferences.unlockedReferenceIds.contains(lessonId)) return true;
+    if (preferences.pointsBalance < 10) return false;
+    final previous = preferences;
+    final next = previous.copyWith(
+      pointsBalance: previous.pointsBalance - 10,
+      unlockedReferenceIds: {...previous.unlockedReferenceIds, lessonId},
+    );
+    try {
+      await updatePreferences(next);
+      return true;
+    } catch (_) {
+      if (identical(preferences, next)) {
+        preferences = previous;
+        notifyListeners();
+      }
+      return false;
+    }
+  }
+
   Future<void> toggleSaved(Lesson lesson) async {
     final next = {...preferences.savedLessonIds};
     if (!next.remove(lesson.id)) next.add(lesson.id);
@@ -440,16 +530,12 @@ class PracticeStore extends ChangeNotifier {
     final completedByLesson = <String, List<SessionController>>{};
     for (final session in _sessions) {
       if (session.stage == CoachingStage.complete) {
-        completedByLesson
-            .putIfAbsent(session.lesson.id, () => [])
-            .add(session);
+        completedByLesson.putIfAbsent(session.lesson.id, () => []).add(session);
       }
     }
     final assignments = <ReviewAssignment>[];
     for (final attempts in completedByLesson.values) {
-      attempts.sort(
-        (a, b) => a.completedAt!.compareTo(b.completedAt!),
-      );
+      attempts.sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
       final latest = attempts.last;
       if (_sessions.any(
         (session) =>
@@ -533,6 +619,8 @@ class PracticeStore extends ChangeNotifier {
     'version': 1,
     'exportedAt': DateTime.now().toUtc().toIso8601String(),
     'savedLessonIds': preferences.savedLessonIds.toList()..sort(),
+    'unlockedReferenceIds': preferences.unlockedReferenceIds.toList()..sort(),
+    'pointsBalance': preferences.pointsBalance,
     'sessions': [
       ..._sessions.map((session) => session.toJson()),
       ..._unavailableRecords.values,
@@ -570,18 +658,39 @@ class PracticeStore extends ChangeNotifier {
     if (data['format'] != 'solveit-workbook' ||
         data['version'] != 1 ||
         data['sessions'] is! List) {
-      throw const FormatException('Use a LoopLoom workbook backup (version 1).');
+      throw const FormatException(
+        'Use a LoopLoom workbook backup (version 1).',
+      );
     }
     final rows = data['sessions'] as List;
     final rawSaved = data['savedLessonIds'];
+    final rawUnlocked = data['unlockedReferenceIds'];
+    final rawPoints = data['pointsBalance'];
     if (rawSaved != null &&
         (rawSaved is! List ||
             rawSaved.length > 500 ||
-            rawSaved.any((id) => id is! String || id.isEmpty || id.length > 200))) {
+            rawSaved.any(
+              (id) => id is! String || id.isEmpty || id.length > 200,
+            ))) {
       throw const FormatException('Invalid saved problems in backup.');
     }
     final savedIds = <String>{};
     if (rawSaved is List) savedIds.addAll(rawSaved.cast<String>());
+    if (rawUnlocked != null &&
+        (rawUnlocked is! List ||
+            rawUnlocked.length > 25 ||
+            rawUnlocked.any(
+              (id) => id is! String || !sprintReferences.containsKey(id),
+            ))) {
+      throw const FormatException('Invalid reference unlocks in backup.');
+    }
+    if (rawPoints != null &&
+        (rawPoints is! int || rawPoints < 0 || rawPoints > 1000000000)) {
+      throw const FormatException('Invalid study points in backup.');
+    }
+    final unlockedIds = rawUnlocked is List
+        ? rawUnlocked.cast<String>().toSet()
+        : <String>{};
     if (rows.length > 500) {
       throw const FormatException('A backup can contain at most 500 attempts.');
     }
@@ -610,7 +719,13 @@ class PracticeStore extends ChangeNotifier {
         records.add(record); // Keep future/unknown content without opening it.
       }
     }
-    return WorkbookBackupPlan._(records, ids.intersection(_recordIds).length, savedIds);
+    return WorkbookBackupPlan._(
+      records,
+      ids.intersection(_recordIds).length,
+      savedIds,
+      unlockedIds,
+      rawPoints as int?,
+    );
   }
 
   Future<BackupImportResult> importBackup(
@@ -647,12 +762,27 @@ class PracticeStore extends ChangeNotifier {
     _sessions.sort((a, b) => a.startedAt.compareTo(b.startedAt));
     notifyListeners();
     final newSaved = plan.savedLessonIds.difference(preferences.savedLessonIds);
+    final newUnlocked = plan.unlockedReferenceIds.difference(
+      preferences.unlockedReferenceIds,
+    );
+    final restoredPoints = plan.pointsBalance == null
+        ? preferences.pointsBalance
+        : min(preferences.pointsBalance, plan.pointsBalance!);
     var savedFailed = false;
-    if (newSaved.isNotEmpty) {
+    if (newSaved.isNotEmpty ||
+        newUnlocked.isNotEmpty ||
+        restoredPoints != preferences.pointsBalance) {
       try {
-        await updatePreferences(preferences.copyWith(
-          savedLessonIds: {...preferences.savedLessonIds, ...newSaved},
-        ));
+        await updatePreferences(
+          preferences.copyWith(
+            savedLessonIds: {...preferences.savedLessonIds, ...newSaved},
+            unlockedReferenceIds: {
+              ...preferences.unlockedReferenceIds,
+              ...newUnlocked,
+            },
+            pointsBalance: restoredPoints,
+          ),
+        );
       } catch (_) {
         savedFailed = true;
       }

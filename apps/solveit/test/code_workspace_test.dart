@@ -72,6 +72,7 @@ void main() {
               padding: const EdgeInsets.all(20),
               child: CodeWorkspace(
                 lessonId: entry.lesson.id,
+                store: PracticeStore(),
                 language: CodeLanguage.python,
                 editor: editor,
                 enabled: true,
@@ -84,7 +85,7 @@ void main() {
       );
       expect(find.text('Open official LeetCode problem'), findsOneWidget);
       expect(
-        find.textContaining('does not have local reference cases'),
+        find.textContaining('Set a self-hosted runner address'),
         findsOneWidget,
       );
       expect(find.text('Run reference cases'), findsNothing);
@@ -112,6 +113,7 @@ void main() {
                 padding: const EdgeInsets.all(24),
                 child: CodeWorkspace(
                   lessonId: 'signal-ranges-v1',
+                  store: PracticeStore(),
                   language: CodeLanguage.python,
                   editor: editor,
                   enabled: true,

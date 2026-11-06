@@ -1,6 +1,6 @@
 # Local reference runner
 
-The runner executes the three visible reference cases for each of the thirty lessons in C++, JavaScript, Python or TypeScript. It is an opt-in local development experiment, **not a public arbitrary-code service or a verified-solve judge**. Reference matches never approve a checkpoint, complete reflection, or mark a problem solved.
+The runner executes three visible reference cases per supported lesson in C++, JavaScript, Python or TypeScript. All 25 problems in the one-week track and all 7 in its last-day subset now have suites. It is an opt-in private development service, **not a public arbitrary-code service or a verified-solve judge**. Reference matches never approve a checkpoint, complete reflection, or mark a problem solved.
 
 ## Run locally
 
@@ -33,7 +33,25 @@ From `apps/solveit`, enable the client in a development build:
 flutter run -d chrome --web-port 8123 --dart-define=SOLVEIT_RUNNER_URL=http://127.0.0.1:8766
 ```
 
-Android emulator builds use `http://10.0.2.2:8766`. Physical-phone LAN access is not configured. The normal APK has no runner URL and makes no execution requests. The current web preview explicitly enables the local development runner.
+Android emulator builds use `http://10.0.2.2:8766`. The Android app also accepts a private LAN IPv4 runner address in **Profile & settings → Run your draft**. It connects only after you configure it. The PC or server must stay awake with Docker running; no compiler or model is bundled into the phone.
+
+### Physical phone on trusted Wi-Fi
+
+1. Connect phone and PC to the same trusted private network. Find the PC's Wi-Fi IPv4 address with `ipconfig`; it must be in `10.*`, `172.16–31.*`, or `192.168.*`.
+2. On the PC, generate a random access token and start the runner bound to that exact address:
+
+```powershell
+$env:LOOPLOOM_RUNNER_TOKEN = python -c "import secrets; print(secrets.token_urlsafe(32))"
+./scripts/start-reference-runner.ps1 -Development -ListenAddress 192.168.1.20
+```
+
+Replace `192.168.1.20` with the PC's address. Keep the token private. If Windows Firewall blocks the connection, allow inbound TCP 8766 on the **Private** network for this PC; do not open or forward the port to the internet.
+
+3. On the phone, enter `http://PC-IP:8766` and the same token in **Profile & settings → Run your draft**. Save, open a one-week problem, advance to **Code**, write `solve`, and tap **Run reference cases**.
+
+The token is stored in this device's local app preferences. LAN HTTP is unencrypted, so use this only on a trusted local network; do not place private code or credentials in submissions. Browser builds served over HTTPS cannot call a plain HTTP LAN runner because of browser mixed-content rules. For web use, configure a private HTTPS reverse proxy and a dedicated origin policy in a future runner deployment.
+
+The one-week tree runner cases use heap-indexed level-order integer arrays with `-1` denoting an absent node. The linked-list cases use value arrays, except the existing cycle exercise, which uses indexed node/next rows. First Bad Version supplies `firstBad` as a second argument in place of the official API. These signatures are workbook adapters; adapt code to the official platform signature when submitting there.
 
 At the Code checkpoint select C++, JavaScript, Python or TypeScript, implement synchronous `solve`, and choose **Run reference cases**. The response lists matches or wrong answers, compile/syntax/runtime errors, unsupported syntax, time/memory/output limits, or input modification for the interval task. An unavailable engine or failed container launch returns an infrastructure failure rather than a learner-code verdict. No source is executed on the host as fallback.
 
@@ -59,7 +77,7 @@ The helper refuses to stop while a labeled runner container is active. Abruptly 
 
 Each case starts a fresh disposable container. Source and arguments arrive on stdin; no host directory or Docker socket is mounted. The image is read-only, runs as UID/GID 65534, drops all capabilities, disallows privilege escalation, and uses Docker's default seccomp policy. Network access is disabled. A 16 MB noexec/nosuid temporary filesystem is available. Limits: 128 MB memory with no additional swap, half a CPU, 32 processes, 64 file descriptors, no core dumps, four seconds wall time including launch, and 32 KB captured output per stream. Docker logging is disabled. The server serializes requests and removes each uniquely named container after normal completion, timeout, or output-limit termination. [Docker run documentation](https://docs.docker.com/engine/containers/run/).
 
-Docker containers share their engine's kernel and are not a sufficient production boundary for hostile public submissions. This developer service is bound to loopback, has an explicit development startup flag, permits only the two local preview origins, validates Host/JSON/body size, and has no paid/cloud or host-execution fallback. It does not log learner source. Production requires independently reviewed hardened isolation on separate infrastructure, authentication, quotas, monitoring, language harnesses, hidden tests, and authoritative result provenance.
+Docker containers share their engine's kernel and are not a sufficient production boundary for hostile public submissions. This developer service binds to loopback by default and can bind to one private LAN IPv4 address only with an explicit 32-character token. It permits only the two local preview origins, validates Host/JSON/body size, and has no paid/cloud or host-execution fallback. It does not log learner source. Production requires independently reviewed hardened isolation on separate infrastructure, authentication, quotas, monitoring, language harnesses, hidden tests, and authoritative result provenance.
 
 The public reference cases can be hardcoded or their in-container harness spoofed by a submission. They establish only observed example behavior, never general correctness or tamper-resistant input-mutation evidence. Checks remain outside the container for returned values; pair tasks accept any valid distinct pair in either index order. No hidden test or trusted progress privilege is placed in the container.
 

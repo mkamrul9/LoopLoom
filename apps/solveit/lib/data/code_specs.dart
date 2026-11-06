@@ -1,4 +1,5 @@
 import '../domain/lesson.dart';
+import 'sprint_references.dart';
 
 class ReferenceCase {
   const ReferenceCase(this.label, this.input, this.expected);
@@ -14,13 +15,17 @@ class CodeSpec {
     this.matrix = false,
     this.text = false,
     this.booleanResult = false,
+    this.customStarters = const {},
   });
   final List<String> names;
   final bool returnsList, intervals;
   final bool matrix, text, booleanResult;
+  final Map<CodeLanguage, String> customStarters;
   final List<ReferenceCase> cases;
 
   String starter(CodeLanguage language) {
+    final custom = customStarters[language];
+    if (custom != null) return custom;
     final array = names.first;
     final scalar = names.length > 1 ? names[1] : null;
     switch (language) {
@@ -77,7 +82,8 @@ class CodeSpec {
   }
 }
 
-const codeSpecs = <String, CodeSpec>{
+final codeSpecs = <String, CodeSpec>{
+  ...sprintCodeSpecs,
   'supply-pair-v1': CodeSpec(
     ['prices', 'budget'],
     true,
@@ -206,11 +212,7 @@ const codeSpecs = <String, CodeSpec>{
         'values = [1, 2, 0, 4]',
         '[0, 0, 8, 0]',
       ),
-      ReferenceCase(
-        'Two zeros',
-        'values = [0, 2, 0]',
-        '[0, 0, 0]',
-      ),
+      ReferenceCase('Two zeros', 'values = [0, 2, 0]', '[0, 0, 0]'),
       ReferenceCase('Empty input', 'values = []', '[]'),
     ],
   ),
@@ -224,11 +226,7 @@ const codeSpecs = <String, CodeSpec>{
         'values = [100, 4, 200, 1, 3, 2]',
         '4',
       ),
-      ReferenceCase(
-        'Duplicates count once',
-        'values = [5, 5, 6, 7]',
-        '3',
-      ),
+      ReferenceCase('Duplicates count once', 'values = [5, 5, 6, 7]', '3'),
       ReferenceCase('Empty input', 'values = []', '0'),
     ],
   ),
@@ -260,11 +258,7 @@ const codeSpecs = <String, CodeSpec>{
         'values = [1, 3, 3, 8], target = 3',
         '1',
       ),
-      ReferenceCase(
-        'Between values',
-        'values = [1, 3, 5, 8], target = 4',
-        '2',
-      ),
+      ReferenceCase('Between values', 'values = [1, 3, 5, 8], target = 4', '2'),
       ReferenceCase('Empty input', 'values = [], target = 7', '0'),
     ],
   ),
@@ -306,16 +300,8 @@ const codeSpecs = <String, CodeSpec>{
     false,
     false,
     [
-      ReferenceCase(
-        'Buy low, sell later',
-        'prices = [7, 1, 5, 3, 6, 4]',
-        '5',
-      ),
-      ReferenceCase(
-        'Prices only fall',
-        'prices = [7, 6, 4, 3, 1]',
-        '0',
-      ),
+      ReferenceCase('Buy low, sell later', 'prices = [7, 1, 5, 3, 6, 4]', '5'),
+      ReferenceCase('Prices only fall', 'prices = [7, 6, 4, 3, 1]', '0'),
       ReferenceCase('Empty series', 'prices = []', '0'),
     ],
   ),
@@ -329,11 +315,7 @@ const codeSpecs = <String, CodeSpec>{
         'neighbors = [[1], [0, 2], [1], [4], [3], []]',
         '3',
       ),
-      ReferenceCase(
-        'Every node is isolated',
-        'neighbors = [[], [], []]',
-        '3',
-      ),
+      ReferenceCase('Every node is isolated', 'neighbors = [[], [], []]', '3'),
       ReferenceCase('Empty graph', 'neighbors = []', '0'),
     ],
     matrix: true,
@@ -464,11 +446,7 @@ const codeSpecs = <String, CodeSpec>{
         'nodes = [[1, 1, 2], [2, 3, 4], [3, 5, -1], [4, -1, -1], [5, -1, -1], [6, -1, -1]]',
         '3',
       ),
-      ReferenceCase(
-        'Single-node tree',
-        'nodes = [[9, -1, -1]]',
-        '1',
-      ),
+      ReferenceCase('Single-node tree', 'nodes = [[9, -1, -1]]', '1'),
       ReferenceCase('Empty tree', 'nodes = []', '0'),
     ],
     matrix: true,

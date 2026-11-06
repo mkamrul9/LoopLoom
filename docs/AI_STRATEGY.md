@@ -4,7 +4,7 @@ Yes for development and limited operation. There is no reliable promise of unlim
 
 ## Confirmed zero-spend development policy
 
-Use existing hardware, the installed Flutter/Android tools, curated content, and optional local model experiments. Do not enable paid providers, attach billing for AI, purchase hardware, or provision paid hosting. Default builds make no inference calls. The portable local runtime and two models are now installed in the ignored project cache. Both failed the initial coaching smoke set; neither is approved for learner feedback. See [measured results](LOCAL_AI_VALIDATION.md) and [local setup](LOCAL_DEVELOPMENT.md). A hosted free-tier experiment remains a future option only without payment or automatic overage and within applicable terms. Failures return to guided practice; there is no paid-provider fallback. Production funding is a later explicit decision.
+Use existing hardware, the installed Flutter/Android tools, curated content, and optional local model experiments. Do not enable paid providers, attach billing for AI, purchase hardware, or provision paid hosting. Default builds make no inference calls. The app now has an optional Firebase AI Logic integration for the Gemini Developer API free tier; it only activates when project configuration is present and the learner has consented. Keep the project on a no-billing plan and App Check enforced. There is no paid-provider fallback. The portable local runtime and two models are installed in the ignored project cache. Both failed the initial coaching smoke set; neither is approved for learner feedback. See [measured results](LOCAL_AI_VALIDATION.md), [AI setup](AI_SETUP.md), and [local setup](LOCAL_DEVELOPMENT.md). Production funding is a later explicit decision.
 
 ## Recommended progression
 
@@ -16,7 +16,7 @@ Use existing hardware, the installed Flutter/Android tools, curated content, and
 
 ## Options and tradeoffs
 
-Curated coach: fully offline hints, traces, and reflection prompts; zero inference expense; no trustworthy open-ended semantic grading. Label it "guided practice".
+Curated offline coach: the practice screen offers task clarification, example tracing, constraint-based edge-case prompts, the current self-check, and the next authored hint. Selected guidance is saved in session notes and counts as assisted practice. It uses the lesson content already on the device, makes no inference call, and cannot assess an open-ended answer or run code; label it "offline coach" or "guided practice," never AI grading.
 
 Local computer/server: Ollama can run models locally, with local-only configuration available. This is suitable for a development experiment; serving many simultaneous users needs capacity planning and an authenticated API boundary. Model licenses are separate from runtime licensing. [Ollama documentation](https://docs.ollama.com/faq).
 

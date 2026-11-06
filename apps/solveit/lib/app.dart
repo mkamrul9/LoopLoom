@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'data/blind75_curriculum.dart';
 import 'data/lesson_catalog.dart';
 import 'data/mastery300_curriculum.dart';
 import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
+import 'data/interview_sprints.dart';
 import 'data/interview_diagnostic.dart';
 import 'domain/learner_preferences.dart';
 import 'domain/lesson.dart';
@@ -20,8 +22,9 @@ import 'ui/settings_screen.dart';
 import 'ui/readable_surface.dart';
 
 class LoopLoomApp extends StatefulWidget {
-  const LoopLoomApp({super.key, this.store});
+  const LoopLoomApp({super.key, this.store, this.initialLocation});
   final PracticeStore? store;
+  final String? initialLocation;
 
   @override
   State<LoopLoomApp> createState() => _LoopLoomAppState();
@@ -30,6 +33,8 @@ class LoopLoomApp extends StatefulWidget {
 class _LoopLoomAppState extends State<LoopLoomApp> {
   ThemeMode _themeMode = ThemeMode.system;
   PracticeStore? _observedStore;
+  PracticeStore? _routerStore;
+  GoRouter? _router;
 
   ThemeMode _modeFor(AppearancePreference preference) => switch (preference) {
     AppearancePreference.system => ThemeMode.system,
@@ -39,11 +44,127 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
 
   void _observeStore(PracticeStore store) {
     if (identical(_observedStore, store)) return;
-    _observedStore?.removeListener(_syncTheme);
+    final previousStore = _observedStore;
+    previousStore?.removeListener(_syncTheme);
     _observedStore = store;
     _themeMode = _modeFor(store.preferences.appearance);
     store.addListener(_syncTheme);
+    if (previousStore != null) {
+      previousStore.dispose();
+    }
     if (mounted) setState(() {});
+  }
+
+  GoRouter _routerFor(PracticeStore store) {
+    if (identical(_routerStore, store) && _router != null) return _router!;
+    _router?.dispose();
+    _routerStore = store;
+    const tabLocations = ['/learn', '/roadmaps', '/history'];
+    const practiceNames = [
+      'practice-learn',
+      'practice-roadmaps',
+      'practice-history',
+    ];
+    GoRoute practiceRoute(String name) => GoRoute(
+      path: 'problem/:lessonId',
+      name: name,
+      builder: (context, state) {
+        final lessonId = state.pathParameters['lessonId'];
+        final lesson = allLessons
+            .where((item) => item.id == lessonId)
+            .firstOrNull;
+        if (lesson == null) return const _RouteNotFound();
+        final attemptId = state.uri.queryParameters['attempt'];
+        final session =
+            store.sessions.where((item) => item.id == attemptId).firstOrNull ??
+            store.startOrResume(lesson);
+        return PracticeScreen(session: session, store: store);
+      },
+    );
+
+    _router = GoRouter(
+      initialLocation: widget.initialLocation,
+      overridePlatformDefaultLocation: widget.initialLocation != null,
+      routes: [
+        GoRoute(path: '/', redirect: (_, _) => '/learn'),
+        GoRoute(
+          path: '/problem/:lessonId',
+          redirect: (_, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            final query = state.uri.hasQuery ? '?${state.uri.query}' : '';
+            return '/learn/problem/${Uri.encodeComponent(lessonId)}$query';
+          },
+        ),
+        ShellRoute(
+          builder: (context, state, child) {
+            final path = state.uri.path;
+            final selected = path.startsWith('/roadmaps')
+                ? 1
+                : path.startsWith('/history')
+                ? 2
+                : 0;
+            final isTabRoot =
+                path == '/learn' || path == '/roadmaps' || path == '/history';
+            return LearningHome(
+              store: store,
+              closeStoreOnDispose: false,
+              initialSelected: selected,
+              routeChild: isTabRoot ? null : child,
+              onTabSelected: (index) => context.go(tabLocations[index]),
+              onOpenLesson: (lesson) => context.pushNamed(
+                practiceNames[selected],
+                pathParameters: {'lessonId': lesson.id},
+              ),
+              onOpenAttempt: (session) => context.pushNamed(
+                practiceNames[selected],
+                pathParameters: {'lessonId': session.lesson.id},
+                queryParameters: {'attempt': session.id},
+              ),
+              onOpenDiagnostic: () => context.pushNamed<Lesson>('diagnostic'),
+              onOpenSettings: () => context.pushNamed('settings'),
+              onOpenBackup: () => context.pushNamed('backup'),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: '/learn',
+              builder: (_, _) => const SizedBox.shrink(),
+              routes: [practiceRoute(practiceNames[0])],
+            ),
+            GoRoute(
+              path: '/roadmaps',
+              builder: (_, _) => const SizedBox.shrink(),
+              routes: [practiceRoute(practiceNames[1])],
+            ),
+            GoRoute(
+              path: '/history',
+              builder: (_, _) => const SizedBox.shrink(),
+              routes: [practiceRoute(practiceNames[2])],
+            ),
+            GoRoute(
+              path: '/diagnostic',
+              name: 'diagnostic',
+              builder: (_, _) => InterviewDiagnosticScreen(store: store),
+            ),
+            GoRoute(
+              path: '/settings',
+              name: 'settings',
+              builder: (context, _) => SettingsScreen(
+                store: store,
+                onOpenBackup: () => context.pushNamed('backup'),
+              ),
+            ),
+            GoRoute(
+              path: '/backup',
+              name: 'backup',
+              builder: (_, _) => BackupScreen(store: store),
+            ),
+          ],
+        ),
+      ],
+      errorBuilder: (_, _) => const _RouteNotFound(),
+    );
+    return _router!;
   }
 
   void _syncTheme() {
@@ -68,8 +189,13 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
       if (nextStore != null) {
         _observeStore(nextStore);
       } else {
+        final previousStore = _observedStore;
         _observedStore?.removeListener(_syncTheme);
         _observedStore = null;
+        _router?.dispose();
+        _router = null;
+        _routerStore = null;
+        previousStore?.dispose();
         setState(() => _themeMode = ThemeMode.system);
       }
     }
@@ -78,28 +204,87 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
   @override
   void dispose() {
     _observedStore?.removeListener(_syncTheme);
+    _router?.dispose();
+    _observedStore?.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'LoopLoom — Think it through',
-    debugShowCheckedModeBanner: false,
-    theme: studyTheme(Brightness.light),
-    darkTheme: studyTheme(Brightness.dark),
-    themeMode: _themeMode,
-    home: widget.store == null
-        ? WorkbookBootstrap(
-            onStoreReady: _observeStore,
-            builder: (store) => LearningHome(store: store),
-          )
-        : LearningHome(store: widget.store!),
+  Widget build(BuildContext context) {
+    final store = widget.store ?? _observedStore;
+    if (store == null) {
+      return MaterialApp(
+        title: 'LoopLoom — Think it through',
+        debugShowCheckedModeBanner: false,
+        theme: studyTheme(Brightness.light),
+        darkTheme: studyTheme(Brightness.dark),
+        themeMode: _themeMode,
+        home: WorkbookBootstrap(
+          onStoreReady: _observeStore,
+          builder: (_) => const SizedBox.shrink(),
+        ),
+      );
+    }
+    return MaterialApp.router(
+      title: 'LoopLoom — Think it through',
+      debugShowCheckedModeBanner: false,
+      theme: studyTheme(Brightness.light),
+      darkTheme: studyTheme(Brightness.dark),
+      themeMode: _themeMode,
+      routerConfig: _routerFor(store),
+    );
+  }
+}
+
+class _RouteNotFound extends StatelessWidget {
+  const _RouteNotFound();
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.search_off_outlined, size: 44),
+            const SizedBox(height: 16),
+            const Text('We could not find that LoopLoom page.'),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => context.go('/learn'),
+              child: const Text('Go to Learn'),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 
 class LearningHome extends StatefulWidget {
-  const LearningHome({super.key, required this.store});
+  const LearningHome({
+    super.key,
+    required this.store,
+    this.closeStoreOnDispose = true,
+    this.initialSelected = 0,
+    this.onTabSelected,
+    this.onOpenLesson,
+    this.onOpenAttempt,
+    this.onOpenDiagnostic,
+    this.onOpenSettings,
+    this.onOpenBackup,
+    this.routeChild,
+  });
   final PracticeStore store;
+  final bool closeStoreOnDispose;
+  final int initialSelected;
+  final ValueChanged<int>? onTabSelected;
+  final ValueChanged<Lesson>? onOpenLesson;
+  final ValueChanged<SessionController>? onOpenAttempt;
+  final Future<Lesson?> Function()? onOpenDiagnostic;
+  final VoidCallback? onOpenSettings, onOpenBackup;
+  final Widget? routeChild;
   @override
   State<LearningHome> createState() => _LearningHomeState();
 }
@@ -121,7 +306,16 @@ class _LearningHomeState extends State<LearningHome> {
   void initState() {
     super.initState();
     _historySearchController = TextEditingController();
+    selected = widget.initialSelected;
     track = store.preferences.selectedTrack;
+  }
+
+  @override
+  void didUpdateWidget(covariant LearningHome oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialSelected != widget.initialSelected) {
+      selected = widget.initialSelected;
+    }
   }
 
   List<Lesson> get trackLessons => switch (track) {
@@ -129,7 +323,9 @@ class _LearningHomeState extends State<LearningHome> {
     1 => interviewLessons,
     2 => starter30Lessons,
     3 => blind75Lessons,
-    _ => mastery300Lessons,
+    4 => mastery300Lessons,
+    5 => oneWeekInterviewSprint.lessons,
+    _ => lastDayInterviewSprint.lessons,
   };
 
   String get trackTitle => switch (track) {
@@ -137,7 +333,9 @@ class _LearningHomeState extends State<LearningHome> {
     1 => 'Intermediate foundations',
     2 => 'Starter 30',
     3 => 'Blind 75 · guided path',
-    _ => 'Interview Mastery · 300',
+    4 => 'Interview Mastery · 300',
+    5 => oneWeekInterviewSprint.title,
+    _ => lastDayInterviewSprint.title,
   };
 
   void _clearHistorySearch() {
@@ -168,7 +366,9 @@ class _LearningHomeState extends State<LearningHome> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('The selected roadmap could not be saved on this device.'),
+          content: Text(
+            'The selected roadmap could not be saved on this device.',
+          ),
         ),
       );
     }
@@ -208,7 +408,9 @@ class _LearningHomeState extends State<LearningHome> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Could not delete the attempt. Your history is unchanged.'),
+          content: Text(
+            'Could not delete the attempt. Your history is unchanged.',
+          ),
         ),
       );
     }
@@ -252,45 +454,74 @@ class _LearningHomeState extends State<LearningHome> {
     return attempts.isEmpty ? 'Start' : 'Resume';
   }
 
-  Widget trackPicker() => Wrap(
-    spacing: 10,
-    runSpacing: 8,
+  Widget trackPicker() => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      ChoiceChip(
-        label: const Text('Warm-ups · 3'),
-        selected: track == 0,
-        onSelected: (_) => _selectTrack(0),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          ChoiceChip(
+            label: const Text('Warm-ups · 3'),
+            selected: track == 0,
+            onSelected: (_) => _selectTrack(0),
+          ),
+          ChoiceChip(
+            label: Text('Intermediate · ${interviewLessons.length}'),
+            selected: track == 1,
+            onSelected: (_) => _selectTrack(1),
+          ),
+          ChoiceChip(
+            label: Text('Starter 30 · ${starter30Lessons.length}'),
+            selected: track == 2,
+            onSelected: (_) => _selectTrack(2),
+          ),
+          ChoiceChip(
+            label: Text('Blind 75 · ${blind75Entries.length}'),
+            selected: track == 3,
+            onSelected: (_) => _selectTrack(3),
+          ),
+          ChoiceChip(
+            label: Text('Mastery · ${mastery300Entries.length}'),
+            selected: track == 4,
+            onSelected: (_) => _selectTrack(4),
+          ),
+        ],
       ),
-      ChoiceChip(
-        label: Text('Intermediate · ${interviewLessons.length}'),
-        selected: track == 1,
-        onSelected: (_) => _selectTrack(1),
-      ),
-      ChoiceChip(
-        label: Text('Starter 30 · ${starter30Lessons.length}'),
-        selected: track == 2,
-        onSelected: (_) => _selectTrack(2),
-      ),
-      ChoiceChip(
-        label: Text('Blind 75 · ${blind75Entries.length}'),
-        selected: track == 3,
-        onSelected: (_) => _selectTrack(3),
-      ),
-      ChoiceChip(
-        label: Text('Mastery · ${mastery300Entries.length}'),
-        selected: track == 4,
-        onSelected: (_) => _selectTrack(4),
+      const SizedBox(height: 14),
+      const Text('SHORT INTERVIEW PREP', style: noteLabel),
+      const SizedBox(height: 6),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          ChoiceChip(
+            label: const Text('One week · 25'),
+            selected: track == 5,
+            onSelected: (_) => _selectTrack(5),
+          ),
+          ChoiceChip(
+            label: const Text('Last day · 7'),
+            selected: track == 6,
+            onSelected: (_) => _selectTrack(6),
+          ),
+        ],
       ),
     ],
   );
   @override
   void dispose() {
     _historySearchController.dispose();
-    store.dispose();
+    if (widget.closeStoreOnDispose) store.dispose();
     super.dispose();
   }
 
   void openLesson(Lesson lesson) {
+    final onOpenLesson = widget.onOpenLesson;
+    if (onOpenLesson != null) {
+      onOpenLesson(lesson);
+      return;
+    }
     final session = store.startOrResume(lesson);
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -299,12 +530,37 @@ class _LearningHomeState extends State<LearningHome> {
     );
   }
 
-  Future<void> openDiagnostic() async {
-    final lesson = await Navigator.of(context).push<Lesson>(
-      MaterialPageRoute<Lesson>(
-        builder: (_) => InterviewDiagnosticScreen(store: store),
+  void openAttempt(SessionController session) {
+    final onOpenAttempt = widget.onOpenAttempt;
+    if (onOpenAttempt != null) {
+      onOpenAttempt(session);
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PracticeScreen(session: session, store: store),
       ),
     );
+  }
+
+  void _selectTab(int value) {
+    final onTabSelected = widget.onTabSelected;
+    if (onTabSelected == null) {
+      setState(() => selected = value);
+    } else {
+      onTabSelected(value);
+    }
+  }
+
+  Future<void> openDiagnostic() async {
+    final onOpenDiagnostic = widget.onOpenDiagnostic;
+    final lesson = onOpenDiagnostic == null
+        ? await Navigator.of(context).push<Lesson>(
+            MaterialPageRoute<Lesson>(
+              builder: (_) => InterviewDiagnosticScreen(store: store),
+            ),
+          )
+        : await onOpenDiagnostic();
     if (!mounted) return;
     if (lesson != null) openLesson(lesson);
   }
@@ -315,176 +571,203 @@ class _LearningHomeState extends State<LearningHome> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not save this change locally. Try again.')),
+          const SnackBar(
+            content: Text('Could not save this change locally. Try again.'),
+          ),
         );
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: store,
-    builder: (context, _) => ReadableSurface(
-      scale: store.preferences.textScale,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final wide = constraints.maxWidth >= 840;
-          return Scaffold(
-            appBar: AppBar(
-              title: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        LoopLoomWordmark(),
-                        Text(
-                          'THINK · TRACE · CODE',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: .8,
-                            color: context.palette.muted,
+  Widget build(BuildContext context) {
+    final routeChild = widget.routeChild;
+    if (routeChild != null) return routeChild;
+    return ListenableBuilder(
+      listenable: store,
+      builder: (context, _) => ReadableSurface(
+        scale: store.preferences.textScale,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 840;
+            return Scaffold(
+              appBar: AppBar(
+                title: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          LoopLoomWordmark(),
+                          Text(
+                            'THINK · TRACE · CODE',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: .8,
+                              color: context.palette.muted,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                IconButton(
-                  tooltip: 'Profile & settings',
-                  icon: const Icon(Icons.account_circle_outlined),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => SettingsScreen(store: store),
-                    ),
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  tooltip: 'Workbook options',
-                  icon: const Icon(Icons.more_horiz),
-                  constraints: const BoxConstraints(minWidth: 224),
-                  onSelected: (option) => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => option == 'settings'
-                          ? SettingsScreen(store: store)
-                          : BackupScreen(store: store),
-                    ),
-                  ),
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(
-                      value: 'settings',
-                      child: Row(
-                        children: [
-                          Icon(Icons.tune_outlined, size: 19),
-                          SizedBox(width: 12),
-                          Text('Profile & settings'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'backup',
-                      child: Row(
-                        children: [
-                          Icon(Icons.inventory_2_outlined, size: 19),
-                          SizedBox(width: 12),
-                          Text('Workbook backup'),
                         ],
                       ),
                     ),
                   ],
                 ),
-                if (wide)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 24),
-                    child: SaveStatus(store: store, compact: true),
+                actions: [
+                  IconButton(
+                    tooltip: 'Profile & settings',
+                    icon: const Icon(Icons.account_circle_outlined),
+                    onPressed:
+                        widget.onOpenSettings ??
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => SettingsScreen(store: store),
+                          ),
+                        ),
                   ),
-              ],
-              bottom: const PreferredSize(
-                preferredSize: Size.fromHeight(1),
-                child: Divider(),
-              ),
-            ),
-            body: Row(
-              children: [
-                if (wide)
-                  NavigationRail(
-                    selectedIndex: selected,
-                    onDestinationSelected: (v) => setState(() => selected = v),
-                    labelType: NavigationRailLabelType.all,
-                    destinations: const [
-                      NavigationRailDestination(
-                        icon: Icon(Icons.auto_stories_outlined),
-                        label: Text('Learn'),
+                  PopupMenuButton<String>(
+                    tooltip: 'Workbook options',
+                    icon: const Icon(Icons.more_horiz),
+                    constraints: const BoxConstraints(minWidth: 224),
+                    onSelected: (option) {
+                      if (option == 'settings') {
+                        final openSettings = widget.onOpenSettings;
+                        if (openSettings != null) {
+                          openSettings();
+                        } else {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => SettingsScreen(store: store),
+                            ),
+                          );
+                        }
+                      } else {
+                        final openBackup = widget.onOpenBackup;
+                        if (openBackup != null) {
+                          openBackup();
+                        } else {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => BackupScreen(store: store),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    itemBuilder: (context) => const [
+                      PopupMenuItem(
+                        value: 'settings',
+                        child: Row(
+                          children: [
+                            Icon(Icons.tune_outlined, size: 19),
+                            SizedBox(width: 12),
+                            Text('Profile & settings'),
+                          ],
+                        ),
                       ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.route_outlined),
-                        label: Text('Roadmaps'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.history),
-                        label: Text('History'),
+                      PopupMenuItem(
+                        value: 'backup',
+                        child: Row(
+                          children: [
+                            Icon(Icons.inventory_2_outlined, size: 19),
+                            SizedBox(width: 12),
+                            Text('Workbook backup'),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                if (wide) const VerticalDivider(width: 1),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      wide ? 48 : 24,
-                      wide ? 42 : 30,
-                      wide ? 48 : 24,
-                      32,
+                  if (wide)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 24),
+                      child: SaveStatus(store: store, compact: true),
                     ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 960),
-                        child: selected == 0
-                            ? _learn(wide)
-                            : selected == 1
-                            ? _roadmaps()
-                            : _history(),
-                      ),
-                    ),
-                  ),
+                ],
+                bottom: const PreferredSize(
+                  preferredSize: Size.fromHeight(1),
+                  child: Divider(),
                 ),
-              ],
-            ),
-            bottomNavigationBar: wide
-                ? null
-                : DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border(top: BorderSide(color: context.palette.line)),
-                    ),
-                    child: NavigationBar(
+              ),
+              body: Row(
+                children: [
+                  if (wide)
+                    NavigationRail(
                       selectedIndex: selected,
-                      onDestinationSelected: (v) =>
-                          setState(() => selected = v),
+                      onDestinationSelected: _selectTab,
+                      labelType: NavigationRailLabelType.all,
                       destinations: const [
-                        NavigationDestination(
+                        NavigationRailDestination(
                           icon: Icon(Icons.auto_stories_outlined),
-                          label: 'Learn',
+                          label: Text('Learn'),
                         ),
-                        NavigationDestination(
+                        NavigationRailDestination(
                           icon: Icon(Icons.route_outlined),
-                          label: 'Roadmaps',
+                          label: Text('Roadmaps'),
                         ),
-                        NavigationDestination(
+                        NavigationRailDestination(
                           icon: Icon(Icons.history),
-                          label: 'History',
+                          label: Text('History'),
                         ),
                       ],
                     ),
+                  if (wide) const VerticalDivider(width: 1),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        wide ? 48 : 24,
+                        wide ? 42 : 30,
+                        wide ? 48 : 24,
+                        32,
+                      ),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 960),
+                          child: selected == 0
+                              ? _learn(wide)
+                              : selected == 1
+                              ? _roadmaps()
+                              : _history(),
+                        ),
+                      ),
+                    ),
                   ),
-          );
-        },
+                ],
+              ),
+              bottomNavigationBar: wide
+                  ? null
+                  : DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: context.palette.line),
+                        ),
+                      ),
+                      child: NavigationBar(
+                        selectedIndex: selected,
+                        onDestinationSelected: _selectTab,
+                        destinations: const [
+                          NavigationDestination(
+                            icon: Icon(Icons.auto_stories_outlined),
+                            label: 'Learn',
+                          ),
+                          NavigationDestination(
+                            icon: Icon(Icons.route_outlined),
+                            label: 'Roadmaps',
+                          ),
+                          NavigationDestination(
+                            icon: Icon(Icons.history),
+                            label: 'History',
+                          ),
+                        ],
+                      ),
+                    ),
+            );
+          },
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _learn(bool wide) {
     final selfReviewedIds = {
@@ -551,7 +834,11 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 12),
       Text(
         'One problem. A clearer way forward.',
-        style: TextStyle(color: context.palette.muted, fontSize: 16, height: 1.5),
+        style: TextStyle(
+          color: context.palette.muted,
+          fontSize: 16,
+          height: 1.5,
+        ),
       ),
       if (!wide) ...[const SizedBox(height: 10), SaveStatus(store: store)],
       const SizedBox(height: 22),
@@ -734,7 +1021,10 @@ class _LearningHomeState extends State<LearningHome> {
           }
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
-            children: [Expanded(child: heading), progress],
+            children: [
+              Expanded(child: heading),
+              progress,
+            ],
           );
         },
       ),
@@ -743,6 +1033,10 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 12),
       if (track == 3 || track == 4) ...[
         _curriculumPath(track == 3 ? blind75Entries : mastery300Entries),
+      ] else if (track == 5 || track == 6) ...[
+        _interviewSprintPath(
+          track == 5 ? oneWeekInterviewSprint : lastDayInterviewSprint,
+        ),
       ] else ...[
         ...trackLessons.indexed.map(
           (item) => _lessonTile(item.$2, item.$1 + 1),
@@ -756,7 +1050,11 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 10),
       Text(
         'Your workbook saves on this device. Guided checkpoints are self-reviewed; reference-case matches do not establish verified solves.',
-        style: TextStyle(fontSize: 12, color: context.palette.muted, height: 1.6),
+        style: TextStyle(
+          fontSize: 12,
+          color: context.palette.muted,
+          height: 1.6,
+        ),
       ),
     ],
   );
@@ -839,10 +1137,7 @@ class _LearningHomeState extends State<LearningHome> {
     final weekEnd = weekStart.add(const Duration(days: 7));
     final practiceDays = <int>{};
     for (final session in store.sessions) {
-      final dates = [
-        session.startedAt,
-        ?session.completedAt,
-      ];
+      final dates = [session.startedAt, ?session.completedAt];
       for (final date in dates) {
         final local = date.toLocal();
         final day = DateTime.utc(local.year, local.month, local.day);
@@ -1031,9 +1326,11 @@ class _LearningHomeState extends State<LearningHome> {
                           tooltip: store.isSaved(lesson)
                               ? 'Remove saved problem'
                               : 'Save problem',
-                          icon: Icon(store.isSaved(lesson)
-                              ? Icons.bookmark
-                              : Icons.bookmark_border),
+                          icon: Icon(
+                            store.isSaved(lesson)
+                                ? Icons.bookmark
+                                : Icons.bookmark_border,
+                          ),
                           onPressed: () => toggleSaved(lesson),
                         ),
                         Text(
@@ -1056,7 +1353,9 @@ class _LearningHomeState extends State<LearningHome> {
   Widget _reviewPlan({bool showAll = false}) {
     final now = DateTime.now();
     final schedule = store.reviewSchedule;
-    final due = schedule.where((assignment) => assignment.isDueAt(now)).toList();
+    final due = schedule
+        .where((assignment) => assignment.isDueAt(now))
+        .toList();
     final candidates = showAll || due.isEmpty ? schedule : due;
     final visible = showAll ? candidates : candidates.take(4).toList();
     return Container(
@@ -1077,10 +1376,7 @@ class _LearningHomeState extends State<LearningHome> {
                 due.isEmpty
                     ? '${schedule.length} scheduled'
                     : '${due.length} due',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: context.palette.muted,
-                ),
+                style: TextStyle(fontSize: 13, color: context.palette.muted),
               ),
             ],
           ),
@@ -1152,13 +1448,15 @@ class _LearningHomeState extends State<LearningHome> {
       if (completedIds.contains(entry.lesson.id)) return 'Self-reviewed';
       return 'Not started';
     }
+
     final pathPatterns = <String, List<Blind75Entry>>{};
     for (final entry in milestoneEntries) {
       pathPatterns.putIfAbsent(entry.pattern, () => []).add(entry);
     }
     final patternsStarted = pathPatterns.values
         .where(
-          (pattern) => pattern.any((entry) => statusFor(entry) != 'Not started'),
+          (pattern) =>
+              pattern.any((entry) => statusFor(entry) != 'Not started'),
         )
         .length;
     final reviewedCount = milestoneEntries
@@ -1185,8 +1483,10 @@ class _LearningHomeState extends State<LearningHome> {
         'Self-reviewed' => status == 'Self-reviewed',
         _ => true,
       };
-      return matchesQuery && matchesDifficulty &&
-          matchesProgress && (!savedOnly || store.isSaved(entry.lesson));
+      return matchesQuery &&
+          matchesDifficulty &&
+          matchesProgress &&
+          (!savedOnly || store.isSaved(entry.lesson));
     }).toList();
     final phases = <String, List<Blind75Entry>>{};
     for (final entry in visibleEntries) {
@@ -1389,7 +1689,8 @@ class _LearningHomeState extends State<LearningHome> {
                     .map((entry) => entry.lesson.id)
                     .toSet()
                     .length;
-                final nextPatternEntry = pattern.value
+                final nextPatternEntry =
+                    pattern.value
                         .where((entry) => statusFor(entry) == 'In progress')
                         .firstOrNull ??
                     pattern.value
@@ -1417,7 +1718,8 @@ class _LearningHomeState extends State<LearningHome> {
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(12, 2, 12, 8),
                           child: TextButton.icon(
-                            onPressed: () => openLesson(nextPatternEntry.lesson),
+                            onPressed: () =>
+                                openLesson(nextPatternEntry.lesson),
                             icon: const Icon(Icons.arrow_forward, size: 17),
                             label: Text(
                               statusFor(nextPatternEntry) == 'In progress'
@@ -1441,6 +1743,136 @@ class _LearningHomeState extends State<LearningHome> {
             );
           }),
         const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _interviewSprintPath(
+    InterviewSprint sprint, {
+    bool showDescription = true,
+  }) {
+    final completedIds = store.sessions
+        .where((session) => session.stage == CoachingStage.complete)
+        .map((session) => session.lesson.id)
+        .toSet();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: context.palette.sheet,
+            border: Border.all(color: context.palette.line),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showDescription) ...[
+                Text(
+                  sprint.description,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.55,
+                    color: context.palette.muted,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+              Text(
+                'Selected from LoopLoom’s guided catalog using Grind 75’s priority order and topic coverage. These are practice candidates, not predictions of a specific interview. Progress is shared across roadmaps.',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.55,
+                  color: context.palette.muted,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => launchUrl(
+                  Uri.https('www.techinterviewhandbook.org', '/grind75/'),
+                  mode: LaunchMode.externalApplication,
+                ),
+                icon: const Icon(Icons.open_in_new, size: 18),
+                label: const Text('View Grind 75 source'),
+              ),
+              if (sprint == oneWeekInterviewSprint) ...[
+                const SizedBox(height: 12),
+                const Text('READY FOR A FULL ROUND?', style: noteLabel),
+                const SizedBox(height: 6),
+                Text(
+                  'This 80/20 track refreshes the fundamentals. Medium problems are common in coding interviews, so practice more once these patterns feel comfortable.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.55,
+                    color: context.palette.muted,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      blindQuery = '';
+                      blindDifficulty = 'Medium';
+                      curriculumProgressFilter = 'All progress';
+                      savedOnly = false;
+                    });
+                    _selectTrack(3);
+                  },
+                  icon: const Icon(Icons.arrow_forward, size: 18),
+                  label: const Text('Continue with Blind 75 Medium'),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        for (final (dayIndex, day) in sprint.days.indexed)
+          Builder(
+            builder: (context) {
+              final entries = [
+                for (final slug in day.slugs)
+                  mastery300Entries.firstWhere((entry) => entry.slug == slug),
+              ];
+              final startNumber = sprint.days
+                  .take(dayIndex)
+                  .fold<int>(
+                    0,
+                    (count, previous) => count + previous.slugs.length,
+                  );
+              final reviewed = entries
+                  .where((entry) => completedIds.contains(entry.lesson.id))
+                  .length;
+              return Card(
+                clipBehavior: Clip.antiAlias,
+                child: ExpansionTile(
+                  key: PageStorageKey<String>(
+                    'sprint-${sprint.title}-${day.title}',
+                  ),
+                  initiallyExpanded:
+                      sprint == lastDayInterviewSprint || startNumber == 0,
+                  title: Text(
+                    day.title,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '$reviewed of ${entries.length} self-reviewed · ${day.focus}',
+                    style: const TextStyle(fontSize: 14, height: 1.4),
+                  ),
+                  children: [
+                    for (final (index, entry) in entries.indexed)
+                      _lessonTile(
+                        entry.lesson,
+                        startNumber + index + 1,
+                        title: entry.title,
+                        tag: entry.difficulty,
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -1491,12 +1923,19 @@ class _LearningHomeState extends State<LearningHome> {
           'The starter path combines three warm-ups with twenty-seven intermediate pattern lessons.',
         3 =>
           'A 75-question interview-preparation path arranged by patterns and study phases, with one guided reasoning sequence per problem.',
+        5 => oneWeekInterviewSprint.description,
+        6 => lastDayInterviewSprint.description,
         _ =>
           'A 300-problem interview path across core and advanced patterns. Each challenge has five guided reasoning checkpoints and links to its official statement.',
       }, style: TextStyle(fontSize: 13, height: 1.65, color: context.palette.muted)),
       const SizedBox(height: 16),
       if (track == 3 || track == 4) ...[
         _curriculumPath(track == 3 ? blind75Entries : mastery300Entries),
+      ] else if (track == 5 || track == 6) ...[
+        _interviewSprintPath(
+          track == 5 ? oneWeekInterviewSprint : lastDayInterviewSprint,
+          showDescription: false,
+        ),
       ] else ...[
         ...trackLessons.indexed.map(
           (item) => _lessonTile(item.$2, item.$1 + 1),
@@ -1509,7 +1948,11 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 16),
       Text(
         'The available 30 lessons are original drafts with five guided checkpoints each. They are useful for practice, but still need independent editorial review before a reviewed interview curriculum can be claimed.',
-        style: TextStyle(fontSize: 12, height: 1.65, color: context.palette.muted),
+        style: TextStyle(
+          fontSize: 12,
+          height: 1.65,
+          color: context.palette.muted,
+        ),
       ),
     ],
   );
@@ -1741,12 +2184,7 @@ class _LearningHomeState extends State<LearningHome> {
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () => _confirmDeleteAttempt(session),
                 ),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) =>
-                        PracticeScreen(session: session, store: store),
-                  ),
-                ),
+                onTap: () => openAttempt(session),
               ),
             ],
           ),
@@ -1767,15 +2205,21 @@ class _LearningHomeState extends State<LearningHome> {
             ? const [
                 Padding(
                   padding: EdgeInsets.all(18),
-                  child: Text('Save a problem from a roadmap to return to it here.'),
+                  child: Text(
+                    'Save a problem from a roadmap to return to it here.',
+                  ),
                 ),
               ]
-            : lessons.map((lesson) => ListTile(
-                title: Text(lesson.title),
-                subtitle: Text(lesson.pattern),
-                trailing: const Icon(Icons.north_east, size: 17),
-                onTap: () => openLesson(lesson),
-              )).toList(),
+            : lessons
+                  .map(
+                    (lesson) => ListTile(
+                      title: Text(lesson.title),
+                      subtitle: Text(lesson.pattern),
+                      trailing: const Icon(Icons.north_east, size: 17),
+                      onTap: () => openLesson(lesson),
+                    ),
+                  )
+                  .toList(),
       ),
     );
   }

@@ -22,6 +22,13 @@
   <meta name="theme-color" content="#F7F4EF" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#17191B" media="(prefers-color-scheme: dark)">
 
+  <script>
+    document.documentElement.setAttribute(
+      'data-looploom-initial-route',
+      window.location.pathname + window.location.search + window.location.hash
+    );
+  </script>
+
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -43,6 +50,11 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
-  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    const flutterBootstrap = document.createElement('script');
+    flutterBootstrap.src = `flutter_bootstrap.js?v=${Date.now()}`;
+    flutterBootstrap.async = true;
+    document.body.appendChild(flutterBootstrap);
+  </script>
 </body>
 </html>

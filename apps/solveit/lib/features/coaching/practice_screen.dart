@@ -2,12 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/mastery300_curriculum.dart';
+import '../../data/sprint_references.dart';
 import '../../domain/lesson.dart';
 import '../../ui/looploom_theme.dart';
 import '../../ui/save_status.dart';
 import '../../ui/code_workspace.dart';
 import '../../ui/readable_surface.dart';
+import 'firebase_ai_coach_provider.dart';
 import 'session_controller.dart';
+
+enum _OfflineCoachAction { clarify, example, edgeCase, selfCheck, nextHint }
 
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({super.key, required this.session, required this.store});
@@ -82,6 +86,204 @@ class _PracticeScreenState extends State<PracticeScreen> {
     revealTarget(checkpointKey);
   }
 
+  Future<bool> _confirmAiConsent() async {
+    if (session.coach is! FirebaseAiCoachProvider) return true;
+    if (widget.store.preferences.aiCoachConsent) return true;
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Allow Gemini to review this answer?'),
+        content: const Text(
+          'When you choose Ask AI, this answer and a short problem context are sent to Google Gemini. LoopLoom does not upload practice in the background. Gemini’s free tier may use submitted content to improve Google products. Avoid personal or confidential information. The AI cannot run or verify your code.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Allow and ask AI'),
+          ),
+        ],
+      ),
+    );
+    if (accepted != true || !mounted) return false;
+    try {
+      await widget.store.updatePreferences(
+        widget.store.preferences.copyWith(aiCoachConsent: true),
+      );
+      return true;
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Your AI consent could not be saved. No answer was sent.',
+            ),
+          ),
+        );
+      }
+      return false;
+    }
+  }
+
+  Future<void> _requestAiReview() async {
+    if (!session.coach.enabled || session.answerForReview.trim().isEmpty) {
+      return;
+    }
+    if (!await _confirmAiConsent() || !mounted) return;
+    FocusScope.of(context).unfocus();
+    await session.reviewWithCoach();
+    if (mounted) revealTarget(noteKey);
+  }
+
+  Future<void> _openOfflineCoach() async {
+    final action = await showModalBottomSheet<_OfflineCoachAction>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * .86,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(sheetContext).colorScheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 22),
+                Text('OFFLINE COACH', style: noteLabel),
+                const SizedBox(height: 8),
+                const Text(
+                  'What would help right now?',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Uses this problem’s own statement, example, checks, and hints. It will not grade your answer or change your draft.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.55,
+                    color: Theme.of(sheetContext).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _coachAction(
+                  sheetContext,
+                  _OfflineCoachAction.clarify,
+                  Icons.subject_outlined,
+                  'Clarify the task',
+                  'Restate what the problem asks you to produce.',
+                ),
+                _coachAction(
+                  sheetContext,
+                  _OfflineCoachAction.example,
+                  Icons.play_circle_outline,
+                  'Walk through the example',
+                  'Trace the example by hand and name each state change.',
+                ),
+                _coachAction(
+                  sheetContext,
+                  _OfflineCoachAction.edgeCase,
+                  Icons.tune,
+                  'Think about edge cases',
+                  'Use the constraints to choose boundary cases to consider.',
+                ),
+                _coachAction(
+                  sheetContext,
+                  _OfflineCoachAction.selfCheck,
+                  Icons.fact_check_outlined,
+                  'Use the current self-check',
+                  'Compare your own reasoning with this step’s checkpoint.',
+                ),
+                _coachAction(
+                  sheetContext,
+                  _OfflineCoachAction.nextHint,
+                  Icons.lightbulb_outline,
+                  session.hintsUsed < session.lesson.hints.length
+                      ? 'Give me the next hint'
+                      : 'All hints have been used',
+                  session.hintsUsed < session.lesson.hints.length
+                      ? 'Reveal one authored hint. You can still solve it yourself.'
+                      : 'You can revisit any hint in the session notes below.',
+                  enabled: session.hintsUsed < session.lesson.hints.length,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Guidance is saved in session notes. Your step only advances when you choose to continue.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.5,
+                    color: Theme.of(sheetContext).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (!mounted || action == null) return;
+    late String guidance;
+    switch (action) {
+      case _OfflineCoachAction.clarify:
+        guidance =
+            'Task check\n\n${session.lesson.statement}\n\nYour turn: In one sentence, name the input and the exact result the solution must return. Which part of the statement tells you that?';
+        break;
+      case _OfflineCoachAction.example:
+        guidance =
+            'Walk through this example\n\n${session.lesson.example}\n\nTrace it by hand. What is the state before each step, and what should the final output be?';
+        break;
+      case _OfflineCoachAction.edgeCase:
+        guidance =
+            'Edge-case prompt\n\nConstraints: ${session.lesson.constraints}\n\nChoose a smallest or largest valid input, plus a duplicate, empty, or boundary case when allowed by the statement. Which case would challenge your current approach, and why?';
+        break;
+      case _OfflineCoachAction.selfCheck:
+        guidance =
+            'Self-check for ${session.stage.label.toLowerCase()}\n\n${session.selfCheck}\n\nCompare your current thinking with each point. Which can you justify, and what still needs work? This is a reflection prompt, not a verdict.';
+        break;
+      case _OfflineCoachAction.nextHint:
+        session.requestHint();
+        unawaited(widget.store.flush());
+        revealTarget(noteKey);
+        return;
+    }
+    session.addOfflineGuidance(guidance);
+    unawaited(widget.store.flush());
+    revealTarget(noteKey);
+  }
+
+  Widget _coachAction(
+    BuildContext sheetContext,
+    _OfflineCoachAction action,
+    IconData icon,
+    String title,
+    String subtitle, {
+    bool enabled = true,
+  }) => ListTile(
+    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+    leading: Icon(icon),
+    title: Text(title, style: const TextStyle(fontSize: 16)),
+    subtitle: Text(subtitle, style: const TextStyle(fontSize: 13, height: 1.4)),
+    enabled: enabled,
+    onTap: enabled ? () => Navigator.pop(sheetContext, action) : null,
+  );
+
   void revealTarget(GlobalKey target) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final targetContext = target.currentContext;
@@ -128,16 +330,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
               tooltip: widget.store.isSaved(session.lesson)
                   ? 'Remove saved problem'
                   : 'Save problem',
-              icon: Icon(widget.store.isSaved(session.lesson)
-                  ? Icons.bookmark
-                  : Icons.bookmark_border),
+              icon: Icon(
+                widget.store.isSaved(session.lesson)
+                    ? Icons.bookmark
+                    : Icons.bookmark_border,
+              ),
               onPressed: () async {
                 try {
                   await widget.store.toggleSaved(session.lesson);
                 } catch (_) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Could not save this change locally. Try again.')),
+                      const SnackBar(
+                        content: Text(
+                          'Could not save this change locally. Try again.',
+                        ),
+                      ),
                     );
                   }
                 }
@@ -251,7 +459,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: context.palette.recess,
-          border: Border(left: BorderSide(color: context.palette.line, width: 2)),
+          border: Border(
+            left: BorderSide(color: context.palette.line, width: 2),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,6 +488,33 @@ class _PracticeScreenState extends State<PracticeScreen> {
           height: 1.7,
         ),
       ),
+      if (sprintReferences[session.lesson.id] case final reference?) ...[
+        const SizedBox(height: 12),
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          title: const Text(
+            'Edge cases to watch',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          subtitle: const Text(
+            'Trace these before you write code.',
+            style: TextStyle(fontSize: 14),
+          ),
+          children: [
+            for (final edge in reference.edgeCases)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '• $edge',
+                    style: const TextStyle(fontSize: 15, height: 1.5),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
     ],
   );
 
@@ -290,7 +527,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
           message.isLearner
               ? 'YOUR THINKING'
               : message.kind == MessageKind.feedback
-              ? 'LOCAL COACH / EXPERIMENTAL'
+              ? 'AI COACH / SUGGESTION'
+              : message.kind == MessageKind.error
+              ? 'AI COACH / UNAVAILABLE'
+              : message.kind == MessageKind.offlineCoach
+              ? 'OFFLINE COACH / CURATED GUIDANCE'
               : 'GUIDED NOTE',
           style: noteLabel,
         ),
@@ -381,10 +622,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
         const SizedBox(height: 12),
         Text(
           session.coach.enabled
-              ? 'Local coach · experimental feedback. Feedback does not execute code.'
-              : 'Guided self-check · No AI grading. Saving code does not run it.',
+              ? session.coach is FirebaseAiCoachProvider
+                    ? 'Gemini AI · sends your answer only when you tap Ask AI. Feedback does not run or verify code.'
+                    : 'Experimental local AI · feedback does not run or verify code.'
+              : 'Offline coach · problem-specific prompts and hints. Code can be checked against reference cases when your runner is connected.',
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 13,
             color: context.palette.muted,
             height: 1.65,
           ),
@@ -399,9 +642,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
         if (session.stage == CoachingStage.code) ...[
           CodeWorkspace(
             lessonId: session.lesson.id,
+            store: widget.store,
             language: session.language,
             editor: editor,
-            enabled: !session.reviewing,
+            enabled: true,
             onChanged: session.saveDraft,
             onLanguageChanged: (language) {
               session.changeLanguage(language);
@@ -415,7 +659,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ] else if (!complete) ...[
           TextField(
             controller: composer,
-            enabled: !session.reviewing,
+            enabled: true,
             onChanged: session.saveReasoningDraft,
             minLines: 4,
             maxLines: 10,
@@ -449,9 +693,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 session.reviewing || session.answerForReview.trim().isEmpty
                 ? null
                 : () async {
-                    FocusScope.of(context).unfocus();
-                    await session.reviewWithCoach();
-                    if (mounted) revealTarget(noteKey);
+                    await _requestAiReview();
                   },
             icon: session.reviewing
                 ? const SizedBox(
@@ -461,8 +703,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   )
                 : const Icon(Icons.chat_bubble_outline, size: 16),
             label: Text(
-              session.reviewing ? 'Thinking locally…' : 'Ask local coach',
+              session.reviewing ? 'AI coach is thinking…' : 'Ask AI coach',
             ),
+          ),
+        ],
+        if (!complete) ...[
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _openOfflineCoach,
+            icon: const Icon(Icons.forum_outlined, size: 18),
+            label: const Text('Ask the offline coach'),
           ),
         ],
         if (session.checkpointReady) ...[
@@ -493,10 +743,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
             runSpacing: 4,
             children: [
               TextButton.icon(
-                style: TextButton.styleFrom(foregroundColor: context.palette.muted),
-                onPressed:
-                    !session.reviewing &&
-                        session.hintsUsed < session.lesson.hints.length
+                style: TextButton.styleFrom(
+                  foregroundColor: context.palette.muted,
+                ),
+                onPressed: session.hintsUsed < session.lesson.hints.length
                     ? () {
                         session.requestHint();
                         revealTarget(noteKey);
@@ -508,9 +758,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 ),
               ),
               TextButton(
-                onPressed: session.solutionRevealed || session.reviewing
-                    ? null
-                    : reveal,
+                onPressed: session.solutionRevealed ? null : reveal,
                 child: const Text('Reveal explanation'),
               ),
             ],

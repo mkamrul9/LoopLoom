@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import '../domain/learner_preferences.dart';
 import '../domain/lesson.dart';
 import '../features/coaching/session_controller.dart';
+import '../features/coaching/firebase_ai_coach_provider.dart';
+import '../features/coaching/reference_runner.dart';
 import 'backup_screen.dart';
 import 'readable_surface.dart';
 import 'save_status.dart';
 import 'looploom_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key, required this.store});
+  const SettingsScreen({super.key, required this.store, this.onOpenBackup});
   final PracticeStore store;
+  final VoidCallback? onOpenBackup;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -19,6 +22,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   PracticeStore get store => widget.store;
   late final TextEditingController _name;
   late final TextEditingController _role;
+  late final TextEditingController _runnerAddress;
+  late final TextEditingController _runnerToken;
   late int _weeklyGoalDays;
   late int _dailyGoalMinutes;
   DateTime? _targetDate;
@@ -30,6 +35,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final preferences = store.preferences;
     _name = TextEditingController(text: preferences.displayName);
     _role = TextEditingController(text: preferences.targetRole);
+    _runnerAddress = TextEditingController(text: preferences.runnerAddress);
+    _runnerToken = TextEditingController(text: preferences.runnerToken);
     _weeklyGoalDays = preferences.weeklyGoalDays;
     _dailyGoalMinutes = preferences.dailyGoalMinutes;
     _targetDate = preferences.targetInterviewDate;
@@ -39,6 +46,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     _name.dispose();
     _role.dispose();
+    _runnerAddress.dispose();
+    _runnerToken.dispose();
     super.dispose();
   }
 
@@ -49,6 +58,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         _showMessage('Could not save that setting. Try again.');
       }
+    }
+  }
+
+  Future<void> _saveRunner() async {
+    final address = _runnerAddress.text.trim();
+    final token = _runnerToken.text.trim();
+    if (address.isNotEmpty) {
+      try {
+        ReferenceRunnerClient(address, token: token).close();
+      } catch (_) {
+        _showMessage(
+          'Use http://PRIVATE-LAN-IP:8766 and a token of at least 32 characters.',
+        );
+        return;
+      }
+    }
+    await _savePreference(
+      store.preferences.copyWith(runnerAddress: address, runnerToken: token),
+    );
+    if (mounted) {
+      _showMessage(
+        address.isEmpty
+            ? 'Runner disconnected.'
+            : 'Runner settings saved on this device.',
+      );
+    }
+  }
+
+  Future<void> _setAiCoachConsent(bool enabled) async {
+    if (!enabled) {
+      await _savePreference(store.preferences.copyWith(aiCoachConsent: false));
+      return;
+    }
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Allow Gemini AI coaching?'),
+        content: const Text(
+          'When you tap Ask AI, LoopLoom sends your current answer and a short problem context to Google Gemini. It does not send answers in the background. Gemini’s free tier may use submitted content to improve Google products. Do not include personal or confidential information. AI feedback is a suggestion, not a test result.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Allow AI coach'),
+          ),
+        ],
+      ),
+    );
+    if (accepted == true && mounted) {
+      await _savePreference(store.preferences.copyWith(aiCoachConsent: true));
     }
   }
 
@@ -153,10 +216,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _role.text.trim().isEmpty
                       ? 'Interview preparation · private to this device'
                       : '${_role.text.trim()} · private to this device',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: context.palette.muted,
-                  ),
+                  style: TextStyle(fontSize: 14, color: context.palette.muted),
                 ),
               ],
             ),
@@ -343,6 +403,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const Divider(),
             const SizedBox(height: 24),
             _sectionHeading(
+              'Optional cloud feature',
+              'Gemini AI coach',
+              'AI feedback only runs when you ask. The offline coach keeps working without internet.',
+            ),
+            const SizedBox(height: 12),
+            if (store.coach is FirebaseAiCoachProvider)
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                value: store.preferences.aiCoachConsent,
+                onChanged: _setAiCoachConsent,
+                title: const Text('Allow AI feedback'),
+                subtitle: Text(
+                  store.preferences.aiCoachConsent
+                      ? 'Your answers are sent only after you tap Ask AI. You can turn this off any time.'
+                      : 'Review the data notice before enabling.',
+                ),
+              )
+            else if (store.coach.enabled)
+              const ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.science_outlined),
+                title: Text('Experimental local AI is configured'),
+                subtitle: Text(
+                  'It is for development only. Its feedback has not passed the quality checks for learner use.',
+                ),
+              )
+            else
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.cloud_off_outlined),
+                title: const Text('Cloud AI is not configured'),
+                subtitle: const Text(
+                  'The offline coach is ready. Gemini requires the Firebase setup described in docs/AI_SETUP.md.',
+                ),
+              ),
+            const SizedBox(height: 34),
+            const Divider(),
+            const SizedBox(height: 24),
+            _sectionHeading(
+              'Code practice',
+              'Run your draft',
+              'Use a Docker-backed runner on your own PC or server. Your phone and runner must share a trusted private network.',
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Study points: ${store.preferences.pointsBalance} · Reference code costs 10 points per problem and unlocks all four languages.',
+              style: const TextStyle(fontSize: 15, height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _runnerAddress,
+              keyboardType: TextInputType.url,
+              autocorrect: false,
+              decoration: const InputDecoration(
+                labelText: 'Runner address',
+                hintText: 'http://192.168.1.20:8766',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _runnerToken,
+              obscureText: true,
+              autocorrect: false,
+              decoration: const InputDecoration(
+                labelText: 'Runner access token',
+                helperText:
+                    'Use the same random token configured on the runner PC.',
+              ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _saveRunner,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('Save runner connection'),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'The runner PC must be on when you tap Run. The reference code and edge cases remain available offline. Do not expose this HTTP service to the internet.',
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: context.palette.muted,
+              ),
+            ),
+            const SizedBox(height: 34),
+            const Divider(),
+            const SizedBox(height: 24),
+            _sectionHeading(
               'Appearance',
               'Choose a theme',
               'System follows your device setting. Light and Dark stay selected on this device.',
@@ -353,7 +501,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               runSpacing: 8,
               children: AppearancePreference.values.map((appearance) {
                 final icon = switch (appearance) {
-                  AppearancePreference.system => Icons.settings_suggest_outlined,
+                  AppearancePreference.system =>
+                    Icons.settings_suggest_outlined,
                   AppearancePreference.light => Icons.light_mode_outlined,
                   AppearancePreference.dark => Icons.dark_mode_outlined,
                 };
@@ -434,11 +583,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 14),
             OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => BackupScreen(store: store),
-                ),
-              ),
+              onPressed:
+                  widget.onOpenBackup ??
+                  () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => BackupScreen(store: store),
+                    ),
+                  ),
               icon: const Icon(Icons.inventory_2_outlined),
               label: const Text('Open workbook backup'),
             ),

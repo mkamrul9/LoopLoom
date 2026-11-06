@@ -14,3 +14,6 @@ key.properties
 *.pyc
 .local/
 dist/*.apk
+.firebase/
+apps/solveit/firebase.ai.json
+firebase-debug.log

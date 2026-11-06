@@ -42,7 +42,8 @@ The coach asks for the next step instead of revealing a complete solution by def
 - **A local workbook** for attempts, notes, saved problems, study goals, and review history. Save or restore JSON backup files on Android and web, with a validated preview before importing; copy/paste remains available.
 - **Readable study settings** with an Extra large 1.5× option, device text scaling, and persistent System, Light, and Dark themes.
 - **Responsive Flutter screens** for Android and web.
-- **Optional local AI experiments** through a development gateway. Guided practice works without an AI service or paid API.
+- **Optional Gemini AI coach** through Firebase AI Logic, enabled only after Firebase and App Check are configured and the learner opts in. It sends bounded text only when requested; no model weights are bundled in the APK. The default checkout has no Firebase project config, so cloud AI is off and guided practice still works offline.
+- **Experimental local-model gateway** for development only. The tested small models are not approved for learner feedback.
 
 ### How a session works
 
@@ -58,7 +59,7 @@ Progress is labeled **self-reviewed**. It does not claim a verified solve when c
 
 LoopLoom writes its own learning prompts, hints, and explanations. The Blind 75 path links to the official challenge pages and is not affiliated with LeetCode. The 300-problem roadmap combines the Blind 75 with additional interview challenges; canonical statements and online judging remain on their linked sites.
 
-The curriculum is still being reviewed. Fifteen Blind 75 lessons currently have local reference-case specifications. The remaining challenges use external judges. The optional development runner executes only authored reference cases in disposable Docker containers; it is not enabled as a production code-execution service.
+The curriculum is still being reviewed. Every problem in the one-week interview track and its last-day subset now has three local reference cases, problem-specific edge cases, and original C++, Python, JavaScript, and TypeScript reference code. Reference code starts hidden and costs 10 of the 10,000 local study points to unlock per problem. These are practice credits, not purchases or a secure payment balance. Other challenges may still need an external judge. The optional self-hosted runner executes authored reference cases in disposable Docker containers; see [phone setup](docs/REFERENCE_RUNNER.md). It is not a public production code-execution service.
 
 ## A quiet place to practice
 
@@ -104,13 +105,14 @@ Useful guides:
 - [LoopLoom brand and color palettes](docs/LOOPLOOM_BRAND.md)
 - [Curriculum: Interview Mastery 300](docs/MASTER_300_CURRICULUM.md)
 - [Local development and backup](docs/LOCAL_DEVELOPMENT.md)
+- [Gemini AI setup and App Check](docs/AI_SETUP.md)
 - [Local AI evaluation](docs/LOCAL_AI_VALIDATION.md)
 - [Code runner scope](docs/REFERENCE_RUNNER.md)
 - [Release and monetization plan](docs/RELEASE_MONETIZATION.md)
 
 ## Project status
 
-LoopLoom is under active development. Accounts, cross-device sync, production AI, secure hosted code execution, and billing are not implemented. Public release still needs curriculum review, device and accessibility checks, release signing, and Play Store preparation. See the [delivery roadmap](docs/PRODUCT_ROADMAP.md) for the current plan.
+LoopLoom is under active development. The Gemini provider is implemented but requires a Firebase project, App Check registration, and learner consent before it can make live requests. Accounts, cross-device sync, production-grade AI evaluation, secure hosted code execution, and billing are not implemented. Public release still needs curriculum review, device and accessibility checks, release signing, and Play Store preparation. See the [delivery roadmap](docs/PRODUCT_ROADMAP.md) for the current plan.
 
 ## License
 

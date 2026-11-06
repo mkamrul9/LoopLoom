@@ -61,4 +61,13 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(self.request('POST','/run','{}',{'Content-Type':'application/json'})[0],400)
         self.assertEqual(self.calls,[])
 
+    def test_lan_token_is_required_before_health_or_execution(self):
+        self.server.RequestHandlerClass = handler(lambda payload: {'cases': []},
+                                                  lambda: ['python'],
+                                                  listen_host='192.168.1.20',
+                                                  token='x' * 32)
+        self.assertEqual(self.request('GET','/health')[0],403)
+        self.assertEqual(self.request('GET','/health',headers={'Authorization':'Bearer wrong'})[0],403)
+        self.assertEqual(self.request('GET','/health',headers={'Authorization':'Bearer ' + 'x' * 32})[0],200)
+
 if __name__ == '__main__': unittest.main()

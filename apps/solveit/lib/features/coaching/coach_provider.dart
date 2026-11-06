@@ -93,7 +93,18 @@ class LocalCoachProvider implements CoachProvider {
       );
     }
     try {
-      return await _request(request).timeout(const Duration(seconds: 60));
+      const localFields = {
+        'lesson_id',
+        'stage',
+        'language',
+        'answer',
+        'previous_answers',
+      };
+      final localRequest = {
+        for (final field in localFields)
+          if (request.containsKey(field)) field: request[field],
+      };
+      return await _request(localRequest).timeout(const Duration(seconds: 60));
     } on CoachUnavailable {
       rethrow;
     } on TimeoutException {
@@ -144,9 +155,4 @@ class LocalCoachProvider implements CoachProvider {
 
   @override
   void close() => _client.close();
-}
-
-CoachProvider configuredCoach() {
-  const address = String.fromEnvironment('SOLVEIT_COACH_URL');
-  return address.isEmpty ? const DisabledCoach() : LocalCoachProvider(address);
 }

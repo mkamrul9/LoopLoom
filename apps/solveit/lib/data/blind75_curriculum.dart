@@ -757,7 +757,7 @@ final blind75Entries = <Blind75Entry>[
     title: 'Lowest Common Ancestor of a Binary Search Tree',
     slug: 'lowest-common-ancestor-of-a-binary-search-tree',
     pattern: 'Trees',
-    difficulty: 'Medium',
+    difficulty: 'Easy',
     summary: 'Use the BST ordering to find where two root paths split.',
     statement:
         'In a BST containing both requested values, return the value at their lowest shared ancestor. The ancestor may be one of the requested nodes.',
@@ -1603,7 +1603,7 @@ final blind75Entries = <Blind75Entry>[
     slug: 'maximum-subarray',
     pattern: 'Greedy',
     phase: 'Phase 4 · Optimization and boundaries',
-    difficulty: 'Easy',
+    difficulty: 'Medium',
     lessonId: 'max-subarray-v1',
   ),
   _BlindDraft(

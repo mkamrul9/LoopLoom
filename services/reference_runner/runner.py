@@ -5,6 +5,7 @@ import subprocess
 import threading
 import time
 import uuid
+from sprint_content import CPP_TYPES
 
 ROOT = Path(__file__).resolve().parent
 IMAGE = 'node@sha256:c86ecead9e55a5210ac1727de38a4ca840bf03dcaf34dc9749addbf383b1920c'
@@ -30,6 +31,7 @@ IMMUTABLE_INPUT_LESSONS = {
     'tree-width-v1', 'tree-path-sum-v1', 'list-middle-v1', 'list-cycle-v1', 'list-nth-from-end-v1',
     'subset-sum-v1', 'combination-count-v1', 'target-sum-ways-v1',
 }
+IMMUTABLE_INPUT_LESSONS.update(CPP_TYPES)
 NESTED_INPUT_LESSONS = {
     'busy-periods-v1', 'island-count-v1', 'graph-components-v1', 'merge-streams-v1',
     'tree-depth-v1', 'tree-width-v1', 'tree-path-sum-v1', 'list-middle-v1', 'list-cycle-v1',
@@ -189,9 +191,28 @@ def _cpp_translation_unit(source, cases, lesson):
              '}', 'int main() {', '  ostringstream result;', '  result << "__SOLVEIT_CPP__:{\\"cases\\":[";',
              '  bool first = true;']
     for index, case in enumerate(cases):
+        args = case['args']
+        if lesson in CPP_TYPES:
+            arg_types = CPP_TYPES[lesson]
+            if len(args) != len(arg_types):
+                raise ValueError('Invalid C++ lesson signature')
+            declarations = [f'  {arg_type} input_{index}_{offset} = {_cpp_literal(value)};'
+                            for offset, (arg_type, value) in enumerate(zip(arg_types, args))]
+            before = [f'  const auto before_{index}_{offset} = input_{index}_{offset};'
+                      for offset in range(len(args))]
+            call = ', '.join(f'input_{index}_{offset}' for offset in range(len(args)))
+            unchanged = ' && '.join(f'input_{index}_{offset} == before_{index}_{offset}'
+                                    for offset in range(len(args)))
+            lines += declarations + before + [
+                '  if (!first) result << ","; first = false;',
+                f'  try {{ auto answer = solve({call});',
+                '    result << "{\\"status\\":\\"returned\\",\\"result\\":";',
+                '    emitJson(result, answer);',
+                f'    result << ",\\"mutated\\":" << ({unchanged} ? "false" : "true") << "}}";',
+                '  } catch (...) { result << "{\\"status\\":\\"runtime_error\\"}"; }']
+            continue
         nested = lesson in NESTED_INPUT_LESSONS
         array_type = 'vector<vector<int>>' if nested else 'vector<int>'
-        args = case['args']
         if lesson in CPP_STRING_INPUT_LESSONS:
             input_declaration = f'  string input_{index} = {_cpp_literal(args[0])};'
         else:

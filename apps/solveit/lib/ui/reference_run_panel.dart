@@ -11,12 +11,15 @@ class ReferenceRunPanel extends StatefulWidget {
     required this.language,
     required this.editor,
     required this.enabled,
+    this.runnerAddress = '',
+    this.runnerToken = '',
     this.runner,
   });
   final String lessonId;
   final CodeLanguage language;
   final TextEditingController editor;
   final bool enabled;
+  final String runnerAddress, runnerToken;
   final ReferenceRunnerClient? runner;
   @override
   State<ReferenceRunPanel> createState() => _ReferenceRunPanelState();
@@ -25,18 +28,35 @@ class ReferenceRunPanel extends StatefulWidget {
 class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
   ReferenceRunnerClient? client;
   ReferenceRun? result;
+  bool _ownsClient = false;
   bool busy = false;
   String? note;
   late String lastText;
   @override
   void initState() {
     super.initState();
-    const address = String.fromEnvironment('SOLVEIT_RUNNER_URL');
-    client =
-        widget.runner ??
-        (address.isEmpty ? null : ReferenceRunnerClient(address));
+    _configureClient();
     lastText = widget.editor.text;
     widget.editor.addListener(invalidate);
+  }
+
+  void _configureClient() {
+    if (_ownsClient) client?.close();
+    _ownsClient = false;
+    client = widget.runner;
+    if (client != null) return;
+    const buildAddress = String.fromEnvironment('SOLVEIT_RUNNER_URL');
+    final address = widget.runnerAddress.isEmpty
+        ? buildAddress
+        : widget.runnerAddress;
+    if (address.isEmpty) return;
+    try {
+      client = ReferenceRunnerClient(address, token: widget.runnerToken);
+      _ownsClient = true;
+    } catch (_) {
+      client = null;
+      note = 'Check the runner address and token in Settings.';
+    }
   }
 
   void invalidate() {
@@ -65,12 +85,18 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
       result = null;
       note = null;
     }
+    if (oldWidget.runnerAddress != widget.runnerAddress ||
+        oldWidget.runnerToken != widget.runnerToken ||
+        oldWidget.runner != widget.runner) {
+      _configureClient();
+      result = null;
+    }
   }
 
   @override
   void dispose() {
     widget.editor.removeListener(invalidate);
-    client?.close();
+    if (_ownsClient) client?.close();
     super.dispose();
   }
 
@@ -131,7 +157,11 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Text(
           'LoopLoom does not have local reference cases for this problem yet. Your draft is saved here; use the linked challenge page to run its official tests.',
-          style: TextStyle(fontSize: 14, height: 1.6, color: context.palette.muted),
+          style: TextStyle(
+            fontSize: 14,
+            height: 1.6,
+            color: context.palette.muted,
+          ),
         ),
       );
     }
@@ -139,8 +169,12 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Text(
-          'Reference-case execution is not configured in this build. Your draft is saved here for self-review.',
-          style: TextStyle(fontSize: 14, height: 1.6, color: context.palette.muted),
+          'Set a self-hosted runner address in Settings to run these cases from your phone. Your draft stays saved here.',
+          style: TextStyle(
+            fontSize: 14,
+            height: 1.6,
+            color: context.palette.muted,
+          ),
         ),
       );
     }

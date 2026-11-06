@@ -29,6 +29,6 @@ New evaluation reports record inference settings, fixture hash, model digest, ru
 
 ## Product decision
 
-Keep the curated coaching loop, saved drafts, and explicit self-checks as the usable pilot. Local inference is an opt-in developer experiment. Starting a gateway through the helper requires both an explicit model and `-Experimental`; there is no default model choice. A model response never advances a checkpoint or establishes a verified solve.
+Keep the curated coaching loop, saved drafts, and explicit self-checks as the usable pilot. The practice screen's offline coach surfaces the current lesson's statement, example, constraints, self-check, and authored hints; it saves guidance in session history but does not grade learner answers or run code. Local inference is an opt-in developer experiment. Starting a gateway through the helper requires both an explicit model and `-Experimental`; there is no default model choice. A model response never advances a checkpoint or establishes a verified solve.
 
 Before learner-facing AI, create at least 100 independently reviewed examples and a held-out split; measure false approvals, false rejections, solution leakage, injection, and teaching usefulness. Revalidate latency and resource use on target devices. Automatic checkpoint approval and test-verified solve state remain separate work. The next useful product slices are backup/export, intermediate lesson content, and isolated code execution with reviewed test cases.

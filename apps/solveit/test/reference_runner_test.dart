@@ -234,6 +234,17 @@ void main() {
     },
   );
   test('server reference fixtures match the visible input contracts', () {
+    String compactOutsideStrings(String value) {
+      final result = StringBuffer();
+      var quoted = false;
+      var escaped = false;
+      for (final char in value.split('')) {
+        if (char == '"' && !escaped) quoted = !quoted;
+        if (quoted || char != ' ') result.write(char);
+        escaped = char == '\\' && !escaped;
+      }
+      return result.toString();
+    }
     final suite =
         jsonDecode(
               File(
@@ -251,7 +262,7 @@ void main() {
         final input = entry.value.names.indexed
             .map((name) => '${name.$2}=${jsonEncode(args[name.$1])}')
             .join(',');
-        expect(entry.value.cases[i].input.replaceAll(' ', ''), input);
+        expect(compactOutsideStrings(entry.value.cases[i].input), input);
         expect(
           entry.value.cases[i].expected.replaceAll(' ', ''),
           contains(jsonEncode(rows[i]['expected'])),

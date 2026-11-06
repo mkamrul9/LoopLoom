@@ -3,6 +3,9 @@
 ## Current slice: guided interview practice
 
 - Responsive Flutter shell with Learn, Roadmaps, and History.
+- Browser URLs for Learn, Roadmaps, History, settings, backup, diagnostics, and
+  individual problems; direct links and back navigation return to the learner's
+  originating section.
 - Thirty original lesson drafts across warm-up and intermediate tracks, with a gradual hint ladder.
 - Self-check learning stages, explicit solution reveal, and assistance tracking.
 - C++, Python, JavaScript, and TypeScript drafts.

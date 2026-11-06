@@ -56,12 +56,17 @@ class LearnerPreferences {
     this.targetRole = '',
     this.weeklyGoalDays = 5,
     this.dailyGoalMinutes = 30,
+    this.aiCoachConsent = false,
     this.selectedTrack = 3,
     this.targetInterviewDate,
     this.diagnosticCompletedAt,
     this.diagnosticScores = const {},
     this.diagnosticAnswers = const {},
     this.savedLessonIds = const {},
+    this.pointsBalance = 10000,
+    this.unlockedReferenceIds = const {},
+    this.runnerAddress = '',
+    this.runnerToken = '',
   });
 
   static const textScaleOptions = <double>[1.0, 1.15, 1.3, 1.5];
@@ -72,11 +77,17 @@ class LearnerPreferences {
   final double textScale;
   final String displayName, targetRole;
   final int weeklyGoalDays, dailyGoalMinutes;
+  final bool aiCoachConsent;
   final int selectedTrack;
   final DateTime? targetInterviewDate;
   final DateTime? diagnosticCompletedAt;
   final Map<String, int> diagnosticScores, diagnosticAnswers;
   final Set<String> savedLessonIds;
+
+  /// Local study credits; no payment or server ledger is attached.
+  final int pointsBalance;
+  final Set<String> unlockedReferenceIds;
+  final String runnerAddress, runnerToken;
 
   Map<String, Object?> toJson() => {
     'pace': pace.name,
@@ -87,12 +98,17 @@ class LearnerPreferences {
     'targetRole': targetRole,
     'weeklyGoalDays': weeklyGoalDays,
     'dailyGoalMinutes': dailyGoalMinutes,
+    'aiCoachConsent': aiCoachConsent,
     'selectedTrack': selectedTrack,
     'targetInterviewDate': targetInterviewDate?.toIso8601String(),
     'diagnosticCompletedAt': diagnosticCompletedAt?.toIso8601String(),
     'diagnosticScores': diagnosticScores,
     'diagnosticAnswers': diagnosticAnswers,
     'savedLessonIds': savedLessonIds.toList()..sort(),
+    'pointsBalance': pointsBalance,
+    'unlockedReferenceIds': unlockedReferenceIds.toList()..sort(),
+    'runnerAddress': runnerAddress,
+    'runnerToken': runnerToken,
   };
 
   factory LearnerPreferences.fromJson(Map<String, Object?> json) {
@@ -127,6 +143,8 @@ class LearnerPreferences {
     }
 
     final rawSaved = json['savedLessonIds'];
+    final rawPoints = json['pointsBalance'];
+    final rawUnlocked = json['unlockedReferenceIds'];
     return LearnerPreferences(
       pace: parse(CoachingPace.values, json['pace'], CoachingPace.intermediate),
       preferredLanguage: parse(
@@ -153,7 +171,8 @@ class LearnerPreferences {
           rawMinutes is int && rawMinutes >= 10 && rawMinutes <= 240
           ? rawMinutes
           : 30,
-      selectedTrack: rawTrack is int && rawTrack >= 0 && rawTrack <= 4
+      aiCoachConsent: json['aiCoachConsent'] == true,
+      selectedTrack: rawTrack is int && rawTrack >= 0 && rawTrack <= 6
           ? rawTrack
           : 3,
       targetInterviewDate: parsedDate,
@@ -175,6 +194,27 @@ class LearnerPreferences {
                 .take(500)
                 .toSet()
           : const {},
+      pointsBalance:
+          rawPoints is int && rawPoints >= 0 && rawPoints <= 1000000000
+          ? rawPoints
+          : 10000,
+      unlockedReferenceIds: rawUnlocked is List
+          ? rawUnlocked
+                .whereType<String>()
+                .where((id) => id.isNotEmpty && id.length <= 200)
+                .take(500)
+                .toSet()
+          : const {},
+      runnerAddress:
+          json['runnerAddress'] is String &&
+              (json['runnerAddress'] as String).length <= 200
+          ? json['runnerAddress'] as String
+          : '',
+      runnerToken:
+          json['runnerToken'] is String &&
+              (json['runnerToken'] as String).length <= 200
+          ? json['runnerToken'] as String
+          : '',
     );
   }
 
@@ -187,6 +227,7 @@ class LearnerPreferences {
     String? targetRole,
     int? weeklyGoalDays,
     int? dailyGoalMinutes,
+    bool? aiCoachConsent,
     int? selectedTrack,
     DateTime? targetInterviewDate,
     bool clearTargetInterviewDate = false,
@@ -195,6 +236,10 @@ class LearnerPreferences {
     Map<String, int>? diagnosticScores,
     Map<String, int>? diagnosticAnswers,
     Set<String>? savedLessonIds,
+    int? pointsBalance,
+    Set<String>? unlockedReferenceIds,
+    String? runnerAddress,
+    String? runnerToken,
   }) => LearnerPreferences(
     pace: pace ?? this.pace,
     preferredLanguage: preferredLanguage ?? this.preferredLanguage,
@@ -204,6 +249,7 @@ class LearnerPreferences {
     targetRole: targetRole ?? this.targetRole,
     weeklyGoalDays: weeklyGoalDays ?? this.weeklyGoalDays,
     dailyGoalMinutes: dailyGoalMinutes ?? this.dailyGoalMinutes,
+    aiCoachConsent: aiCoachConsent ?? this.aiCoachConsent,
     selectedTrack: selectedTrack ?? this.selectedTrack,
     targetInterviewDate: clearTargetInterviewDate
         ? null
@@ -218,5 +264,9 @@ class LearnerPreferences {
         ? const {}
         : diagnosticAnswers ?? this.diagnosticAnswers,
     savedLessonIds: savedLessonIds ?? this.savedLessonIds,
+    pointsBalance: pointsBalance ?? this.pointsBalance,
+    unlockedReferenceIds: unlockedReferenceIds ?? this.unlockedReferenceIds,
+    runnerAddress: runnerAddress ?? this.runnerAddress,
+    runnerToken: runnerToken ?? this.runnerToken,
   );
 }

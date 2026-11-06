@@ -3,7 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../data/code_specs.dart';
 import '../data/blind75_curriculum.dart';
 import '../data/mastery300_curriculum.dart';
+import '../data/sprint_references.dart';
 import '../domain/lesson.dart';
+import '../features/coaching/session_controller.dart';
 import 'looploom_theme.dart';
 import 'reference_run_panel.dart';
 
@@ -11,6 +13,7 @@ class CodeWorkspace extends StatelessWidget {
   const CodeWorkspace({
     super.key,
     required this.lessonId,
+    required this.store,
     required this.language,
     required this.editor,
     required this.onChanged,
@@ -19,6 +22,7 @@ class CodeWorkspace extends StatelessWidget {
     this.editorAction,
   });
   final String lessonId;
+  final PracticeStore store;
   final CodeLanguage language;
   final TextEditingController editor;
   final ValueChanged<String> onChanged;
@@ -38,10 +42,44 @@ class CodeWorkspace extends StatelessWidget {
     onChanged(text);
   }
 
+  Future<void> unlock(BuildContext context) async {
+    final balance = store.preferences.pointsBalance;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reveal reference code?'),
+        content: Text(
+          'This unlocks C++, Python, JavaScript and TypeScript for this problem for 10 study points. Current balance: $balance.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Keep practicing'),
+          ),
+          FilledButton(
+            onPressed: balance < 10
+                ? null
+                : () => Navigator.pop(dialogContext, true),
+            child: const Text('Unlock · 10 points'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final unlocked = await store.unlockReferenceCode(lessonId);
+    if (context.mounted && !unlocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save the unlock. Try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final compact = MediaQuery.sizeOf(context).width < 600;
     final spec = codeSpecs[lessonId];
+    final reference = sprintReferences[lessonId];
+    final unlocked = store.preferences.unlockedReferenceIds.contains(lessonId);
     final blindEntry =
         mastery300ByLessonId[lessonId] ?? blind75ByLessonId[lessonId];
     return Column(
@@ -62,7 +100,11 @@ class CodeWorkspace extends StatelessWidget {
         const SizedBox(height: 14),
         Text(
           'Implement solve and return the result. Console input/output is not required. The starter is a signature, not a solution.',
-          style: TextStyle(fontSize: 14, height: 1.6, color: context.palette.muted),
+          style: TextStyle(
+            fontSize: 14,
+            height: 1.6,
+            color: context.palette.muted,
+          ),
         ),
         if (blindEntry != null) ...[
           const SizedBox(height: 14),
@@ -78,7 +120,7 @@ class CodeWorkspace extends StatelessWidget {
               children: [
                 Text(
                   blindEntry.hasReferenceCases
-                      ? 'Blind 75 · ${blindEntry.difficulty}'
+                      ? '${blind75ByLessonId.containsKey(lessonId) ? 'Blind 75' : 'Mastery 300'} · ${blindEntry.difficulty}'
                       : 'LoopLoom practice draft · ${blindEntry.difficulty}',
                   style: const TextStyle(
                     fontSize: 15,
@@ -87,7 +129,7 @@ class CodeWorkspace extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'This is an independently written study prompt. The official page has LeetCode’s canonical statement and judge. LoopLoom does not submit code or sync results; adapt your draft to that page’s signature when you submit.',
+                  'This is an independently written study prompt. The official page has LeetCode’s canonical statement and judge. A configured private runner receives your draft only when you tap Run. LoopLoom does not submit to LeetCode or sync results; adapt the signature when you submit there.',
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.55,
@@ -157,9 +199,57 @@ class CodeWorkspace extends StatelessWidget {
             ),
           ],
         ),
-        if (editorAction != null) ...[
-          const SizedBox(height: 8),
-          editorAction!,
+        if (editorAction != null) ...[const SizedBox(height: 8), editorAction!],
+        if (reference != null) ...[
+          const SizedBox(height: 14),
+          if (!unlocked) ...[
+            Text(
+              'Reference code is hidden until you choose to reveal it. ${store.preferences.pointsBalance} study points available.',
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: context.palette.muted,
+              ),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => unlock(context),
+              icon: const Icon(Icons.lock_open_outlined),
+              label: const Text('Reveal code · 10 points'),
+            ),
+          ] else
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: const Text(
+                'Reference code · unlocked',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                'Showing ${language.label}. Switch language above to see the others.',
+                style: const TextStyle(fontSize: 14),
+              ),
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: context.palette.recess,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SelectableText(
+                      reference.code[language] ?? '',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 14,
+                        height: 1.55,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ],
         if (spec != null) ...[
           const SizedBox(height: 8),
@@ -222,6 +312,8 @@ class CodeWorkspace extends StatelessWidget {
           language: language,
           editor: editor,
           enabled: enabled,
+          runnerAddress: store.preferences.runnerAddress,
+          runnerToken: store.preferences.runnerToken,
         ),
       ],
     );
