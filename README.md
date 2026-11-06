@@ -65,7 +65,7 @@ The curriculum is still being reviewed. Every problem in the one-week interview 
 
 ## A quiet place to practice
 
-The paper, charcoal, and muted-clay palette keeps problem text and code in focus. Choose System to follow the device, or select Light or Dark in **Profile & settings → Appearance**. Your choice is saved in the local workbook. The two infinity-shaped `oo` pairs are drawn directly into the one-line wordmark.
+The paper, charcoal, and muted-clay palette keeps problem text and code in focus. Choose System to follow the device, or select Light or Dark in **Profile & settings → Appearance**. Your choice is saved in the local workbook. The two infinity-shaped `oo` pairs are drawn directly into the one-line wordmark and form a compact launcher mark for Android and installed web apps.
 
 ## Run locally
 

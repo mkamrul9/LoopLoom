@@ -57,7 +57,7 @@ def svg_loop(left, right, center_y, half_height):
     return " ".join(commands)
 
 
-def draw_loop(draw, left, right, center_y, half_height, width, scale):
+def draw_loop(draw, left, right, center_y, half_height, width, scale, color=CLAY):
     points = []
     for start, a, b, end in loop_path(left, right, center_y, half_height):
         for step in range(61):
@@ -66,7 +66,26 @@ def draw_loop(draw, left, right, center_y, half_height, width, scale):
             x = u**3 * start[0] + 3*u*u*t*a[0] + 3*u*t*t*b[0] + t**3*end[0]
             y = u**3 * start[1] + 3*u*u*t*a[1] + 3*u*t*t*b[1] + t**3*end[1]
             points.append((round(x*scale), round(y*scale)))
-    draw.line(points, fill=CLAY, width=round(width*scale), joint="curve")
+    draw.line(points, fill=color, width=round(width*scale), joint="curve")
+
+
+def draw_app_icon(size):
+    """Two readable infinity-shaped oo pairs inside the launcher safe area."""
+    scale = 4
+    canvas = Image.new("RGB", (512*scale, 512*scale), INK)
+    draw = ImageDraw.Draw(canvas)
+    draw_loop(draw, 82, 247, 256, 55, 25, scale, CLAY)
+    draw_loop(draw, 265, 430, 256, 55, 25, scale, PAPER)
+    return canvas.resize(size, Image.Resampling.LANCZOS)
+
+
+def draw_adaptive_foreground():
+    scale = 4
+    canvas = Image.new("RGBA", (432*scale, 432*scale), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(canvas)
+    draw_loop(draw, 78, 207, 216, 47, 22, scale, CLAY)
+    draw_loop(draw, 225, 354, 216, 47, 22, scale, PAPER)
+    return canvas.resize((432, 432), Image.Resampling.LANCZOS)
 
 
 def draw_lockup(size, square):
@@ -138,26 +157,10 @@ def export_svg():
 </svg>
 '''
     (WEB / "looploom-wordmark.svg").write_text(wordmark, encoding="utf-8")
-    icon_font = ImageFont.truetype(FONT_PATH, 95)
-    icon_l = icon_font.getlength("L")
-    icon_pl = icon_font.getlength("pL")
-    icon_m = icon_font.getlength("m")
-    icon_width = icon_l+icon_pl+icon_m+2*92+4*6
-    icon_left = (512-icon_width)/2
-    icon_pair1 = icon_left+icon_l+6
-    icon_middle = icon_pair1+92+6
-    icon_pair2 = icon_middle+icon_pl+6
-    icon_end = icon_pair2+92+6
-    favicon = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LoopLoom — Think, Trace, Code">
-  <rect width="512" height="512" fill="{PAPER}"/>
-  <g fill="{INK}" font-family="Segoe UI, Arial, sans-serif" font-size="95" font-weight="700">
-    <text x="{icon_left:.2f}" y="272">L</text><text x="{icon_middle:.2f}" y="272">pL</text><text x="{icon_end:.2f}" y="272">m</text>
-  </g>
-  <g fill="none" stroke="{CLAY}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="{svg_loop(icon_pair1, icon_pair1+92, 248, 24)}"/>
-    <path d="{svg_loop(icon_pair2, icon_pair2+92, 248, 24)}"/>
-  </g>
-  <text x="256" y="338" text-anchor="middle" fill="{MUTED}" font-family="Segoe UI, Arial, sans-serif" font-size="21">{TAGLINE}</text>
+    favicon = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LoopLoom">
+  <rect width="512" height="512" fill="{INK}"/>
+  <path d="{svg_loop(82, 247, 256, 55)}" fill="none" stroke="{CLAY}" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="{svg_loop(265, 430, 256, 55)}" fill="none" stroke="{PAPER}" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 '''
     (WEB / "favicon.svg").write_text(favicon, encoding="utf-8")
@@ -167,12 +170,15 @@ def main():
     export_svg()
     preview = draw_lockup((900, 278), square=False)
     preview.save(ROOT / "docs" / "looploom-logo-preview.png")
-    icon = draw_lockup((512, 512), square=True)
+    icon = draw_app_icon((512, 512))
     icon.save(WEB / "icons" / "Icon-512.png")
     icon.resize((192, 192), Image.Resampling.LANCZOS).save(WEB / "icons" / "Icon-192.png")
     icon.save(WEB / "icons" / "Icon-maskable-512.png")
     icon.resize((192, 192), Image.Resampling.LANCZOS).save(WEB / "icons" / "Icon-maskable-192.png")
     icon.resize((32, 32), Image.Resampling.LANCZOS).save(WEB / "favicon.png")
+    foreground = RES / "drawable-nodpi" / "ic_launcher_foreground.png"
+    foreground.parent.mkdir(parents=True, exist_ok=True)
+    draw_adaptive_foreground().save(foreground)
     for density, pixels in (("mdpi", 48), ("hdpi", 72), ("xhdpi", 96),
                             ("xxhdpi", 144), ("xxxhdpi", 192)):
         target = RES / f"mipmap-{density}" / "ic_launcher.png"

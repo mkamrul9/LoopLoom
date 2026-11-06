@@ -1,11 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LoopLoom — Think, Trace, Code">
-  <rect width="512" height="512" fill="#F7F4EF"/>
-  <g fill="#262B2D" font-family="Segoe UI, Arial, sans-serif" font-size="95" font-weight="700">
-    <text x="30.00" y="272">L</text><text x="183.00" y="272">pL</text><text x="395.00" y="272">m</text>
-  </g>
-  <g fill="none" stroke="#914B36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M 131.00 248.00 C 114.44 216.32 85.00 216.32 85.00 248.00 C 85.00 279.68 114.44 279.68 131.00 248.00 C 147.56 216.32 177.00 216.32 177.00 248.00 C 177.00 279.68 147.56 279.68 131.00 248.00"/>
-    <path d="M 343.00 248.00 C 326.44 216.32 297.00 216.32 297.00 248.00 C 297.00 279.68 326.44 279.68 343.00 248.00 C 359.56 216.32 389.00 216.32 389.00 248.00 C 389.00 279.68 359.56 279.68 343.00 248.00"/>
-  </g>
-  <text x="256" y="338" text-anchor="middle" fill="#5F6466" font-family="Segoe UI, Arial, sans-serif" font-size="21">THINK · TRACE · CODE</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LoopLoom">
+  <rect width="512" height="512" fill="#262B2D"/>
+  <path d="M 164.50 256.00 C 134.80 183.40 82.00 183.40 82.00 256.00 C 82.00 328.60 134.80 328.60 164.50 256.00 C 194.20 183.40 247.00 183.40 247.00 256.00 C 247.00 328.60 194.20 328.60 164.50 256.00" fill="none" stroke="#914B36" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 347.50 256.00 C 317.80 183.40 265.00 183.40 265.00 256.00 C 265.00 328.60 317.80 328.60 347.50 256.00 C 377.20 183.40 430.00 183.40 430.00 256.00 C 430.00 328.60 377.20 328.60 347.50 256.00" fill="none" stroke="#F7F4EF" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

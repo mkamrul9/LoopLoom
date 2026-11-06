@@ -1,6 +1,6 @@
 // The app shell is cached for offline practice. Dynamic same-origin assets are
 // cached after their first successful request. Cloud coaching still needs a network.
-const CACHE_NAME = 'looploom-app-v1';
+const CACHE_NAME = 'looploom-app-v2';
 const SHELL = [
   '/index.html',
   '/flutter_bootstrap.js',
@@ -9,6 +9,8 @@ const SHELL = [
   '/manifest.json',
   '/icons/Icon-192.png',
   '/icons/Icon-512.png',
+  '/icons/Icon-maskable-192.png',
+  '/icons/Icon-maskable-512.png',
   '/assets/AssetManifest.bin',
   '/assets/FontManifest.json',
   '/assets/fonts/MaterialIcons-Regular.otf',

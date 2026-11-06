@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="looploom_paper">#F7F4EF</color>
+    <color name="looploom_launcher">#262B2D</color>
 </resources>
