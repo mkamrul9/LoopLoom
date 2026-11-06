@@ -46,6 +46,15 @@ enum AppearancePreference {
   final String label;
 }
 
+enum ExperienceLevel {
+  beginner('Building foundations'),
+  intermediate('Practicing interviews'),
+  experienced('Refreshing for interviews');
+
+  const ExperienceLevel(this.label);
+  final String label;
+}
+
 class LearnerPreferences {
   const LearnerPreferences({
     this.pace = CoachingPace.intermediate,
@@ -54,6 +63,8 @@ class LearnerPreferences {
     this.textScale = 1.15,
     this.displayName = '',
     this.targetRole = '',
+    this.experienceLevel,
+    this.onboardingSeen = false,
     this.weeklyGoalDays = 5,
     this.dailyGoalMinutes = 30,
     this.aiCoachConsent = false,
@@ -76,6 +87,8 @@ class LearnerPreferences {
   final AppearancePreference appearance;
   final double textScale;
   final String displayName, targetRole;
+  final ExperienceLevel? experienceLevel;
+  final bool onboardingSeen;
   final int weeklyGoalDays, dailyGoalMinutes;
   final bool aiCoachConsent;
   final int selectedTrack;
@@ -96,6 +109,8 @@ class LearnerPreferences {
     'textScale': textScale,
     'displayName': displayName,
     'targetRole': targetRole,
+    'experienceLevel': experienceLevel?.name,
+    'onboardingSeen': onboardingSeen,
     'weeklyGoalDays': weeklyGoalDays,
     'dailyGoalMinutes': dailyGoalMinutes,
     'aiCoachConsent': aiCoachConsent,
@@ -164,6 +179,10 @@ class LearnerPreferences {
       targetRole: json['targetRole'] is String
           ? (json['targetRole'] as String).trim()
           : '',
+      experienceLevel: ExperienceLevel.values
+          .where((level) => level.name == json['experienceLevel'])
+          .firstOrNull,
+      onboardingSeen: json['onboardingSeen'] == true,
       weeklyGoalDays: rawDays is int && rawDays >= 1 && rawDays <= 7
           ? rawDays
           : 5,
@@ -225,6 +244,9 @@ class LearnerPreferences {
     double? textScale,
     String? displayName,
     String? targetRole,
+    ExperienceLevel? experienceLevel,
+    bool clearExperienceLevel = false,
+    bool? onboardingSeen,
     int? weeklyGoalDays,
     int? dailyGoalMinutes,
     bool? aiCoachConsent,
@@ -247,6 +269,10 @@ class LearnerPreferences {
     textScale: textScale ?? this.textScale,
     displayName: displayName ?? this.displayName,
     targetRole: targetRole ?? this.targetRole,
+    experienceLevel: clearExperienceLevel
+        ? null
+        : experienceLevel ?? this.experienceLevel,
+    onboardingSeen: onboardingSeen ?? this.onboardingSeen,
     weeklyGoalDays: weeklyGoalDays ?? this.weeklyGoalDays,
     dailyGoalMinutes: dailyGoalMinutes ?? this.dailyGoalMinutes,
     aiCoachConsent: aiCoachConsent ?? this.aiCoachConsent,

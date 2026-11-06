@@ -36,8 +36,9 @@ The coach asks for the next step instead of revealing a complete solution by def
 ## What is in the app
 
 - **Guided interview practice** across five checkpoints: Understand, Approach, Trace, Code, and Reflect.
-- **Three study paths:** Starter 30, Blind 75, and Interview Mastery 300, organized around interview patterns and phases.
-- **An interview diagnostic** with eight short scenarios, plain-language explanations, and saved pattern recommendations linked to guided lessons.
+- **Interview study paths:** Starter 30, Blind 75, Interview Mastery 300, a one-week prep list, and a last-day review list, organized around interview patterns and phases.
+- **Optional starting-point setup** for experience, target role, practice language, time goal, and interview date. An eight-scenario pattern check can refine a suggested path on Home; it does not change the selected roadmap or restrict any path.
+- **Feedback and contact** from the app menu or settings, with bug, idea, and question email drafts addressed to `cdkamrul9@gmail.com`. The learner reviews and sends the email in their own mail app.
 - **Four coding languages:** C++, Python, JavaScript, and TypeScript, with a saved draft for each language.
 - **A local workbook** for attempts, notes, saved problems, study goals, and review history. Save or restore JSON backup files on Android and web, with a validated preview before importing; copy/paste remains available.
 - **Readable study settings** with an Extra large 1.5× option, device text scaling, and persistent System, Light, and Dark themes.

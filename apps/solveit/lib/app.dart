@@ -8,7 +8,7 @@ import 'data/mastery300_curriculum.dart';
 import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
 import 'data/interview_sprints.dart';
-import 'data/interview_diagnostic.dart';
+import 'data/path_recommendation.dart';
 import 'domain/learner_preferences.dart';
 import 'domain/lesson.dart';
 import 'features/coaching/interview_diagnostic_screen.dart';
@@ -19,6 +19,8 @@ import 'ui/save_status.dart';
 import 'ui/workbook_bootstrap.dart';
 import 'ui/backup_screen.dart';
 import 'ui/settings_screen.dart';
+import 'ui/onboarding_screen.dart';
+import 'ui/feedback_screen.dart';
 import 'ui/readable_surface.dart';
 
 class LoopLoomApp extends StatefulWidget {
@@ -121,6 +123,8 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
                 queryParameters: {'attempt': session.id},
               ),
               onOpenDiagnostic: () => context.pushNamed<Lesson>('diagnostic'),
+              onOpenOnboarding: () => context.pushNamed<bool>('onboarding'),
+              onOpenFeedback: () => context.pushNamed('feedback'),
               onOpenSettings: () => context.pushNamed('settings'),
               onOpenBackup: () => context.pushNamed('backup'),
             );
@@ -152,7 +156,18 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
               builder: (context, _) => SettingsScreen(
                 store: store,
                 onOpenBackup: () => context.pushNamed('backup'),
+                onOpenFeedback: () => context.pushNamed('feedback'),
               ),
+            ),
+            GoRoute(
+              path: '/onboarding',
+              name: 'onboarding',
+              builder: (_, _) => OnboardingScreen(store: store),
+            ),
+            GoRoute(
+              path: '/feedback',
+              name: 'feedback',
+              builder: (_, _) => const FeedbackScreen(),
             ),
             GoRoute(
               path: '/backup',
@@ -272,6 +287,8 @@ class LearningHome extends StatefulWidget {
     this.onOpenLesson,
     this.onOpenAttempt,
     this.onOpenDiagnostic,
+    this.onOpenOnboarding,
+    this.onOpenFeedback,
     this.onOpenSettings,
     this.onOpenBackup,
     this.routeChild,
@@ -283,6 +300,8 @@ class LearningHome extends StatefulWidget {
   final ValueChanged<Lesson>? onOpenLesson;
   final ValueChanged<SessionController>? onOpenAttempt;
   final Future<Lesson?> Function()? onOpenDiagnostic;
+  final Future<bool?> Function()? onOpenOnboarding;
+  final VoidCallback? onOpenFeedback;
   final VoidCallback? onOpenSettings, onOpenBackup;
   final Widget? routeChild;
   @override
@@ -425,24 +444,6 @@ class _LearningHomeState extends State<LearningHome> {
       .map((s) => s.lesson.id)
       .toSet()
       .length;
-  Lesson? _diagnosticNextLesson(Set<String> selfReviewedIds) {
-    if (track < 3 || store.preferences.diagnosticCompletedAt == null) {
-      return null;
-    }
-    for (final question in interviewDiagnostic) {
-      if (store.preferences.diagnosticScores[question.pattern] != 0) continue;
-      final lesson = trackLessons
-          .where(
-            (item) =>
-                item.pattern.toLowerCase().contains(question.patternNeedle) &&
-                !selfReviewedIds.contains(item.id),
-          )
-          .firstOrNull;
-      if (lesson != null) return lesson;
-    }
-    return null;
-  }
-
   String progressFor(Lesson lesson) {
     final attempts = store.sessions.where((s) => s.lesson.id == lesson.id);
     if (attempts.any((s) => s.stage != CoachingStage.complete)) {
@@ -565,6 +566,28 @@ class _LearningHomeState extends State<LearningHome> {
     if (lesson != null) openLesson(lesson);
   }
 
+  Future<void> openOnboarding() async {
+    final takeCheck = widget.onOpenOnboarding == null
+        ? await Navigator.of(context).push<bool>(
+            MaterialPageRoute<bool>(
+              builder: (_) => OnboardingScreen(store: store),
+            ),
+          )
+        : await widget.onOpenOnboarding!();
+    if (mounted && takeCheck == true) await openDiagnostic();
+  }
+
+  void openFeedback() {
+    final callback = widget.onOpenFeedback;
+    if (callback != null) {
+      callback();
+    } else {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => const FeedbackScreen()));
+    }
+  }
+
   Future<void> toggleSaved(Lesson lesson) async {
     try {
       await store.toggleSaved(lesson);
@@ -643,6 +666,8 @@ class _LearningHomeState extends State<LearningHome> {
                             ),
                           );
                         }
+                      } else if (option == 'feedback') {
+                        openFeedback();
                       } else {
                         final openBackup = widget.onOpenBackup;
                         if (openBackup != null) {
@@ -664,6 +689,16 @@ class _LearningHomeState extends State<LearningHome> {
                             Icon(Icons.tune_outlined, size: 19),
                             SizedBox(width: 12),
                             Text('Profile & settings'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'feedback',
+                        child: Row(
+                          children: [
+                            Icon(Icons.feedback_outlined, size: 19),
+                            SizedBox(width: 12),
+                            Text('Feedback & contact'),
                           ],
                         ),
                       ),
@@ -778,16 +813,12 @@ class _LearningHomeState extends State<LearningHome> {
     final dueReview = activeSession == null
         ? store.dueReviewsAt(DateTime.now()).firstOrNull
         : null;
-    final diagnosticLesson = activeSession == null && dueReview == null
-        ? _diagnosticNextLesson(selfReviewedIds)
-        : null;
     final allTrackLessonsReviewed = trackLessons.every(
       (lesson) => selfReviewedIds.contains(lesson.id),
     );
     final nextLesson =
         activeSession?.lesson ??
         dueReview?.lesson ??
-        diagnosticLesson ??
         trackLessons
             .where((lesson) => !selfReviewedIds.contains(lesson.id))
             .firstOrNull ??
@@ -800,7 +831,6 @@ class _LearningHomeState extends State<LearningHome> {
       wide,
       activeSession: activeSession,
       dueReview: dueReview,
-      diagnosticLesson: diagnosticLesson,
       allTrackLessonsReviewed: allTrackLessonsReviewed,
       nextLesson: nextLesson,
       nextNumber: nextNumber,
@@ -811,7 +841,6 @@ class _LearningHomeState extends State<LearningHome> {
     bool wide, {
     required SessionController? activeSession,
     required ReviewAssignment? dueReview,
-    required Lesson? diagnosticLesson,
     required bool allTrackLessonsReviewed,
     required Lesson nextLesson,
     required int nextNumber,
@@ -878,7 +907,13 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 16),
       _weeklyPracticeCard(),
       const SizedBox(height: 16),
+      _startingPointCard(),
+      const SizedBox(height: 16),
       _diagnosticCard(),
+      if (recommendPath(store.preferences) != null) ...[
+        const SizedBox(height: 16),
+        _recommendationCard(recommendPath(store.preferences)!),
+      ],
       const SizedBox(height: 16),
       _reviewPlan(),
       const SizedBox(height: 32),
@@ -901,8 +936,6 @@ class _LearningHomeState extends State<LearningHome> {
                         ? 'RESUME YOUR SESSION'
                         : dueReview != null
                         ? "TODAY'S REVIEW"
-                        : diagnosticLesson != null
-                        ? 'FROM YOUR QUICK CHECK'
                         : allTrackLessonsReviewed
                         ? 'REVISIT A LESSON'
                         : 'NEXT IN YOUR TRACK',
@@ -940,8 +973,6 @@ class _LearningHomeState extends State<LearningHome> {
                   ? 'Continue from your ${activeSession.stage.label.toLowerCase()} checkpoint.'
                   : dueReview != null
                   ? 'A ${dueReview.intervalDays}-day recall check is due. Try the problem from memory before reviewing your notes.'
-                  : diagnosticLesson != null
-                  ? 'Your check suggests revisiting ${nextLesson.pattern}. Start here, then continue through the unreviewed problems in this path.'
                   : allTrackLessonsReviewed
                   ? 'You have self-reviewed every lesson in $trackTitle. Start another attempt to practice recall, or choose another path.'
                   : 'Next unreviewed lesson in $trackTitle. Work through the approach, trace, code, and reflection at your pace.',
@@ -1059,6 +1090,77 @@ class _LearningHomeState extends State<LearningHome> {
     ],
   );
 
+  Widget _startingPointCard() {
+    if (store.preferences.onboardingSeen) return const SizedBox.shrink();
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: context.palette.accentWash,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('OPTIONAL SETUP', style: noteLabel),
+          const SizedBox(height: 8),
+          const Text(
+            'Make this workbook yours.',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Tell us your experience and study goal to get a suggested path. You can explore every roadmap at any time.',
+            style: TextStyle(fontSize: 15, height: 1.5),
+          ),
+          const SizedBox(height: 12),
+          FilledButton.tonal(
+            onPressed: openOnboarding,
+            child: const Text('Set up my starting point'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _recommendationCard(PathRecommendation suggestion) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: context.palette.sheet,
+      border: Border.all(color: context.palette.line),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('SUGGESTED NEXT PATH', style: noteLabel),
+        const SizedBox(height: 8),
+        Text(
+          suggestion.title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          suggestion.reason,
+          style: TextStyle(
+            fontSize: 15,
+            height: 1.5,
+            color: context.palette.muted,
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: () => _selectTrack(suggestion.trackIndex),
+          icon: const Icon(Icons.route_outlined),
+          label: Text(
+            track == suggestion.trackIndex ? 'Current path' : 'Explore path',
+          ),
+        ),
+      ],
+    ),
+  );
+
   Widget _diagnosticCard() {
     final completedAt = store.preferences.diagnosticCompletedAt;
     return Container(
@@ -1090,7 +1192,7 @@ class _LearningHomeState extends State<LearningHome> {
               Text(
                 completedAt == null
                     ? 'Answer eight short interview scenarios. Get a focused path from your results.'
-                    : 'Retake the short check anytime to refresh your suggested practice order.',
+                    : 'Retake the short check anytime to refresh your suggested path on Home.',
                 style: TextStyle(color: context.palette.muted, height: 1.5),
               ),
               if (completedAt != null) ...[

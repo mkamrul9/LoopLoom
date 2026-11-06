@@ -171,7 +171,7 @@ class _InterviewDiagnosticScreenState extends State<InterviewDiagnosticScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This is a lightweight pattern-recognition check, not a grade or a measure of interview readiness. Your answers only shape a suggested practice order.',
+                'This is a lightweight pattern-recognition check, not a grade or a measure of interview readiness. Your answers help suggest a path on Home; your chosen roadmap stays yours to change.',
                 style: TextStyle(color: context.palette.muted, height: 1.6),
               ),
             ],

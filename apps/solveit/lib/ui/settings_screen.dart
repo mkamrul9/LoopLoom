@@ -8,11 +8,18 @@ import 'backup_screen.dart';
 import 'readable_surface.dart';
 import 'save_status.dart';
 import 'looploom_theme.dart';
+import 'feedback_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key, required this.store, this.onOpenBackup});
+  const SettingsScreen({
+    super.key,
+    required this.store,
+    this.onOpenBackup,
+    this.onOpenFeedback,
+  });
   final PracticeStore store;
   final VoidCallback? onOpenBackup;
+  final VoidCallback? onOpenFeedback;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -26,6 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final TextEditingController _runnerToken;
   late int _weeklyGoalDays;
   late int _dailyGoalMinutes;
+  ExperienceLevel? _level;
   DateTime? _targetDate;
   bool _savingProfile = false;
 
@@ -39,6 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _runnerToken = TextEditingController(text: preferences.runnerToken);
     _weeklyGoalDays = preferences.weeklyGoalDays;
     _dailyGoalMinutes = preferences.dailyGoalMinutes;
+    _level = preferences.experienceLevel;
     _targetDate = preferences.targetInterviewDate;
   }
 
@@ -124,6 +133,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           targetRole: _role.text.trim(),
           weeklyGoalDays: _weeklyGoalDays,
           dailyGoalMinutes: _dailyGoalMinutes,
+          experienceLevel: _level,
+          clearExperienceLevel: _level == null,
           targetInterviewDate: _targetDate,
           clearTargetInterviewDate: _targetDate == null,
         ),
@@ -281,6 +292,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 hintText: 'e.g. Backend engineer',
               ),
               onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 20),
+            const Text('YOUR CURRENT EXPERIENCE', style: noteLabel),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ...ExperienceLevel.values.map(
+                  (level) => ChoiceChip(
+                    label: Text(level.label),
+                    selected: _level == level,
+                    onSelected: (_) => setState(() => _level = level),
+                  ),
+                ),
+                ChoiceChip(
+                  label: const Text('Not sure yet'),
+                  selected: _level == null,
+                  onSelected: (_) => setState(() => _level = null),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Optional. This only changes the suggested path on Home.',
+              style: TextStyle(fontSize: 14, color: context.palette.muted),
             ),
             const SizedBox(height: 20),
             const Text('TARGET INTERVIEW DATE', style: noteLabel),
@@ -595,6 +632,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 18),
             SaveStatus(store: store),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 22),
+            _sectionHeading(
+              'Support',
+              'Feedback & contact',
+              'Report a bug, share an idea, or contact the LoopLoom team.',
+            ),
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed:
+                  widget.onOpenFeedback ??
+                  () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const FeedbackScreen(),
+                    ),
+                  ),
+              icon: const Icon(Icons.feedback_outlined),
+              label: const Text('Feedback & contact'),
+            ),
           ],
         ),
       ),
