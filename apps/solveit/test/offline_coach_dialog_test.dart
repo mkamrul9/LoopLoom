@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:looploom/data/pilot_lessons.dart';
+import 'package:looploom/app.dart';
 import 'package:looploom/features/coaching/practice_screen.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 import 'package:looploom/ui/looploom_theme.dart';
 
 void main() {
+  testWidgets(
+    'phone Home shows its primary practice action without scrolling',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
+      await tester.pumpAndSettle();
+      final action = find.text('Start guided practice');
+      expect(action, findsOneWidget);
+      expect(tester.getBottomLeft(action).dy, lessThan(760));
+    },
+  );
+
   testWidgets(
     'offline guidance opens visibly and can be dismissed on a phone',
     (tester) async {

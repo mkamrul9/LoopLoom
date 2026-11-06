@@ -873,52 +873,6 @@ class _LearningHomeState extends State<LearningHome> {
       const SizedBox(height: 22),
       Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: context.palette.recess,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('YOUR STUDY PLAN', style: noteLabel),
-            const SizedBox(height: 8),
-            Text(
-              '${store.preferences.dailyGoalMinutes} minutes a day · ${store.preferences.weeklyGoalDays} days a week',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            if (store.preferences.targetRole.trim().isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Preparing for ${store.preferences.targetRole.trim()}',
-                style: TextStyle(fontSize: 14, color: context.palette.muted),
-              ),
-            ],
-            if (store.preferences.targetInterviewDate case final date?) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Target date · ${MaterialLocalizations.of(context).formatMediumDate(date)}',
-                style: TextStyle(fontSize: 14, color: context.palette.muted),
-              ),
-            ],
-          ],
-        ),
-      ),
-      const SizedBox(height: 16),
-      _weeklyPracticeCard(),
-      const SizedBox(height: 16),
-      _startingPointCard(),
-      const SizedBox(height: 16),
-      _diagnosticCard(),
-      if (recommendPath(store.preferences) != null) ...[
-        const SizedBox(height: 16),
-        _recommendationCard(recommendPath(store.preferences)!),
-      ],
-      const SizedBox(height: 16),
-      _reviewPlan(),
-      const SizedBox(height: 32),
-      Container(
-        width: double.infinity,
         padding: EdgeInsets.all(wide ? 30 : 22),
         decoration: BoxDecoration(
           color: context.palette.sheet,
@@ -967,6 +921,15 @@ class _LearningHomeState extends State<LearningHome> {
                 letterSpacing: -.8,
               ),
             ),
+            if (!wide) ...[
+              const SizedBox(height: 18),
+              _nextLessonAction(
+                nextLesson,
+                activeSession,
+                dueReview,
+                allTrackLessonsReviewed,
+              ),
+            ],
             const SizedBox(height: 10),
             Text(
               activeSession != null
@@ -1000,36 +963,48 @@ class _LearningHomeState extends State<LearningHome> {
                 ),
               ],
             ),
-            const SizedBox(height: 26),
-            FilledButton.icon(
-              onPressed: () => openLesson(nextLesson),
-              icon: const Icon(Icons.arrow_forward, size: 17),
-              label: Text(
-                activeSession != null
-                    ? 'Resume practice'
-                    : dueReview != null
-                    ? 'Review now'
-                    : allTrackLessonsReviewed
-                    ? 'Practice again'
-                    : 'Start guided practice',
+            if (wide) ...[
+              const SizedBox(height: 26),
+              _nextLessonAction(
+                nextLesson,
+                activeSession,
+                dueReview,
+                allTrackLessonsReviewed,
               ),
-            ),
+            ],
           ],
         ),
       ),
-      const SizedBox(height: 22),
-      const Wrap(
-        spacing: 16,
-        runSpacing: 10,
+      if (!store.preferences.onboardingSeen) ...[
+        const SizedBox(height: 16),
+        _startingPointCard(),
+      ],
+      if (recommendPath(store.preferences) case final suggestion?) ...[
+        const SizedBox(height: 16),
+        _recommendationCard(suggestion),
+      ],
+      const SizedBox(height: 20),
+      ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        title: const Text(
+          'Study plan & review',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
+        subtitle: const Text(
+          'Goals, weekly progress, quick check, and due reviews',
+        ),
         children: [
-          Text('01  Understand', style: noteLabel),
-          Text('02  Approach', style: noteLabel),
-          Text('03  Trace', style: noteLabel),
-          Text('04  Code', style: noteLabel),
-          Text('05  Reflect', style: noteLabel),
+          _studyPlanCard(),
+          const SizedBox(height: 16),
+          _weeklyPracticeCard(),
+          const SizedBox(height: 16),
+          _diagnosticCard(),
+          const SizedBox(height: 16),
+          _reviewPlan(),
+          const SizedBox(height: 16),
         ],
       ),
-      const SizedBox(height: 38),
+      const SizedBox(height: 30),
       LayoutBuilder(
         builder: (context, constraints) {
           final heading = const Text(
@@ -1088,6 +1063,59 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ),
     ],
+  );
+
+  Widget _nextLessonAction(
+    Lesson lesson,
+    SessionController? activeSession,
+    ReviewAssignment? dueReview,
+    bool allTrackLessonsReviewed,
+  ) => FilledButton.icon(
+    onPressed: () => openLesson(lesson),
+    icon: const Icon(Icons.arrow_forward, size: 17),
+    label: Text(
+      activeSession != null
+          ? 'Resume practice'
+          : dueReview != null
+          ? 'Review now'
+          : allTrackLessonsReviewed
+          ? 'Practice again'
+          : 'Start guided practice',
+    ),
+  );
+
+  Widget _studyPlanCard() => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: context.palette.recess,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('YOUR STUDY PLAN', style: noteLabel),
+        const SizedBox(height: 8),
+        Text(
+          '${store.preferences.dailyGoalMinutes} minutes a day · ${store.preferences.weeklyGoalDays} days a week',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        if (store.preferences.targetRole.trim().isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            'Preparing for ${store.preferences.targetRole.trim()}',
+            style: TextStyle(fontSize: 14, color: context.palette.muted),
+          ),
+        ],
+        if (store.preferences.targetInterviewDate case final date?) ...[
+          const SizedBox(height: 4),
+          Text(
+            'Target date · ${MaterialLocalizations.of(context).formatMediumDate(date)}',
+            style: TextStyle(fontSize: 14, color: context.palette.muted),
+          ),
+        ],
+      ],
+    ),
   );
 
   Widget _startingPointCard() {

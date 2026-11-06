@@ -664,21 +664,44 @@ class _PracticeScreenState extends State<PracticeScreen> {
           ),
         ),
         const SizedBox(height: 24),
-        Text(
-          complete ? 'Keep the insight.' : '${session.stage.label}.',
+        Container(
           key: questionKey,
-          style: const TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -.8,
+          child: AnimatedSwitcher(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, .035),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            ),
+            child: Column(
+              key: ValueKey(session.stage),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  complete ? 'Keep the insight.' : '${session.stage.label}.',
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -.8,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  complete
+                      ? 'Reflection saved. This attempt is self-reviewed. No test verdict yet.'
+                      : session.question,
+                  style: const TextStyle(fontSize: 16, height: 1.7),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 14),
-        Text(
-          complete
-              ? 'Reflection saved. This attempt is self-reviewed. No test verdict yet.'
-              : session.question,
-          style: const TextStyle(fontSize: 16, height: 1.7),
         ),
         const SizedBox(height: 12),
         Text(
