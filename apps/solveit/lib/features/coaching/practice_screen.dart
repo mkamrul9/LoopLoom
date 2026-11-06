@@ -47,6 +47,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   Future<void> reveal() async {
+    if (session.solutionRevealed) {
+      await _showGuidance('Solution explanation', session.lesson.explanation);
+      return;
+    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -68,8 +72,63 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
     if (confirmed == true && mounted) {
       session.revealSolution();
-      revealTarget(noteKey);
+      unawaited(widget.store.flush());
+      await _showGuidance('Solution explanation', session.lesson.explanation);
     }
+  }
+
+  Future<void> _showGuidance(String title, String guidance) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            Expanded(child: Text(title)),
+            IconButton(
+              tooltip: 'Close guidance',
+              onPressed: () => Navigator.pop(dialogContext),
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 560,
+            maxHeight: MediaQuery.sizeOf(dialogContext).height * .6,
+          ),
+          child: SingleChildScrollView(
+            child: SelectableText(
+              guidance,
+              style: const TextStyle(fontSize: 16, height: 1.65),
+            ),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Text(
+              'Saved in your session notes',
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('I understand'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showNextHint() async {
+    if (session.hintsUsed >= session.lesson.hints.length) return;
+    session.requestHint();
+    unawaited(widget.store.flush());
+    await _showGuidance('Your next hint', session.messages.last.text);
   }
 
   void advance() {
@@ -135,7 +194,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (!await _confirmAiConsent() || !mounted) return;
     FocusScope.of(context).unfocus();
     await session.reviewWithCoach();
-    if (mounted) revealTarget(noteKey);
+    if (!mounted) return;
+    final result = session.messages.last;
+    if (result.kind == MessageKind.feedback ||
+        result.kind == MessageKind.error) {
+      await _showGuidance(
+        result.kind == MessageKind.error
+            ? 'AI coach unavailable'
+            : 'AI coach suggestion',
+        result.text,
+      );
+    }
   }
 
   Future<void> _openOfflineCoach() async {
@@ -283,50 +352,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       session.addOfflineGuidance(guidance);
       unawaited(widget.store.flush());
     }
-    if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(title)),
-            IconButton(
-              tooltip: 'Close coach guidance',
-              onPressed: () => Navigator.pop(dialogContext),
-              icon: const Icon(Icons.close),
-            ),
-          ],
-        ),
-        content: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 560,
-            maxHeight: MediaQuery.sizeOf(dialogContext).height * .6,
-          ),
-          child: SingleChildScrollView(
-            child: SelectableText(
-              guidance,
-              style: const TextStyle(fontSize: 16, height: 1.65),
-            ),
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: Text(
-              'Saved in your session notes',
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('I understand'),
-          ),
-        ],
-      ),
-    );
+    await _showGuidance(title, guidance);
   }
 
   Widget _coachAction(
@@ -831,10 +857,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   foregroundColor: context.palette.muted,
                 ),
                 onPressed: session.hintsUsed < session.lesson.hints.length
-                    ? () {
-                        session.requestHint();
-                        revealTarget(noteKey);
-                      }
+                    ? _showNextHint
                     : null,
                 icon: const Icon(Icons.lightbulb_outline, size: 16),
                 label: Text(
@@ -842,8 +865,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 ),
               ),
               TextButton(
-                onPressed: session.solutionRevealed ? null : reveal,
-                child: const Text('Reveal explanation'),
+                onPressed: reveal,
+                child: Text(
+                  session.solutionRevealed
+                      ? 'View explanation'
+                      : 'Reveal explanation',
+                ),
               ),
             ],
           ),
