@@ -166,7 +166,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ),
                 ),
                 const SizedBox(height: 22),
-                Text('OFFLINE COACH', style: noteLabel),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text('OFFLINE COACH', style: noteLabel),
+                    ),
+                    IconButton(
+                      tooltip: 'Close offline coach',
+                      onPressed: () => Navigator.pop(sheetContext),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 const Text(
                   'What would help right now?',
@@ -240,32 +251,82 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
     if (!mounted || action == null) return;
     late String guidance;
+    late String title;
     switch (action) {
       case _OfflineCoachAction.clarify:
+        title = 'Clarify the task';
         guidance =
             'Task check\n\n${session.lesson.statement}\n\nYour turn: In one sentence, name the input and the exact result the solution must return. Which part of the statement tells you that?';
         break;
       case _OfflineCoachAction.example:
+        title = 'Walk through the example';
         guidance =
             'Walk through this example\n\n${session.lesson.example}\n\nTrace it by hand. What is the state before each step, and what should the final output be?';
         break;
       case _OfflineCoachAction.edgeCase:
+        title = 'Think about edge cases';
         guidance =
             'Edge-case prompt\n\nConstraints: ${session.lesson.constraints}\n\nChoose a smallest or largest valid input, plus a duplicate, empty, or boundary case when allowed by the statement. Which case would challenge your current approach, and why?';
         break;
       case _OfflineCoachAction.selfCheck:
+        title = 'Check your reasoning';
         guidance =
             'Self-check for ${session.stage.label.toLowerCase()}\n\n${session.selfCheck}\n\nCompare your current thinking with each point. Which can you justify, and what still needs work? This is a reflection prompt, not a verdict.';
         break;
       case _OfflineCoachAction.nextHint:
         session.requestHint();
         unawaited(widget.store.flush());
-        revealTarget(noteKey);
-        return;
+        title = 'Your next hint';
+        guidance = session.messages.last.text;
     }
-    session.addOfflineGuidance(guidance);
-    unawaited(widget.store.flush());
-    revealTarget(noteKey);
+    if (action != _OfflineCoachAction.nextHint) {
+      session.addOfflineGuidance(guidance);
+      unawaited(widget.store.flush());
+    }
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            Expanded(child: Text(title)),
+            IconButton(
+              tooltip: 'Close coach guidance',
+              onPressed: () => Navigator.pop(dialogContext),
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 560,
+            maxHeight: MediaQuery.sizeOf(dialogContext).height * .6,
+          ),
+          child: SingleChildScrollView(
+            child: SelectableText(
+              guidance,
+              style: const TextStyle(fontSize: 16, height: 1.65),
+            ),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Text(
+              'Saved in your session notes',
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('I understand'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _coachAction(
