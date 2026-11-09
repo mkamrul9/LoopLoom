@@ -3,12 +3,50 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:looploom/app.dart';
 import 'package:looploom/data/pilot_lessons.dart';
 import 'package:looploom/data/interview_lessons.dart';
+import 'package:looploom/data/code_specs.dart';
+import 'package:looploom/data/mastery300_curriculum.dart';
+import 'package:looploom/data/sprint_references.dart';
 import 'package:looploom/features/coaching/practice_screen.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 import 'package:looploom/domain/learner_preferences.dart';
 import 'package:looploom/domain/lesson.dart';
 
 void main() {
+  testWidgets('phone roadmap filters to problems with code and cases', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
+    await tester.tap(find.text('Roadmaps'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Mastery · 300'));
+    await tester.tap(find.text('Mastery · 300'));
+    await tester.pumpAndSettle();
+    final available = mastery300Entries
+        .where(
+          (entry) =>
+              codeSpecs.containsKey(entry.lesson.id) &&
+              sprintReferences.containsKey(entry.lesson.id),
+        )
+        .length;
+    await tester.ensureVisible(find.byKey(const Key('code-ready-filter')));
+    await tester.tap(find.byKey(const Key('code-ready-filter')));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('$available of 300 problems shown'),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(find.byType(TextField).first);
+    await tester.enterText(find.byType(TextField).first, 'Ransom Note');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('1 of 300 problems shown'), findsOneWidget);
+    expect(find.text('CODE + CASES'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'an older saved question does not override current checkpoint guidance',
     (tester) async {

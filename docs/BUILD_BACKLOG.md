@@ -46,6 +46,10 @@
   for each pattern and the selected milestone; learners can filter to problems
   not yet self-reviewed while keeping the labels clear that these are not judge
   verified solves.
+- Blind 75 and Mastery 300 now label and filter problems that have both
+  revealable reference code and local case suites. The filter combines with
+  search, saved, difficulty, progress, and milestone filters; the screen states
+  that running code needs the configured private runner.
 - Each expanded roadmap pattern offers a one-tap start or resume action for its
   next available problem.
 - The selected roadmap persists with local learner preferences and is restored

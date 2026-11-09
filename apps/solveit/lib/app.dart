@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'data/blind75_curriculum.dart';
+import 'data/code_specs.dart';
 import 'data/daily_practice_plan.dart';
 import 'data/lesson_catalog.dart';
 import 'data/mastery300_curriculum.dart';
@@ -10,6 +11,7 @@ import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
 import 'data/interview_sprints.dart';
 import 'data/path_recommendation.dart';
+import 'data/sprint_references.dart';
 import 'domain/learner_preferences.dart';
 import 'domain/lesson.dart';
 import 'features/coaching/interview_diagnostic_screen.dart';
@@ -358,6 +360,7 @@ class _LearningHomeState extends State<LearningHome> {
   String historyQuery = '';
   String historyFilter = 'All attempts';
   bool savedOnly = false;
+  bool codeReadyOnly = false;
   String masteryMilestone = 'All';
 
   @override
@@ -395,6 +398,10 @@ class _LearningHomeState extends State<LearningHome> {
     5 => oneWeekInterviewSprint.title,
     _ => lastDayInterviewSprint.title,
   };
+
+  bool _hasCodeAndCases(Lesson lesson) =>
+      sprintReferences.containsKey(lesson.id) &&
+      codeSpecs.containsKey(lesson.id);
 
   void _clearHistorySearch() {
     _historySearchController.clear();
@@ -1549,9 +1556,25 @@ class _LearningHomeState extends State<LearningHome> {
                               color: context.palette.muted,
                             ),
                           ),
-                          if (tag != null) ...[
+                          if (tag != null || _hasCodeAndCases(lesson)) ...[
                             const SizedBox(height: 8),
-                            Text(tag.toUpperCase(), style: noteLabel),
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 5,
+                              children: [
+                                if (tag != null)
+                                  Text(tag.toUpperCase(), style: noteLabel),
+                                if (_hasCodeAndCases(lesson))
+                                  Text(
+                                    'CODE + CASES',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: context.palette.accent,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ],
                         ],
                       ),
@@ -1706,6 +1729,9 @@ class _LearningHomeState extends State<LearningHome> {
         .map((entry) => entry.lesson.id)
         .toSet()
         .length;
+    final codeReadyCount = milestoneEntries
+        .where((entry) => _hasCodeAndCases(entry.lesson))
+        .length;
     final visibleEntries = milestoneEntries.where((entry) {
       final matchesQuery =
           normalizedQuery.isEmpty ||
@@ -1723,7 +1749,8 @@ class _LearningHomeState extends State<LearningHome> {
       return matchesQuery &&
           matchesDifficulty &&
           matchesProgress &&
-          (!savedOnly || store.isSaved(entry.lesson));
+          (!savedOnly || store.isSaved(entry.lesson)) &&
+          (!codeReadyOnly || _hasCodeAndCases(entry.lesson));
     }).toList();
     final phases = <String, List<Blind75Entry>>{};
     for (final entry in visibleEntries) {
@@ -1799,10 +1826,27 @@ class _LearningHomeState extends State<LearningHome> {
               .toList(),
         ),
         const SizedBox(height: 8),
-        FilterChip(
-          label: const Text('Saved problems'),
-          selected: savedOnly,
-          onSelected: (value) => setState(() => savedOnly = value),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            FilterChip(
+              label: const Text('Saved problems'),
+              selected: savedOnly,
+              onSelected: (value) => setState(() => savedOnly = value),
+            ),
+            FilterChip(
+              key: const Key('code-ready-filter'),
+              label: Text('Code + cases · $codeReadyCount'),
+              selected: codeReadyOnly,
+              onSelected: (value) => setState(() => codeReadyOnly = value),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Text(
+          'View code and cases offline. Running code needs your configured private runner.',
+          style: TextStyle(fontSize: 13, color: context.palette.muted),
         ),
         const SizedBox(height: 8),
         const Text('PRACTICE STATUS', style: noteLabel),
