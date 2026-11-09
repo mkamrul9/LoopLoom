@@ -17,10 +17,13 @@ class SettingsScreen extends StatefulWidget {
     required this.store,
     this.onOpenBackup,
     this.onOpenFeedback,
+    this.runnerClientFactory,
   });
   final PracticeStore store;
   final VoidCallback? onOpenBackup;
   final VoidCallback? onOpenFeedback;
+  final ReferenceRunnerClient Function(String address, String token)?
+  runnerClientFactory;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -37,6 +40,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ExperienceLevel? _level;
   DateTime? _targetDate;
   bool _savingProfile = false;
+  bool _checkingRunner = false;
+  bool _runnerReady = false;
+  String? _runnerStatus;
 
   @override
   void initState() {
@@ -84,15 +90,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return;
       }
     }
-    await _savePreference(
-      store.preferences.copyWith(runnerAddress: address, runnerToken: token),
-    );
+    try {
+      await store.updatePreferences(
+        store.preferences.copyWith(runnerAddress: address, runnerToken: token),
+      );
+    } catch (_) {
+      if (mounted) {
+        _showMessage('Could not save the runner connection. Try again.');
+      }
+      return;
+    }
     if (mounted) {
+      setState(() => _runnerStatus = null);
       _showMessage(
         address.isEmpty
             ? 'Runner disconnected.'
             : 'Runner settings saved on this device.',
       );
+    }
+  }
+
+  Future<void> _testRunner() async {
+    final address = _runnerAddress.text.trim();
+    final token = _runnerToken.text.trim();
+    if (address.isEmpty) {
+      setState(() {
+        _runnerReady = false;
+        _runnerStatus = 'Enter a runner address first.';
+      });
+      return;
+    }
+    if (kIsWeb && !{'localhost', '127.0.0.1'}.contains(Uri.base.host)) {
+      setState(() {
+        _runnerReady = false;
+        _runnerStatus =
+            'The hosted HTTPS web app cannot reach this HTTP private runner. Use the Android app or the local web preview.';
+      });
+      return;
+    }
+    ReferenceRunnerClient? client;
+    setState(() {
+      _checkingRunner = true;
+      _runnerStatus = null;
+    });
+    try {
+      client =
+          widget.runnerClientFactory?.call(address, token) ??
+          ReferenceRunnerClient(address, token: token);
+      final health = await client.checkHealth();
+      if (!mounted) return;
+      setState(() {
+        _runnerReady = health.ready;
+        _runnerStatus = health.ready
+            ? 'Connected. Ready: ${health.languages.map((language) => switch (language) {
+                'cpp' => 'C++',
+                'python' => 'Python',
+                'javascript' => 'JavaScript',
+                _ => 'TypeScript',
+              }).join(', ')}.${address == store.preferences.runnerAddress && token == store.preferences.runnerToken ? '' : ' Save this connection to use Run.'}'
+            : 'Runner reached, but no language runtime is ready. Start Docker and the pinned runner images on your PC.';
+      });
+    } on ArgumentError {
+      if (mounted) {
+        setState(() {
+          _runnerReady = false;
+          _runnerStatus =
+              'Use a private HTTP address and a token of at least 32 characters for LAN access.';
+        });
+      }
+    } on RunnerHealthException catch (error) {
+      if (mounted) {
+        setState(() {
+          _runnerReady = false;
+          _runnerStatus = error.message;
+        });
+      }
+    } finally {
+      client?.close();
+      if (mounted) setState(() => _checkingRunner = false);
     }
   }
 
@@ -492,6 +567,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
             TextField(
               controller: _runnerAddress,
+              onChanged: (_) => setState(() => _runnerStatus = null),
               keyboardType: TextInputType.url,
               autocorrect: false,
               decoration: const InputDecoration(
@@ -502,6 +578,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: _runnerToken,
+              onChanged: (_) => setState(() => _runnerStatus = null),
               obscureText: true,
               autocorrect: false,
               decoration: const InputDecoration(
@@ -511,14 +588,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: _saveRunner,
-              icon: const Icon(Icons.save_outlined),
-              label: const Text('Save runner connection'),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _saveRunner,
+                  icon: const Icon(Icons.save_outlined),
+                  label: const Text('Save connection'),
+                ),
+                FilledButton.icon(
+                  onPressed: _checkingRunner ? null : _testRunner,
+                  icon: _checkingRunner
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.wifi_tethering, size: 18),
+                  label: Text(
+                    _checkingRunner ? 'Checking…' : 'Test connection',
+                  ),
+                ),
+              ],
             ),
+            if (_runnerStatus case final status?) ...[
+              const SizedBox(height: 10),
+              Semantics(
+                liveRegion: true,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      _runnerReady
+                          ? Icons.check_circle_outline
+                          : Icons.info_outline,
+                      size: 20,
+                      color: _runnerReady
+                          ? context.palette.accent
+                          : context.palette.muted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        status,
+                        style: const TextStyle(fontSize: 15, height: 1.5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 8),
             Text(
-              'The runner PC must be on when you tap Run. The reference code and edge cases remain available offline. Do not expose this HTTP service to the internet.',
+              'The runner PC must be on when you tap Run. The hosted web app cannot call this HTTP LAN service; use the Android app or local preview. Reference code and edge cases stay available offline. Do not expose the runner to the internet.',
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,

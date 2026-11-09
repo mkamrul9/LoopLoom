@@ -23,6 +23,88 @@ Map<String, Object?> goodReply({String language = 'javascript'}) => {
 
 void main() {
   test(
+    'runner health check uses authenticated GET and reports readiness',
+    () async {
+      const token = '12345678901234567890123456789012';
+      final client = ReferenceRunnerClient(
+        'http://192.168.1.20:8766',
+        token: token,
+        client: MockClient((request) async {
+          expect(request.method, 'GET');
+          expect(request.url.path, '/health');
+          expect(request.headers['authorization'], 'Bearer $token');
+          return http.Response(
+            jsonEncode({
+              'ready': true,
+              'languages': ['python', 'cpp'],
+              'development_only': true,
+            }),
+            200,
+          );
+        }),
+      );
+      final health = await client.checkHealth();
+      expect(health.ready, isTrue);
+      expect(health.languages, ['python', 'cpp']);
+      client.close();
+    },
+  );
+
+  test(
+    'runner health distinguishes offline engines and rejected tokens',
+    () async {
+      final unavailable = ReferenceRunnerClient(
+        'http://localhost:8766',
+        client: MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'ready': false,
+              'languages': [],
+              'development_only': true,
+            }),
+            200,
+          ),
+        ),
+      );
+      expect((await unavailable.checkHealth()).ready, isFalse);
+      unavailable.close();
+      final denied = ReferenceRunnerClient(
+        'http://localhost:8766',
+        client: MockClient((_) async => http.Response('{}', 403)),
+      );
+      await expectLater(
+        denied.checkHealth(),
+        throwsA(
+          isA<RunnerHealthException>().having(
+            (error) => error.message,
+            'message',
+            contains('rejected'),
+          ),
+        ),
+      );
+      denied.close();
+    },
+  );
+
+  test('runner health rejects unrelated or oversized replies', () async {
+    for (final body in [
+      '{"ready":true,"languages":["python"],"development_only":false}',
+      '{"ready":true,"languages":["unknown"],"development_only":true}',
+      'x' * 4097,
+    ]) {
+      final client = ReferenceRunnerClient(
+        'http://localhost:8766',
+        client: MockClient((_) async => http.Response(body, 200)),
+      );
+      await expectLater(
+        client.checkHealth(),
+        throwsA(isA<RunnerHealthException>()),
+      );
+      client.close();
+    }
+  });
+
+  test(
     'C++ submissions carry their language and recognize compile errors',
     () async {
       final client = ReferenceRunnerClient(
@@ -245,6 +327,7 @@ void main() {
       }
       return result.toString();
     }
+
     final suite =
         jsonDecode(
               File(

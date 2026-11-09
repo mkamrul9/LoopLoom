@@ -1,10 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:looploom/features/coaching/reference_runner.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 import 'package:looploom/ui/settings_screen.dart';
 import 'package:looploom/ui/looploom_theme.dart';
 
 void main() {
+  testWidgets('runner settings confirm reachable languages before saving', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = PracticeStore();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: studyTheme(),
+        home: SettingsScreen(
+          store: store,
+          runnerClientFactory: (address, token) => ReferenceRunnerClient(
+            address,
+            token: token,
+            client: MockClient(
+              (request) async => http.Response(
+                '{"ready":true,"languages":["python","cpp"],"development_only":true}',
+                200,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final address = find.byWidgetPredicate(
+      (widget) =>
+          widget is TextField &&
+          widget.decoration?.labelText == 'Runner address',
+    );
+    await tester.scrollUntilVisible(
+      address,
+      350,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.enterText(address, 'http://127.0.0.1:8766');
+    await tester.scrollUntilVisible(
+      find.text('Test connection'),
+      230,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Test connection'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Connected. Ready: Python, C++.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Save this connection'), findsOneWidget);
+    expect(store.preferences.runnerAddress, isEmpty);
+    await tester.tap(find.text('Save connection'));
+    await tester.pumpAndSettle();
+    expect(store.preferences.runnerAddress, 'http://127.0.0.1:8766');
+    expect(find.textContaining('Save this connection'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    await store.close();
+  });
+
   testWidgets('profile, practice targets, and readable size can be saved', (
     tester,
   ) async {

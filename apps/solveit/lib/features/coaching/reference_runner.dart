@@ -8,6 +8,17 @@ class ReferenceRun {
   final List<String> statuses;
 }
 
+class RunnerHealth {
+  const RunnerHealth(this.ready, this.languages);
+  final bool ready;
+  final List<String> languages;
+}
+
+class RunnerHealthException implements Exception {
+  const RunnerHealthException(this.message);
+  final String message;
+}
+
 class ReferenceRunnerClient {
   ReferenceRunnerClient(
     String address, {
@@ -36,11 +47,77 @@ class ReferenceRunnerClient {
       );
     }
     endpoint = uri.resolve('/run');
+    healthEndpoint = uri.resolve('/health');
     this.token = token;
   }
   final http.Client client;
   late final String token;
   late final Uri endpoint;
+  late final Uri healthEndpoint;
+
+  Future<RunnerHealth> checkHealth() async {
+    try {
+      return await _checkHealth().timeout(const Duration(seconds: 6));
+    } on RunnerHealthException {
+      rethrow;
+    } on FormatException {
+      throw const RunnerHealthException(
+        'The runner sent an invalid health reply.',
+      );
+    } catch (_) {
+      throw const RunnerHealthException(
+        'Could not reach the runner. Check that it is on and your phone shares its private network.',
+      );
+    }
+  }
+
+  Future<RunnerHealth> _checkHealth() async {
+    final request = http.Request('GET', healthEndpoint)
+      ..followRedirects = false;
+    if (token.isNotEmpty) request.headers['Authorization'] = 'Bearer $token';
+    final response = await client.send(request);
+    final bytes = <int>[];
+    await for (final chunk in response.stream) {
+      if (bytes.length + chunk.length > 4096) {
+        throw const RunnerHealthException(
+          'The runner sent an oversized reply.',
+        );
+      }
+      bytes.addAll(chunk);
+    }
+    if (response.statusCode == 403) {
+      throw const RunnerHealthException(
+        'The runner rejected this address, token, or browser origin.',
+      );
+    }
+    if (response.statusCode != 200) {
+      throw const RunnerHealthException('The runner health check failed.');
+    }
+    final data = jsonDecode(utf8.decode(bytes));
+    if (data is! Map<String, dynamic> ||
+        data['development_only'] != true ||
+        data['ready'] is! bool ||
+        data['languages'] is! List) {
+      throw const RunnerHealthException(
+        'The runner sent an invalid health reply.',
+      );
+    }
+    final rawLanguages = data['languages'] as List;
+    const allowed = {'cpp', 'python', 'javascript', 'typescript'};
+    if (rawLanguages.any(
+          (value) => value is! String || !allowed.contains(value),
+        ) ||
+        (data['ready'] as bool) != rawLanguages.isNotEmpty) {
+      throw const RunnerHealthException(
+        'The runner sent an invalid health reply.',
+      );
+    }
+    return RunnerHealth(
+      data['ready'] as bool,
+      List<String>.unmodifiable(rawLanguages.cast<String>()),
+    );
+  }
+
   Future<ReferenceRun> run(
     String lesson,
     String source, {
