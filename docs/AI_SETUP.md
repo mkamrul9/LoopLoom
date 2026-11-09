@@ -57,10 +57,15 @@ The final Play Store build must use Play Integrity, a production signing key, an
 The repository-root `firebase.json` serves `apps/solveit/build/web` and rewrites client routes to Flutter's `index.html`. Once signed in and after setting the Firebase project as the CLI's default, build and deploy from the repository root:
 
 ```powershell
-cd apps/solveit
-flutter build web --release --dart-define-from-file=firebase.ai.json
-cd ../..
+./scripts/build-web-release.ps1
 firebase deploy --only hosting
 ```
+
+The release script includes `firebase.ai.json` when it exists and stamps a new
+service-worker cache version into the compiled output. Use it for every hosted
+web release. An installed PWA then downloads the new shell in the background
+and shows an **Update ready** prompt; the learner chooses when to reload. The
+prompt reminds them to save current writing first. The first visit after this
+change can still load the previous worker once before update detection.
 
 Firebase Hosting stays on the no-cost Spark plan unless a billing account is explicitly linked. The site is public. A deployment without `firebase.ai.json` still works offline, but the cloud coach remains disabled.

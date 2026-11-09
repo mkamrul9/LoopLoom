@@ -41,16 +41,77 @@
 
   <title>LoopLoom — Think it through</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    #looploom-update {
+      position: fixed; z-index: 10000; left: 16px; right: 16px; bottom: 16px;
+      max-width: 480px; margin: 0 auto; padding: 16px; border-radius: 16px;
+      background: #f7f4ef; color: #202527; border: 1px solid #b9a99d;
+      box-shadow: 0 12px 32px rgba(20, 24, 26, .18);
+      font: 16px/1.4 system-ui, sans-serif;
+    }
+    #looploom-update[hidden] { display: none; }
+    #looploom-update strong { display: block; font-size: 17px; margin-bottom: 4px; }
+    #looploom-update p { margin: 0 0 12px; }
+    #looploom-update-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    #looploom-update button { border: 0; border-radius: 9px; padding: 10px 14px; font: inherit; cursor: pointer; }
+    #looploom-update-later { background: transparent; color: inherit; }
+    #looploom-update-now { background: #91513f; color: white; }
+    @media (prefers-color-scheme: dark) {
+      #looploom-update { background: #24292b; color: #f7f4ef; border-color: #68564e; }
+      #looploom-update-now { background: #bc806c; color: #17191b; }
+    }
+  </style>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/looploom-sw.js', {scope: '/'})
-          .catch((error) => console.warn('Offline install is unavailable:', error));
+        navigator.serviceWorker.register('/looploom-sw.js', {scope: '/'}).then((registration) => {
+          const prompt = document.getElementById('looploom-update');
+          let dismissed = false;
+          let applyRequested = false;
+          const showWaitingUpdate = () => {
+            if (registration.waiting && navigator.serviceWorker.controller && !dismissed) {
+              prompt.hidden = false;
+            }
+          };
+          const watchInstalling = () => {
+            const installing = registration.installing;
+            if (installing) installing.addEventListener('statechange', showWaitingUpdate);
+          };
+          registration.addEventListener('updatefound', watchInstalling);
+          watchInstalling();
+          showWaitingUpdate();
+          document.getElementById('looploom-update-later').addEventListener('click', () => {
+            dismissed = true;
+            prompt.hidden = true;
+          });
+          document.getElementById('looploom-update-now').addEventListener('click', () => {
+            if (!registration.waiting) return;
+            applyRequested = true;
+            registration.waiting.postMessage('LOOPLOOM_ACTIVATE_UPDATE');
+          });
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (applyRequested) window.location.reload();
+          });
+          const check = () => registration.update().catch(() => {});
+          check();
+          window.setInterval(check, 60 * 60 * 1000);
+          document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) check();
+          });
+        }).catch((error) => console.warn('Offline install is unavailable:', error));
       });
     }
   </script>
 </head>
 <body>
+  <div id="looploom-update" role="status" aria-live="polite" hidden>
+    <strong>Update ready</strong>
+    <p>Save any current writing, then refresh LoopLoom for the latest version.</p>
+    <div id="looploom-update-actions">
+      <button id="looploom-update-later" type="button">Later</button>
+      <button id="looploom-update-now" type="button">Update now</button>
+    </div>
+  </div>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader

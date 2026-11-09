@@ -1,6 +1,7 @@
 // The app shell is cached for offline practice. Dynamic same-origin assets are
 // cached after their first successful request. Cloud coaching still needs a network.
-const CACHE_NAME = 'looploom-app-v2';
+// The release script replaces this token in build/web for every deployment.
+const CACHE_NAME = 'looploom-app-__BUILD_ID__';
 const SHELL = [
   '/index.html',
   '/flutter_bootstrap.js',
@@ -22,7 +23,10 @@ const SHELL = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));
-  self.skipWaiting();
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'LOOPLOOM_ACTIVATE_UPDATE') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
