@@ -32,6 +32,10 @@
   imply that study minutes are measured.
 - History can search attempts by problem, pattern, language, or checkpoint stage
   and filter between in-progress and self-reviewed sessions.
+- History now searches reflection and takeaway text and shows a compact
+  Insights & mistakes journal with the latest completed reflection per problem.
+  A learner can add or edit a 500-character takeaway after completion; it is
+  stored with the attempt and included in workbook backup.
 - History can permanently remove one local attempt after confirmation. Its
   reasoning and drafts are deleted while saved problems and other attempts stay;
   stale writes cannot recreate a deleted record, and a backup can restore it.

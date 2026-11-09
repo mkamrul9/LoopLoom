@@ -102,6 +102,7 @@ class SessionController extends ChangeNotifier {
   int _hintsUsed = 0, _aiReviews = 0, _offlineGuidance = 0, _revision = 0;
   DateTime? _completedAt;
   RecallConfidence? _recallConfidence;
+  String _takeaway = '';
 
   CoachingStage get stage => _stage;
   CodeLanguage get language => _language;
@@ -111,6 +112,8 @@ class SessionController extends ChangeNotifier {
   DateTime? get completedAt =>
       _completedAt ?? (_stage == CoachingStage.complete ? startedAt : null);
   RecallConfidence? get recallConfidence => _recallConfidence;
+  String get reflection => _answers[CoachingStage.reflect] ?? '';
+  String get takeaway => _takeaway;
   bool get focusView => _focusView;
   bool get reviewing => _reviewing;
   int get hintsUsed => _hintsUsed;
@@ -208,6 +211,14 @@ class SessionController extends ChangeNotifier {
   void rateRecall(RecallConfidence value) {
     if (_stage != CoachingStage.complete || _recallConfidence == value) return;
     _recallConfidence = value;
+    _changed();
+  }
+
+  void saveTakeaway(String value) {
+    if (_stage != CoachingStage.complete) return;
+    final next = value.trim();
+    if (next.length > 500 || next == _takeaway) return;
+    _takeaway = next;
     _changed();
   }
 
@@ -341,6 +352,7 @@ class SessionController extends ChangeNotifier {
     'startedAt': startedAt.toUtc().toIso8601String(),
     'completedAt': _completedAt?.toUtc().toIso8601String(),
     'recallConfidence': _recallConfidence?.name,
+    'takeaway': _takeaway,
     'stage': stage.name,
     'language': language.name,
     'pace': pace.name,
@@ -373,6 +385,7 @@ class SessionController extends ChangeNotifier {
         (json.containsKey('offlineGuidance') &&
             (json['offlineGuidance'] is! int ||
                 (json['offlineGuidance'] as int) < 0)) ||
+        (json.containsKey('takeaway') && json['takeaway'] is! String) ||
         (json['completedAt'] != null && json['completedAt'] is! String) ||
         json['messages'] is! List ||
         (json['messages'] as List).isEmpty) {
@@ -393,6 +406,12 @@ class SessionController extends ChangeNotifier {
     }
     if (json['recallConfidence'] case final String confidence) {
       session._recallConfidence = _enum(RecallConfidence.values, confidence);
+    }
+    if (json['takeaway'] case final String takeaway) {
+      if (takeaway.length > 500) {
+        throw const FormatException('Invalid takeaway');
+      }
+      session._takeaway = takeaway;
     }
     session._language = _enum(CodeLanguage.values, json['language']);
     session._checkpointReady = _boolean(json, 'checkpointReady');

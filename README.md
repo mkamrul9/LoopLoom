@@ -41,6 +41,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 - **Feedback and contact** from the app menu or settings, with bug, idea, and question email drafts addressed to `cdkamrul9@gmail.com`. The learner reviews and sends the email in their own mail app.
 - **Four coding languages:** C++, Python, JavaScript, and TypeScript, with a saved draft for each language.
 - **A local workbook** for attempts, notes, saved problems, study goals, and review history. Save or restore JSON backup files on Android and web, with a validated preview before importing; copy/paste remains available.
+- **An insight journal** in History collects completed reflections by problem. Add an optional short takeaway after a session and edit it later; both stay in the local workbook and its backup.
 - **A small daily practice suggestion** based on unfinished work, due recall, the selected roadmap, the daily time goal, and patterns flagged by the optional quick check.
 - **Readable study settings** with an Extra large 1.5× option, device text scaling, and persistent System, Light, and Dark themes.
 - **Responsive Flutter screens** for Android and web.

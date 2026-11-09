@@ -6,6 +6,7 @@ import '../../data/sprint_references.dart';
 import '../../domain/lesson.dart';
 import '../../ui/looploom_theme.dart';
 import '../../ui/save_status.dart';
+import '../../ui/takeaway_dialog.dart';
 import '../../ui/code_workspace.dart';
 import '../../ui/readable_surface.dart';
 import 'firebase_ai_coach_provider.dart';
@@ -813,6 +814,24 @@ class _PracticeScreenState extends State<PracticeScreen> {
             Text(
               'Next recall in ${assignment.intervalDays} ${assignment.intervalDays == 1 ? 'day' : 'days'} · self-assessed practice',
               style: TextStyle(fontSize: 14, color: context.palette.muted),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: () => editTakeaway(context, session, widget.store),
+              icon: const Icon(Icons.edit_note, size: 18),
+              label: Text(
+                session.takeaway.isEmpty ? 'Save a takeaway' : 'Edit takeaway',
+              ),
+            ),
+          ),
+          if (session.takeaway.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              session.takeaway,
+              style: const TextStyle(fontSize: 15, height: 1.55),
             ),
           ],
         ],

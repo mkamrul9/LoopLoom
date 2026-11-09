@@ -5,6 +5,34 @@ import 'package:looploom/domain/lesson.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 
 void main() {
+  test('completed reflections and optional takeaways survive restore', () {
+    final session = SessionController(pilotLessons.first, attemptNumber: 1);
+    addTearDown(session.dispose);
+    session.saveTakeaway('Too early');
+    expect(session.takeaway, isEmpty);
+    for (var i = 0; i < 5; i++) {
+      session.submit(
+        i == 3
+            ? 'print(1)'
+            : i == 4
+            ? 'Check repeated values before assuming indices differ.'
+            : 'My reasoning',
+      );
+      session.advanceAfterSelfCheck();
+    }
+    expect(session.reflection, contains('repeated values'));
+    session.saveTakeaway('Use two distinct indices.');
+    final restored = SessionController.restore(
+      pilotLessons.first,
+      session.toJson(),
+    );
+    addTearDown(restored.dispose);
+    expect(restored.takeaway, 'Use two distinct indices.');
+    expect(restored.reflection, session.reflection);
+    restored.saveTakeaway('');
+    expect(restored.takeaway, isEmpty);
+  });
+
   test('recall rating changes the next review and survives reload', () async {
     final repository = MemorySessionRepository();
     final store = PracticeStore(repository: repository);

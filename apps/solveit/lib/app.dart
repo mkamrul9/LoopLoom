@@ -17,6 +17,7 @@ import 'features/coaching/practice_screen.dart';
 import 'features/coaching/session_controller.dart';
 import 'ui/looploom_theme.dart';
 import 'ui/save_status.dart';
+import 'ui/takeaway_dialog.dart';
 import 'ui/workbook_bootstrap.dart';
 import 'ui/backup_screen.dart';
 import 'ui/settings_screen.dart';
@@ -2292,7 +2293,8 @@ class _LearningHomeState extends State<LearningHome> {
       final searchText =
           '${session.lesson.title} ${session.lesson.pattern} '
                   '${session.lesson.id} ${session.language.label} '
-                  '${session.stage.label} ${session.attemptNumber}'
+                  '${session.stage.label} ${session.attemptNumber} '
+                  '${session.takeaway} ${session.reflection}'
               .toLowerCase();
       return matchesStatus && (query.isEmpty || searchText.contains(query));
     }).toList();
@@ -2331,7 +2333,7 @@ class _LearningHomeState extends State<LearningHome> {
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             labelText: 'Find an attempt',
-            hintText: 'Problem, pattern, language, or stage',
+            hintText: 'Problem, pattern, language, or insight',
             prefixIcon: const Icon(Icons.search),
             suffixIcon: historyQuery.isEmpty
                 ? null
@@ -2362,6 +2364,8 @@ class _LearningHomeState extends State<LearningHome> {
           style: TextStyle(fontSize: 14, color: context.palette.muted),
         ),
         const SizedBox(height: 12),
+        _insightJournal(visibleSessions, searchActive: query.isNotEmpty),
+        const SizedBox(height: 16),
         if (store.unavailableAttempts > 0)
           Text(
             '${store.unavailableAttempts} older attempts could not be opened. Their saved records have been kept.',
@@ -2427,6 +2431,103 @@ class _LearningHomeState extends State<LearningHome> {
         ),
       ],
     );
+  }
+
+  Widget _insightJournal(
+    List<SessionController> visibleSessions, {
+    required bool searchActive,
+  }) {
+    final seen = <String>{};
+    final entries = visibleSessions.where((session) {
+      return session.stage == CoachingStage.complete &&
+          (session.takeaway.isNotEmpty || session.reflection.isNotEmpty) &&
+          seen.add(session.lesson.id);
+    }).toList();
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        leading: const Icon(Icons.lightbulb_outline),
+        title: const Text('Insights & mistakes'),
+        subtitle: Text('${entries.length} problems with a reflection'),
+        children: entries.isEmpty
+            ? const [
+                Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Text(
+                    'Finish a guided session to save your first insight.',
+                  ),
+                ),
+              ]
+            : [
+                for (final session in entries.take(8))
+                  ListTile(
+                    title: Text(session.lesson.title),
+                    subtitle: Text(
+                      session.takeaway.isNotEmpty
+                          ? session.takeaway
+                          : session.reflection,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: const Icon(Icons.north_east, size: 17),
+                    onTap: () => _openInsight(session),
+                  ),
+                if (entries.length > 8)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      searchActive
+                          ? 'Refine your search to find another insight.'
+                          : 'Showing the latest 8. Search above for older insights.',
+                      style: TextStyle(color: context.palette.muted),
+                    ),
+                  ),
+              ],
+      ),
+    );
+  }
+
+  Future<void> _openInsight(SessionController session) async {
+    final edit = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(session.lesson.title),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(session.lesson.pattern, style: noteLabel),
+              if (session.takeaway.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Text('YOUR TAKEAWAY', style: noteLabel),
+                const SizedBox(height: 6),
+                SelectableText(session.takeaway),
+              ],
+              if (session.reflection.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Text('YOUR REFLECTION', style: noteLabel),
+                const SizedBox(height: 6),
+                SelectableText(session.reflection),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Close'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Edit takeaway'),
+          ),
+        ],
+      ),
+    );
+    if (edit == true && mounted) {
+      await editTakeaway(context, session, store);
+    }
   }
 
   Widget _savedProblems() {
