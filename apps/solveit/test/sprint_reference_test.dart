@@ -16,6 +16,27 @@ import 'package:looploom/ui/code_workspace.dart';
 import 'package:looploom/ui/looploom_theme.dart';
 
 void main() {
+  test('six more Blind 75 lessons have revealable four-language code', () {
+    const ids = [
+      'rotated-index-v1',
+      'longest-run-v1',
+      'list-nth-from-end-v1',
+      'top-frequency-v1',
+      'merge-streams-v1',
+      'graph-components-v1',
+    ];
+    for (final id in ids) {
+      expect(codeSpecs[id]?.cases.length, 3, reason: id);
+      expect(sprintReferences[id]?.edgeCases.length, greaterThanOrEqualTo(2));
+      for (final language in CodeLanguage.values) {
+        final code = sprintReferences[id]?.code[language];
+        expect(code, isNotNull, reason: '$id ${language.name}');
+        expect(code, contains('solve('), reason: '$id ${language.name}');
+        expect(code, isNot(contains('TODO')), reason: '$id ${language.name}');
+      }
+    }
+  });
+
   test(
     'all sprint problems have case suites, edge cases, and four code variants',
     () {
@@ -112,25 +133,33 @@ void main() {
     client.close();
   });
 
-  testWidgets('reference code stays hidden until the ten-point confirmation', (tester) async {
+  testWidgets('reference code stays hidden until the ten-point confirmation', (
+    tester,
+  ) async {
     final store = PracticeStore();
     final lessonId = oneWeekInterviewSprint.lessons.first.id;
     final editor = TextEditingController(text: 'def solve(a,b): return []');
-    await tester.pumpWidget(MaterialApp(
-      theme: studyTheme(),
-      home: Scaffold(body: SingleChildScrollView(child: ListenableBuilder(
-        listenable: store,
-        builder: (_, _) => CodeWorkspace(
-          lessonId: lessonId,
-          store: store,
-          language: CodeLanguage.python,
-          editor: editor,
-          enabled: true,
-          onChanged: (_) {},
-          onLanguageChanged: (_) {},
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: studyTheme(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ListenableBuilder(
+              listenable: store,
+              builder: (_, _) => CodeWorkspace(
+                lessonId: lessonId,
+                store: store,
+                language: CodeLanguage.python,
+                editor: editor,
+                enabled: true,
+                onChanged: (_) {},
+                onLanguageChanged: (_) {},
+              ),
+            ),
+          ),
         ),
-      ))),
-    ));
+      ),
+    );
     expect(find.textContaining('Reference code · unlocked'), findsNothing);
     await tester.ensureVisible(find.text('Reveal code · 10 points'));
     await tester.tap(find.text('Reveal code · 10 points'));

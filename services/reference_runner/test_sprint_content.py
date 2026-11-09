@@ -4,8 +4,9 @@ import re
 import subprocess
 import unittest
 
-from build_sprint_content import SLUG_IDS
+from build_sprint_content import ADDITIONAL_REFERENCES, SLUG_IDS
 from live_check import SOLUTIONS as EXISTING_JS
+from live_check_cpp import SOLUTIONS as EXISTING_CPP
 from live_check_python import SOLUTIONS as EXISTING_PY
 from live_check_typescript import SOLUTIONS as EXISTING_TS
 from runner import CASES, matches
@@ -13,13 +14,24 @@ from sprint_content import CASES as NEW_CASES, JAVASCRIPT, PYTHON, TS_SIGNATURES
 
 
 class SprintContentTests(unittest.TestCase):
+    @property
+    def published_lessons(self):
+        return [*SLUG_IDS.values(), *ADDITIONAL_REFERENCES]
+
     def test_all_sprint_problems_have_three_cases_and_four_reference_sources(self):
         self.assertEqual(len(SLUG_IDS), 25)
-        for lesson in SLUG_IDS.values():
+        self.assertEqual(len(self.published_lessons), 31)
+        self.assertEqual(len(set(self.published_lessons)), 31)
+        for lesson in self.published_lessons:
             self.assertEqual(len(CASES[lesson]), 3, lesson)
+            if lesson in ADDITIONAL_REFERENCES:
+                for source in (EXISTING_JS[lesson], EXISTING_PY[lesson],
+                               EXISTING_TS[lesson], EXISTING_CPP[lesson]):
+                    self.assertIn('solve(', source)
+                    self.assertNotIn('TODO', source)
 
     def test_python_reference_solutions_match_every_case(self):
-        for lesson in SLUG_IDS.values():
+        for lesson in self.published_lessons:
             scope = {}
             exec(PYTHON.get(lesson, EXISTING_PY.get(lesson)), scope)
             for case in CASES[lesson]:
@@ -29,7 +41,7 @@ class SprintContentTests(unittest.TestCase):
 
     def test_javascript_and_typescript_references_match_every_case(self):
         rows = []
-        for lesson in SLUG_IDS.values():
+        for lesson in self.published_lessons:
             js = JAVASCRIPT.get(lesson, EXISTING_JS.get(lesson))
             ts = (re.sub(r'^function solve\([^)]*\)',
                          'function solve(' + TS_SIGNATURES[lesson], js, count=1)

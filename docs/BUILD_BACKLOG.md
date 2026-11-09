@@ -14,6 +14,9 @@
   prompts; preferred language and pace persist locally and seed new attempts.
 - Learn and Roadmaps expose Starter 30, Blind 75, and Interview Mastery 300,
   while distinguishing pattern-guided drafts from independently reviewed content.
+- Four-language code reveal and problem-specific edge-case notes now cover all
+  25 one-week lessons plus six additional Blind 75 lessons backed by existing
+  reference-case suites. More catalog entries still need reviewed code.
 - An eight-scenario, on-device interview diagnostic explains each choice,
   recommends matching guided problems, and saves its latest result locally.
 - Learn resumes unfinished work, then follows diagnostic-flagged patterns or

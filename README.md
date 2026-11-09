@@ -40,6 +40,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 - **Optional starting-point setup** for experience, target role, practice language, time goal, and interview date. An eight-scenario pattern check can refine a suggested path on Home; it does not change the selected roadmap or restrict any path.
 - **Feedback and contact** from the app menu or settings, with bug, idea, and question email drafts addressed to `cdkamrul9@gmail.com`. The learner reviews and sends the email in their own mail app.
 - **Four coding languages:** C++, Python, JavaScript, and TypeScript, with a saved draft for each language.
+- **Reference code for 31 selected problems** in all four languages, hidden until a learner spends 10 local study points to reveal it. This includes the 25-problem one-week path and six more Blind 75 lessons; the rest of the catalog still needs independently reviewed code.
 - **A local workbook** for attempts, notes, saved problems, study goals, and review history. Save or restore JSON backup files on Android and web, with a validated preview before importing; copy/paste remains available.
 - **An insight journal** in History collects completed reflections by problem. Add an optional short takeaway after a session and edit it later; both stay in the local workbook and its backup.
 - **A small daily practice suggestion** based on unfinished work, due recall, the selected roadmap, the daily time goal, and patterns flagged by the optional quick check.
