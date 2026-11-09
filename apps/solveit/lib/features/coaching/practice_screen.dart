@@ -778,6 +778,44 @@ class _PracticeScreenState extends State<PracticeScreen> {
         const SizedBox(height: 10),
         SaveStatus(store: widget.store, compact: true),
         const SizedBox(height: 24),
+        if (complete) ...[
+          Text(
+            'How did this attempt feel?',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Your answer sets the next recall date. You can change it later.',
+            style: TextStyle(fontSize: 14, color: context.palette.muted),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              for (final (rating, label) in [
+                (RecallConfidence.needsWork, 'Needs work'),
+                (RecallConfidence.okay, 'Okay'),
+                (RecallConfidence.confident, 'Confident'),
+              ])
+                ChoiceChip(
+                  label: Text(label),
+                  selected: session.recallConfidence == rating,
+                  onSelected: (_) => session.rateRecall(rating),
+                ),
+            ],
+          ),
+          if (widget.store.reviewSchedule
+                  .where((item) => item.lesson.id == session.lesson.id)
+                  .firstOrNull
+              case final assignment?) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Next recall in ${assignment.intervalDays} ${assignment.intervalDays == 1 ? 'day' : 'days'} · self-assessed practice',
+              style: TextStyle(fontSize: 14, color: context.palette.muted),
+            ),
+          ],
+        ],
         if (session.stage == CoachingStage.code && !saved) ...[
           CodeWorkspace(
             lessonId: session.lesson.id,

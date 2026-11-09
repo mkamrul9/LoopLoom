@@ -1567,7 +1567,7 @@ class _LearningHomeState extends State<LearningHome> {
           ),
           const SizedBox(height: 5),
           Text(
-            'After self-review, revisit a problem in 1, 3, 7, then 14 days. Reviews are practice, not verified solves.',
+            'After self-review, revisit a problem in 1, 3, 7, then 14 days. Your recall rating can bring a shaky problem back sooner or stretch a confident one. Reviews are practice, not verified solves.',
             style: TextStyle(
               fontSize: 13,
               height: 1.55,

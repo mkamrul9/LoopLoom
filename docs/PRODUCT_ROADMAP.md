@@ -18,7 +18,7 @@ The first product is a coding coach. Later modules can teach SQL, system design,
 4. Code: choose C++, Python, JavaScript, or TypeScript. Keep a separate draft per language.
 5. Test and debug: execute visible examples and hidden cases in an isolated judge; use counterexamples to guide revision. Tests provide evidence within the stated contract, not a mathematical proof.
 6. Reflect: summarize the pattern, the mistake to remember, and when the method applies.
-7. Review: schedule a fresh attempt after a proposed 1, 3, 7, and 14 days; adapt these intervals after observing learners.
+7. Review: schedule a fresh attempt after a proposed 1, 3, 7, and 14 days; a learner's optional recall rating can shorten or extend the next interval. Validate these intervals with learners.
 
 Incorrect or incomplete explanations stay at the current checkpoint with one focused question. Feedback distinguishes incorrect, incomplete, valid-but-slower, and unclear. The learner can ask for another example, a more direct hint, a different explanation, or explicitly reveal a solution. An uncertain model asks a clarifying question; it does not confidently reject a valid answer.
 

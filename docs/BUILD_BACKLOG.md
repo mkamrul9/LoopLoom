@@ -20,6 +20,9 @@
   advances to the next unreviewed lesson in the selected path.
 - Learn now puts the next due spaced-recall problem on the primary action card,
   after any unfinished session and before a new lesson recommendation.
+- Completed attempts accept an optional recall rating. A shaky self-rating
+  schedules the next attempt in one day; a confident rating advances one
+  interval. The rating persists locally and never claims a verified solve.
 - Learn shows a Monday–Sunday weekly practice view against the learner's chosen
   days-per-week goal, based on saved attempt start/completion dates; it does not
   imply that study minutes are measured.

@@ -22,6 +22,8 @@ enum MessageKind {
   error,
 }
 
+enum RecallConfidence { needsWork, okay, confident }
+
 class CoachMessage {
   const CoachMessage(
     this.text, {
@@ -99,6 +101,7 @@ class SessionController extends ChangeNotifier {
   bool _reviewing = false, _disposed = false;
   int _hintsUsed = 0, _aiReviews = 0, _offlineGuidance = 0, _revision = 0;
   DateTime? _completedAt;
+  RecallConfidence? _recallConfidence;
 
   CoachingStage get stage => _stage;
   CodeLanguage get language => _language;
@@ -107,6 +110,7 @@ class SessionController extends ChangeNotifier {
   bool get solutionRevealed => _solutionRevealed;
   DateTime? get completedAt =>
       _completedAt ?? (_stage == CoachingStage.complete ? startedAt : null);
+  RecallConfidence? get recallConfidence => _recallConfidence;
   bool get focusView => _focusView;
   bool get reviewing => _reviewing;
   int get hintsUsed => _hintsUsed;
@@ -198,6 +202,12 @@ class SessionController extends ChangeNotifier {
         kind: MessageKind.question,
       ),
     );
+    _changed();
+  }
+
+  void rateRecall(RecallConfidence value) {
+    if (_stage != CoachingStage.complete || _recallConfidence == value) return;
+    _recallConfidence = value;
     _changed();
   }
 
@@ -330,6 +340,7 @@ class SessionController extends ChangeNotifier {
     'attemptNumber': attemptNumber,
     'startedAt': startedAt.toUtc().toIso8601String(),
     'completedAt': _completedAt?.toUtc().toIso8601String(),
+    'recallConfidence': _recallConfidence?.name,
     'stage': stage.name,
     'language': language.name,
     'pace': pace.name,
@@ -379,6 +390,9 @@ class SessionController extends ChangeNotifier {
     session._stage = _enum(CoachingStage.values, json['stage']);
     if (json['completedAt'] case final String completedAt) {
       session._completedAt = DateTime.parse(completedAt).toLocal();
+    }
+    if (json['recallConfidence'] case final String confidence) {
+      session._recallConfidence = _enum(RecallConfidence.values, confidence);
     }
     session._language = _enum(CodeLanguage.values, json['language']);
     session._checkpointReady = _boolean(json, 'checkpointReady');
@@ -547,7 +561,12 @@ class PracticeStore extends ChangeNotifier {
       final intervalIndex = (attempts.length - 1)
           .clamp(0, intervals.length - 1)
           .toInt();
-      final intervalDays = intervals[intervalIndex];
+      final intervalDays = switch (latest.recallConfidence) {
+        RecallConfidence.needsWork => 1,
+        RecallConfidence.confident =>
+          intervals[(intervalIndex + 1).clamp(0, intervals.length - 1).toInt()],
+        _ => intervals[intervalIndex],
+      };
       assignments.add(
         ReviewAssignment(
           lesson: latest.lesson,

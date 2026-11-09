@@ -1,9 +1,37 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:looploom/data/pilot_lessons.dart';
+import 'package:looploom/data/session_repository.dart';
 import 'package:looploom/domain/lesson.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 
 void main() {
+  test('recall rating changes the next review and survives reload', () async {
+    final repository = MemorySessionRepository();
+    final store = PracticeStore(repository: repository);
+    final lesson = pilotLessons.first;
+    final first = store.startOrResume(lesson);
+    first.rateRecall(RecallConfidence.confident);
+    expect(first.recallConfidence, isNull);
+    for (var i = 0; i < 5; i++) {
+      first.submit(i == 3 ? 'print(1)' : 'My reasoning');
+      first.advanceAfterSelfCheck();
+    }
+    expect(store.reviewSchedule.single.intervalDays, 1);
+    first.rateRecall(RecallConfidence.confident);
+    expect(store.reviewSchedule.single.intervalDays, 3);
+    first.rateRecall(RecallConfidence.needsWork);
+    expect(store.reviewSchedule.single.intervalDays, 1);
+    await store.flush();
+    final restored = await PracticeStore.load(repository, pilotLessons);
+    expect(
+      restored.sessions.single.recallConfidence,
+      RecallConfidence.needsWork,
+    );
+    expect(restored.reviewSchedule.single.intervalDays, 1);
+    restored.dispose();
+    store.dispose();
+  });
+
   test('saved work and explicit self-review are required to advance', () {
     final session = SessionController(pilotLessons.first, attemptNumber: 1);
     addTearDown(session.dispose);
