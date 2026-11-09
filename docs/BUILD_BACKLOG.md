@@ -20,6 +20,10 @@
   advances to the next unreviewed lesson in the selected path.
 - Learn now puts the next due spaced-recall problem on the primary action card,
   after any unfinished session and before a new lesson recommendation.
+- The expanded study plan suggests one to three sessions from the daily time
+  goal, prioritizing unfinished work and due recall, then selected-path
+  progression and a weak pattern from the optional diagnostic. It is a local
+  suggestion; session minutes are not tracked.
 - Completed attempts accept an optional recall rating. A shaky self-rating
   schedules the next attempt in one day; a confident rating advances one
   interval. The rating persists locally and never claims a verified solve.

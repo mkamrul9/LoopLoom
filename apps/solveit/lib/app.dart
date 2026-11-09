@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'data/blind75_curriculum.dart';
+import 'data/daily_practice_plan.dart';
 import 'data/lesson_catalog.dart';
 import 'data/mastery300_curriculum.dart';
 import 'data/pilot_lessons.dart';
@@ -1041,10 +1042,12 @@ class _LearningHomeState extends State<LearningHome> {
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         ),
         subtitle: const Text(
-          'Goals, weekly progress, quick check, and due reviews',
+          'Today’s practice, goals, quick check, and due reviews',
         ),
         children: [
           _studyPlanCard(),
+          const SizedBox(height: 16),
+          _dailyPracticeCard(),
           const SizedBox(height: 16),
           _weeklyPracticeCard(),
           const SizedBox(height: 16),
@@ -1167,6 +1170,59 @@ class _LearningHomeState extends State<LearningHome> {
       ],
     ),
   );
+
+  Widget _dailyPracticeCard() {
+    final steps = dailyPracticePlan(
+      preferences: store.preferences,
+      trackLessons: trackLessons,
+      sessions: store.sessions,
+      reviewSchedule: store.reviewSchedule,
+    );
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: context.palette.sheet,
+        border: Border.all(color: context.palette.line),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('TODAY’S PRACTICE', style: noteLabel),
+          const SizedBox(height: 8),
+          Text(
+            steps.isEmpty
+                ? 'You’re caught up in this path.'
+                : '${steps.length} suggested ${steps.length == 1 ? 'session' : 'sessions'} for your ${store.preferences.dailyGoalMinutes}-minute goal',
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'A starting point, not a timer. Work at your own pace.',
+            style: TextStyle(fontSize: 14, color: context.palette.muted),
+          ),
+          if (steps.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            for (final (index, step) in steps.indexed)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: context.palette.recess,
+                  foregroundColor: context.palette.ink,
+                  child: Text('${index + 1}'),
+                ),
+                title: Text(step.lesson.title),
+                subtitle: Text(step.reason),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () => openLesson(step.lesson),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
 
   Widget _startingPointCard() {
     if (store.preferences.onboardingSeen) return const SizedBox.shrink();
