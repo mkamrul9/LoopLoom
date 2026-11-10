@@ -583,3 +583,111 @@ TS_SIGNATURES = {
  'mastery300-single-number-v1':'values: readonly number[]): number',
  'blind75-merge-intervals-v1':'intervals: ReadonlyArray<readonly number[]>): number[][]',
 }
+
+# Additional high-value Blind 75 lessons with deterministic workbook adapters.
+CASES.update({
+    'blind75-container-with-most-water-v1': [
+        {'label':'Classic two-pointer case','args':[[1,8,6,2,5,4,8,3,7]],'expected':49},
+        {'label':'Only two lines','args':[[1,1]],'expected':1},
+        {'label':'Short outer line','args':[[1,2,4,3]],'expected':4}],
+    'blind75-house-robber-v1': [
+        {'label':'Skip adjacent high values','args':[[2,7,9,3,1]],'expected':12},
+        {'label':'Empty row','args':[[]],'expected':0},
+        {'label':'One house','args':[[8]],'expected':8}],
+    'blind75-jump-game-v1': [
+        {'label':'Reach the end','args':[[2,3,1,1,4]],'expected':True},
+        {'label':'Blocked by zero','args':[[3,2,1,0,4]],'expected':False},
+        {'label':'Single index','args':[[0]],'expected':True}],
+})
+EDGE_CASES.update({
+    'container-with-most-water':['Two lines form one possible container.','Move the shorter boundary; moving the taller one cannot improve the current width.','A short boundary can hide a better pair inside.'],
+    'house-robber':['An empty row returns zero.','Taking a house excludes its immediate neighbors.','Skipping all houses is allowed.'],
+    'jump-game':['A zero may block progress before the end.','One position is already at the destination.','Never use a position beyond the farthest reachable index.'],
+})
+CPP_TYPES.update({
+    'blind75-container-with-most-water-v1':['vector<int>'],
+    'blind75-house-robber-v1':['vector<int>'],
+    'blind75-jump-game-v1':['vector<int>'],
+})
+PYTHON.update({
+    'blind75-container-with-most-water-v1': '''def solve(heights):
+    left, right, best = 0, len(heights) - 1, 0
+    while left < right:
+        best = max(best, (right - left) * min(heights[left], heights[right]))
+        if heights[left] <= heights[right]:
+            left += 1
+        else:
+            right -= 1
+    return best''',
+    'blind75-house-robber-v1': '''def solve(values):
+    before_previous = previous = 0
+    for value in values:
+        before_previous, previous = previous, max(previous, before_previous + value)
+    return previous''',
+    'blind75-jump-game-v1': '''def solve(jumps):
+    farthest = 0
+    for index, distance in enumerate(jumps):
+        if index > farthest:
+            return False
+        farthest = max(farthest, index + distance)
+    return True''',
+})
+JAVASCRIPT.update({
+    'blind75-container-with-most-water-v1': '''function solve(heights) {
+  let left = 0, right = heights.length - 1, best = 0;
+  while (left < right) {
+    best = Math.max(best, (right - left) * Math.min(heights[left], heights[right]));
+    if (heights[left] <= heights[right]) left++; else right--;
+  }
+  return best;
+}''',
+    'blind75-house-robber-v1': '''function solve(values) {
+  let beforePrevious = 0, previous = 0;
+  for (const value of values) {
+    const next = Math.max(previous, beforePrevious + value);
+    beforePrevious = previous;
+    previous = next;
+  }
+  return previous;
+}''',
+    'blind75-jump-game-v1': '''function solve(jumps) {
+  let farthest = 0;
+  for (let index = 0; index < jumps.length; index++) {
+    if (index > farthest) return false;
+    farthest = Math.max(farthest, index + jumps[index]);
+  }
+  return true;
+}''',
+})
+CPP.update({
+    'blind75-container-with-most-water-v1': '''int solve(const vector<int>& heights) {
+  int left = 0, right = (int)heights.size() - 1, best = 0;
+  while (left < right) {
+    best = max(best, (right - left) * min(heights[left], heights[right]));
+    if (heights[left] <= heights[right]) ++left; else --right;
+  }
+  return best;
+}''',
+    'blind75-house-robber-v1': '''int solve(const vector<int>& values) {
+  int beforePrevious = 0, previous = 0;
+  for (int value : values) {
+    int next = max(previous, beforePrevious + value);
+    beforePrevious = previous;
+    previous = next;
+  }
+  return previous;
+}''',
+    'blind75-jump-game-v1': '''bool solve(const vector<int>& jumps) {
+  int farthest = 0;
+  for (int index = 0; index < (int)jumps.size(); ++index) {
+    if (index > farthest) return false;
+    farthest = max(farthest, index + jumps[index]);
+  }
+  return true;
+}''',
+})
+TS_SIGNATURES.update({
+    'blind75-container-with-most-water-v1':'heights: readonly number[]): number',
+    'blind75-house-robber-v1':'values: readonly number[]): number',
+    'blind75-jump-game-v1':'jumps: readonly number[]): boolean',
+})

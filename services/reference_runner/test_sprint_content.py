@@ -19,9 +19,9 @@ class SprintContentTests(unittest.TestCase):
         return [*SLUG_IDS.values(), *ADDITIONAL_REFERENCES]
 
     def test_all_sprint_problems_have_three_cases_and_four_reference_sources(self):
-        self.assertEqual(len(SLUG_IDS), 25)
-        self.assertEqual(len(self.published_lessons), 31)
-        self.assertEqual(len(set(self.published_lessons)), 31)
+        self.assertEqual(len(SLUG_IDS), 28)
+        self.assertEqual(len(self.published_lessons), 34)
+        self.assertEqual(len(set(self.published_lessons)), 34)
         for lesson in self.published_lessons:
             self.assertEqual(len(CASES[lesson]), 3, lesson)
             if lesson in ADDITIONAL_REFERENCES:

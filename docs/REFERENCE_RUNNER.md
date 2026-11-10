@@ -1,6 +1,6 @@
 # Local reference runner
 
-The runner executes three visible reference cases per supported lesson in C++, JavaScript, Python or TypeScript. All 25 problems in the one-week track and all 7 in its last-day subset now have suites. It is an opt-in private development service, **not a public arbitrary-code service or a verified-solve judge**. Reference matches never approve a checkpoint, complete reflection, or mark a problem solved.
+The runner executes three visible reference cases per supported lesson in C++, JavaScript, Python or TypeScript. All 25 problems in the one-week track, all 7 in its last-day subset, and nine additional Blind 75 problems now have suites. It is an opt-in private development service, **not a public arbitrary-code service or a verified-solve judge**. Reference matches never approve a checkpoint, complete reflection, or mark a problem solved.
 
 ## Run locally
 

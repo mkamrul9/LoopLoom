@@ -37,6 +37,9 @@ SLUG_IDS = {
  'single-number':'mastery300-single-number-v1',
  'number-of-islands':'island-count-v1',
  'merge-intervals':'blind75-merge-intervals-v1',
+ 'container-with-most-water':'blind75-container-with-most-water-v1',
+ 'house-robber':'blind75-house-robber-v1',
+ 'jump-game':'blind75-jump-game-v1',
 }
 
 # Existing foundation lessons reused by Blind 75. Their four implementations
@@ -84,7 +87,7 @@ def starter(language, source):
 
 
 def main():
-    assert len(SLUG_IDS) == 25 and len(set(SLUG_IDS.values())) == 25
+    assert len(SLUG_IDS) == 28 and len(set(SLUG_IDS.values())) == 28
     assert set(EDGE_CASES) == set(SLUG_IDS)
     current_cases = json.loads((ROOT / 'cases.json').read_text())
     current_cases.update(CASES)

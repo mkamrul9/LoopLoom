@@ -436,6 +436,57 @@ const sprintReferences = <String, SprintReference>{
           "function solve(intervals: ReadonlyArray<readonly number[]>): number[][] {\n  const ordered = intervals.map(pair => [...pair]).sort((a,b) => a[0] - b[0]);\n  const merged = [];\n  for (const [start,end] of ordered) {\n    if (merged.length && start <= merged.at(-1)[1])\n      merged.at(-1)[1] = Math.max(merged.at(-1)[1], end);\n    else merged.push([start,end]);\n  }\n  return merged;\n}",
     },
   ),
+  "blind75-container-with-most-water-v1": SprintReference(
+    <String>[
+      "Two lines form one possible container.",
+      "Move the shorter boundary; moving the taller one cannot improve the current width.",
+      "A short boundary can hide a better pair inside.",
+    ],
+    <CodeLanguage, String>{
+      CodeLanguage.cpp:
+          "int solve(const vector<int>& heights) {\n  int left = 0, right = (int)heights.size() - 1, best = 0;\n  while (left < right) {\n    best = max(best, (right - left) * min(heights[left], heights[right]));\n    if (heights[left] <= heights[right]) ++left; else --right;\n  }\n  return best;\n}",
+      CodeLanguage.python:
+          "def solve(heights):\n    left, right, best = 0, len(heights) - 1, 0\n    while left < right:\n        best = max(best, (right - left) * min(heights[left], heights[right]))\n        if heights[left] <= heights[right]:\n            left += 1\n        else:\n            right -= 1\n    return best",
+      CodeLanguage.javascript:
+          "function solve(heights) {\n  let left = 0, right = heights.length - 1, best = 0;\n  while (left < right) {\n    best = Math.max(best, (right - left) * Math.min(heights[left], heights[right]));\n    if (heights[left] <= heights[right]) left++; else right--;\n  }\n  return best;\n}",
+      CodeLanguage.typescript:
+          "function solve(heights: readonly number[]): number {\n  let left = 0, right = heights.length - 1, best = 0;\n  while (left < right) {\n    best = Math.max(best, (right - left) * Math.min(heights[left], heights[right]));\n    if (heights[left] <= heights[right]) left++; else right--;\n  }\n  return best;\n}",
+    },
+  ),
+  "blind75-house-robber-v1": SprintReference(
+    <String>[
+      "An empty row returns zero.",
+      "Taking a house excludes its immediate neighbors.",
+      "Skipping all houses is allowed.",
+    ],
+    <CodeLanguage, String>{
+      CodeLanguage.cpp:
+          "int solve(const vector<int>& values) {\n  int beforePrevious = 0, previous = 0;\n  for (int value : values) {\n    int next = max(previous, beforePrevious + value);\n    beforePrevious = previous;\n    previous = next;\n  }\n  return previous;\n}",
+      CodeLanguage.python:
+          "def solve(values):\n    before_previous = previous = 0\n    for value in values:\n        before_previous, previous = previous, max(previous, before_previous + value)\n    return previous",
+      CodeLanguage.javascript:
+          "function solve(values) {\n  let beforePrevious = 0, previous = 0;\n  for (const value of values) {\n    const next = Math.max(previous, beforePrevious + value);\n    beforePrevious = previous;\n    previous = next;\n  }\n  return previous;\n}",
+      CodeLanguage.typescript:
+          "function solve(values: readonly number[]): number {\n  let beforePrevious = 0, previous = 0;\n  for (const value of values) {\n    const next = Math.max(previous, beforePrevious + value);\n    beforePrevious = previous;\n    previous = next;\n  }\n  return previous;\n}",
+    },
+  ),
+  "blind75-jump-game-v1": SprintReference(
+    <String>[
+      "A zero may block progress before the end.",
+      "One position is already at the destination.",
+      "Never use a position beyond the farthest reachable index.",
+    ],
+    <CodeLanguage, String>{
+      CodeLanguage.cpp:
+          "bool solve(const vector<int>& jumps) {\n  int farthest = 0;\n  for (int index = 0; index < (int)jumps.size(); ++index) {\n    if (index > farthest) return false;\n    farthest = max(farthest, index + jumps[index]);\n  }\n  return true;\n}",
+      CodeLanguage.python:
+          "def solve(jumps):\n    farthest = 0\n    for index, distance in enumerate(jumps):\n        if index > farthest:\n            return False\n        farthest = max(farthest, index + distance)\n    return True",
+      CodeLanguage.javascript:
+          "function solve(jumps) {\n  let farthest = 0;\n  for (let index = 0; index < jumps.length; index++) {\n    if (index > farthest) return false;\n    farthest = Math.max(farthest, index + jumps[index]);\n  }\n  return true;\n}",
+      CodeLanguage.typescript:
+          "function solve(jumps: readonly number[]): boolean {\n  let farthest = 0;\n  for (let index = 0; index < jumps.length; index++) {\n    if (index > farthest) return false;\n    farthest = Math.max(farthest, index + jumps[index]);\n  }\n  return true;\n}",
+    },
+  ),
   "rotated-index-v1": SprintReference(
     <String>[
       "Either side of the midpoint may be sorted after rotation.",
@@ -899,6 +950,70 @@ const sprintCodeSpecs = <String, CodeSpec>{
           "function solve(intervals){\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
       CodeLanguage.typescript:
           "function solve(intervals: ReadonlyArray<readonly number[]>): number[][]{\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
+    },
+  ),
+  "blind75-container-with-most-water-v1": CodeSpec(
+    <String>["heights"],
+    false,
+    false,
+    <ReferenceCase>[
+      ReferenceCase(
+        "Classic two-pointer case",
+        "heights=[1,8,6,2,5,4,8,3,7]",
+        "49",
+      ),
+      ReferenceCase("Only two lines", "heights=[1,1]", "1"),
+      ReferenceCase("Short outer line", "heights=[1,2,4,3]", "4"),
+    ],
+    customStarters: <CodeLanguage, String>{
+      CodeLanguage.cpp:
+          "#include <bits/stdc++.h>\nusing namespace std;\n\nint solve(const vector<int>& heights){\n    // TODO: implement your approach.\n    throw logic_error(\"TODO\");\n}\n",
+      CodeLanguage.python:
+          "def solve(heights):\n    # TODO: implement your approach.\n    raise NotImplementedError(\"TODO\")\n",
+      CodeLanguage.javascript:
+          "function solve(heights){\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
+      CodeLanguage.typescript:
+          "function solve(heights: readonly number[]): number{\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
+    },
+  ),
+  "blind75-house-robber-v1": CodeSpec(
+    <String>["values"],
+    false,
+    false,
+    <ReferenceCase>[
+      ReferenceCase("Skip adjacent high values", "values=[2,7,9,3,1]", "12"),
+      ReferenceCase("Empty row", "values=[]", "0"),
+      ReferenceCase("One house", "values=[8]", "8"),
+    ],
+    customStarters: <CodeLanguage, String>{
+      CodeLanguage.cpp:
+          "#include <bits/stdc++.h>\nusing namespace std;\n\nint solve(const vector<int>& values){\n    // TODO: implement your approach.\n    throw logic_error(\"TODO\");\n}\n",
+      CodeLanguage.python:
+          "def solve(values):\n    # TODO: implement your approach.\n    raise NotImplementedError(\"TODO\")\n",
+      CodeLanguage.javascript:
+          "function solve(values){\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
+      CodeLanguage.typescript:
+          "function solve(values: readonly number[]): number{\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
+    },
+  ),
+  "blind75-jump-game-v1": CodeSpec(
+    <String>["jumps"],
+    false,
+    false,
+    <ReferenceCase>[
+      ReferenceCase("Reach the end", "jumps=[2,3,1,1,4]", "true"),
+      ReferenceCase("Blocked by zero", "jumps=[3,2,1,0,4]", "false"),
+      ReferenceCase("Single index", "jumps=[0]", "true"),
+    ],
+    customStarters: <CodeLanguage, String>{
+      CodeLanguage.cpp:
+          "#include <bits/stdc++.h>\nusing namespace std;\n\nbool solve(const vector<int>& jumps){\n    // TODO: implement your approach.\n    throw logic_error(\"TODO\");\n}\n",
+      CodeLanguage.python:
+          "def solve(jumps):\n    # TODO: implement your approach.\n    raise NotImplementedError(\"TODO\")\n",
+      CodeLanguage.javascript:
+          "function solve(jumps){\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
+      CodeLanguage.typescript:
+          "function solve(jumps: readonly number[]): boolean{\n    // TODO: implement your approach.\n    throw new Error(\"TODO\");\n}\n",
     },
   ),
 };

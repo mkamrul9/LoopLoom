@@ -80,7 +80,7 @@ void main() {
     expect(blind75Entries.map((entry) => entry.pattern).toSet(), hasLength(16));
     expect(
       blind75Entries.where((entry) => entry.hasReferenceCases),
-      hasLength(24),
+      hasLength(27),
     );
     expect(starter30Lessons, hasLength(30));
     expect(allLessons, hasLength(315));

@@ -16,6 +16,24 @@ import 'package:looploom/ui/code_workspace.dart';
 import 'package:looploom/ui/looploom_theme.dart';
 
 void main() {
+  test('three more Blind 75 lessons have runnable four-language code', () {
+    const ids = [
+      'blind75-container-with-most-water-v1',
+      'blind75-house-robber-v1',
+      'blind75-jump-game-v1',
+    ];
+    for (final id in ids) {
+      expect(codeSpecs[id]?.cases.length, 3, reason: id);
+      expect(sprintReferences[id]?.edgeCases.length, greaterThanOrEqualTo(2));
+      for (final language in CodeLanguage.values) {
+        final code = sprintReferences[id]?.code[language];
+        expect(code, isNotNull, reason: '$id ${language.name}');
+        expect(code, contains('solve('), reason: '$id ${language.name}');
+        expect(code, isNot(contains('TODO')), reason: '$id ${language.name}');
+      }
+    }
+  });
+
   test('six more Blind 75 lessons have revealable four-language code', () {
     const ids = [
       'rotated-index-v1',

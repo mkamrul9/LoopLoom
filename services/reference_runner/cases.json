@@ -1950,5 +1950,114 @@
         ]
       ]
     }
+  ],
+  "blind75-container-with-most-water-v1": [
+    {
+      "label": "Classic two-pointer case",
+      "args": [
+        [
+          1,
+          8,
+          6,
+          2,
+          5,
+          4,
+          8,
+          3,
+          7
+        ]
+      ],
+      "expected": 49
+    },
+    {
+      "label": "Only two lines",
+      "args": [
+        [
+          1,
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "label": "Short outer line",
+      "args": [
+        [
+          1,
+          2,
+          4,
+          3
+        ]
+      ],
+      "expected": 4
+    }
+  ],
+  "blind75-house-robber-v1": [
+    {
+      "label": "Skip adjacent high values",
+      "args": [
+        [
+          2,
+          7,
+          9,
+          3,
+          1
+        ]
+      ],
+      "expected": 12
+    },
+    {
+      "label": "Empty row",
+      "args": [
+        []
+      ],
+      "expected": 0
+    },
+    {
+      "label": "One house",
+      "args": [
+        [
+          8
+        ]
+      ],
+      "expected": 8
+    }
+  ],
+  "blind75-jump-game-v1": [
+    {
+      "label": "Reach the end",
+      "args": [
+        [
+          2,
+          3,
+          1,
+          1,
+          4
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "label": "Blocked by zero",
+      "args": [
+        [
+          3,
+          2,
+          1,
+          0,
+          4
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "label": "Single index",
+      "args": [
+        [
+          0
+        ]
+      ],
+      "expected": true
+    }
   ]
 }
