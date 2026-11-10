@@ -1,6 +1,6 @@
 # Google Play release preparation
 
-The Android application ID is `dev.solveit.solveit`; keep it stable to preserve installed workbooks. The current build targets Android API 36. The GitHub APK is for local installation and uses the existing local debug signing identity. It is not the Play upload artifact. A Play-installed app will have a different signing identity, so a user moving from the GitHub APK should export a workbook backup before uninstalling and then import it after installing from Play.
+The Android application ID is `dev.solveit.solveit`; keep it stable to preserve installed workbooks. The current build targets Android API 36. The GitHub APK is for local installation and uses the existing local debug signing identity. It is not the Play upload artifact. A Play-installed app will have a different signing identity, so a user moving from the GitHub APK should export a workbook backup before uninstalling and then import it after installing from Play. On the import preview, select **Restore profile & study settings** to bring over the learner setup. AI consent and private runner credentials must be configured again.
 
 The public privacy page is `https://looploom-coach-2026.web.app/privacy.html` and Settings links to it. Use the copy and screenshot plan in [the store listing draft](PLAY_STORE_LISTING.md). Verify the Data safety answers against the final SDKs and Play-installed build before submission.
 

@@ -20,6 +20,7 @@ class _BackupScreenState extends State<BackupScreen> {
   final input = TextEditingController();
   final exportText = TextEditingController();
   WorkbookBackupPlan? plan;
+  bool restoreStudyPreferences = false;
   bool busy = false;
   String? status;
 
@@ -154,11 +155,13 @@ class _BackupScreenState extends State<BackupScreen> {
       final checked = widget.store.inspectBackup(input.text, allLessons);
       setState(() {
         plan = checked;
+        restoreStudyPreferences = false;
         status = null;
       });
     } on FormatException {
       setState(() {
         plan = null;
+        restoreStudyPreferences = false;
         status =
             'This backup could not be read. Use a complete LoopLoom version 1 backup, up to 2 MB and 500 attempts.';
       });
@@ -173,13 +176,21 @@ class _BackupScreenState extends State<BackupScreen> {
       status = null;
     });
     try {
-      final result = await widget.store.importBackup(checked, allLessons);
+      final result = await widget.store.importBackup(
+        checked,
+        allLessons,
+        restoreStudyPreferences: restoreStudyPreferences,
+      );
       if (mounted) {
         setState(() {
           plan = null;
           input.clear();
           status =
-              '${result.added} attempts restored. ${result.skipped} existing attempts kept. ${result.savedAdded} saved problems added.${result.savedFailed ? ' Saved problems could not be written; retry the local save.' : ' Saved locally.'}';
+              '${result.added} attempts restored. ${result.skipped} existing attempts kept. ${result.savedAdded} saved problems added.${result.savedFailed
+                  ? ' Study settings or saved problems could not be written; retry the local save.'
+                  : restoreStudyPreferences && checked.studyPreferences != null
+                  ? ' Study settings restored. Saved locally.'
+                  : ' Saved locally.'}';
         });
       }
     } catch (_) {
@@ -217,7 +228,7 @@ class _BackupScreenState extends State<BackupScreen> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Back up your attempts, code drafts, explanations, session notes, and saved problems. The copy includes current unsaved edits and retained older records.',
+                    'Back up your attempts, code drafts, explanations, session notes, saved problems, and study preferences. The copy includes current unsaved edits and retained older records.',
                     style: TextStyle(height: 1.65),
                   ),
                   const SizedBox(height: 12),
@@ -307,10 +318,33 @@ class _BackupScreenState extends State<BackupScreen> {
                       '${checked.total} attempts in this backup. ${checked.additions} to add; ${checked.existing} already on this device. ${checked.savedLessonIds.length} saved problems to merge.',
                       style: const TextStyle(height: 1.65),
                     ),
+                    if (checked.studyPreferences != null) ...[
+                      const SizedBox(height: 8),
+                      CheckboxListTile(
+                        value: restoreStudyPreferences,
+                        onChanged: busy
+                            ? null
+                            : (value) => setState(
+                                () => restoreStudyPreferences = value ?? false,
+                              ),
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text('Restore profile & study settings'),
+                        subtitle: Text(
+                          'From backup: ${checked.studyPreferences!.displayName.isEmpty ? 'unnamed profile' : checked.studyPreferences!.displayName} · ${checked.studyPreferences!.preferredLanguage.label} · ${checked.studyPreferences!.weeklyGoalDays} days/week. Also restores appearance and diagnostic. AI consent and runner access stay on this device.',
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     FilledButton(
                       onPressed: busy ? null : restore,
-                      child: Text(busy ? 'Restoring…' : 'Restore workbook'),
+                      child: Text(
+                        busy
+                            ? 'Restoring…'
+                            : restoreStudyPreferences
+                            ? 'Restore workbook and settings'
+                            : 'Restore workbook',
+                      ),
                     ),
                   ],
                   if (status != null) ...[

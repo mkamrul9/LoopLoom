@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sembast/sembast_memory.dart';
 import 'package:looploom/data/pilot_lessons.dart';
 import 'package:looploom/data/session_repository.dart';
+import 'package:looploom/data/sprint_references.dart';
+import 'package:looploom/domain/learner_preferences.dart';
 import 'package:looploom/domain/lesson.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 
@@ -13,6 +15,81 @@ class RejectingRepository extends MemorySessionRepository {
 }
 
 void main() {
+  test(
+    'backup can restore study settings without copying AI or runner access',
+    () async {
+      final source = PracticeStore();
+      await source.updatePreferences(
+        source.preferences.copyWith(
+          displayName: 'Ari',
+          targetRole: 'Backend engineer',
+          preferredLanguage: CodeLanguage.typescript,
+          pace: CoachingPace.advanced,
+          appearance: AppearancePreference.dark,
+          aiCoachConsent: true,
+          runnerAddress: 'http://192.168.1.2:8766',
+          runnerToken: 'private-runner-token',
+        ),
+      );
+      final backup = source.exportBackup();
+      final data = jsonDecode(backup) as Map<String, dynamic>;
+      final study = data['studyPreferences'] as Map<String, dynamic>;
+      expect(study['displayName'], 'Ari');
+      expect(study.containsKey('aiCoachConsent'), isFalse);
+      expect(study.containsKey('runnerAddress'), isFalse);
+      expect(study.containsKey('runnerToken'), isFalse);
+      expect(backup, isNot(contains('private-runner-token')));
+
+      final target = PracticeStore();
+      await target.updatePreferences(
+        target.preferences.copyWith(
+          displayName: 'Local',
+          runnerToken: 'keep-this-device-token',
+        ),
+      );
+      final plan = target.inspectBackup(backup, pilotLessons);
+      expect(plan.studyPreferences?.displayName, 'Ari');
+      await target.importBackup(plan, pilotLessons);
+      expect(target.preferences.displayName, 'Local');
+      await target.importBackup(
+        plan,
+        pilotLessons,
+        restoreStudyPreferences: true,
+      );
+      expect(target.preferences.displayName, 'Ari');
+      expect(target.preferences.targetRole, 'Backend engineer');
+      expect(target.preferences.preferredLanguage, CodeLanguage.typescript);
+      expect(target.preferences.pace, CoachingPace.advanced);
+      expect(target.preferences.appearance, AppearancePreference.dark);
+      expect(target.preferences.aiCoachConsent, isFalse);
+      expect(target.preferences.runnerAddress, isEmpty);
+      expect(target.preferences.runnerToken, 'keep-this-device-token');
+      await source.close();
+      await target.close();
+    },
+  );
+
+  test(
+    'older backups and more than 25 reference unlocks remain restorable',
+    () async {
+      final source = PracticeStore();
+      final oldData = jsonDecode(source.exportBackup()) as Map<String, dynamic>
+        ..remove('studyPreferences')
+        ..['unlockedReferenceIds'] = sprintReferences.keys.take(26).toList();
+      final target = PracticeStore();
+      final plan = target.inspectBackup(jsonEncode(oldData), pilotLessons);
+      expect(plan.studyPreferences, isNull);
+      await target.importBackup(
+        plan,
+        pilotLessons,
+        restoreStudyPreferences: true,
+      );
+      expect(target.preferences.unlockedReferenceIds.length, 26);
+      await source.close();
+      await target.close();
+    },
+  );
+
   test('an import collision rolls back the entire database batch', () async {
     final source = PracticeStore();
     source.startOrResume(pilotLessons[0]);

@@ -461,12 +461,14 @@ class WorkbookBackupPlan {
     this.savedLessonIds,
     this.unlockedReferenceIds,
     this.pointsBalance,
+    this.studyPreferences,
   );
   final List<Map<String, Object?>> _records;
   final int existing;
   final Set<String> savedLessonIds;
   final Set<String> unlockedReferenceIds;
   final int? pointsBalance;
+  final LearnerPreferences? studyPreferences;
   int get total => _records.length;
   int get additions => total - existing;
 }
@@ -660,6 +662,24 @@ class PracticeStore extends ChangeNotifier {
     'savedLessonIds': preferences.savedLessonIds.toList()..sort(),
     'unlockedReferenceIds': preferences.unlockedReferenceIds.toList()..sort(),
     'pointsBalance': preferences.pointsBalance,
+    'studyPreferences': {
+      'pace': preferences.pace.name,
+      'preferredLanguage': preferences.preferredLanguage.name,
+      'appearance': preferences.appearance.name,
+      'textScale': preferences.textScale,
+      'displayName': preferences.displayName,
+      'targetRole': preferences.targetRole,
+      'experienceLevel': preferences.experienceLevel?.name,
+      'onboardingSeen': preferences.onboardingSeen,
+      'weeklyGoalDays': preferences.weeklyGoalDays,
+      'dailyGoalMinutes': preferences.dailyGoalMinutes,
+      'selectedTrack': preferences.selectedTrack,
+      'targetInterviewDate': preferences.targetInterviewDate?.toIso8601String(),
+      'diagnosticCompletedAt': preferences.diagnosticCompletedAt
+          ?.toIso8601String(),
+      'diagnosticScores': preferences.diagnosticScores,
+      'diagnosticAnswers': preferences.diagnosticAnswers,
+    },
     'sessions': [
       ..._sessions.map((session) => session.toJson()),
       ..._unavailableRecords.values,
@@ -705,6 +725,7 @@ class PracticeStore extends ChangeNotifier {
     final rawSaved = data['savedLessonIds'];
     final rawUnlocked = data['unlockedReferenceIds'];
     final rawPoints = data['pointsBalance'];
+    final rawStudyPreferences = data['studyPreferences'];
     if (rawSaved != null &&
         (rawSaved is! List ||
             rawSaved.length > 500 ||
@@ -717,7 +738,7 @@ class PracticeStore extends ChangeNotifier {
     if (rawSaved is List) savedIds.addAll(rawSaved.cast<String>());
     if (rawUnlocked != null &&
         (rawUnlocked is! List ||
-            rawUnlocked.length > 25 ||
+            rawUnlocked.length > sprintReferences.length ||
             rawUnlocked.any(
               (id) => id is! String || !sprintReferences.containsKey(id),
             ))) {
@@ -730,6 +751,17 @@ class PracticeStore extends ChangeNotifier {
     final unlockedIds = rawUnlocked is List
         ? rawUnlocked.cast<String>().toSet()
         : <String>{};
+    LearnerPreferences? studyPreferences;
+    if (rawStudyPreferences != null) {
+      final raw = _map(rawStudyPreferences);
+      if (raw['displayName'] is! String ||
+          (raw['displayName'] as String).length > 80 ||
+          raw['targetRole'] is! String ||
+          (raw['targetRole'] as String).length > 120) {
+        throw const FormatException('Invalid study preferences in backup.');
+      }
+      studyPreferences = LearnerPreferences.fromJson(raw);
+    }
     if (rows.length > 500) {
       throw const FormatException('A backup can contain at most 500 attempts.');
     }
@@ -764,13 +796,15 @@ class PracticeStore extends ChangeNotifier {
       savedIds,
       unlockedIds,
       rawPoints as int?,
+      studyPreferences,
     );
   }
 
   Future<BackupImportResult> importBackup(
     WorkbookBackupPlan plan,
-    List<Lesson> lessons,
-  ) async {
+    List<Lesson> lessons, {
+    bool restoreStudyPreferences = false,
+  }) async {
     await flush();
     if (saveFailed || _disposed) {
       throw StateError('Save your current workbook before restoring a backup.');
@@ -810,18 +844,41 @@ class PracticeStore extends ChangeNotifier {
     var savedFailed = false;
     if (newSaved.isNotEmpty ||
         newUnlocked.isNotEmpty ||
-        restoredPoints != preferences.pointsBalance) {
+        restoredPoints != preferences.pointsBalance ||
+        (restoreStudyPreferences && plan.studyPreferences != null)) {
       try {
-        await updatePreferences(
-          preferences.copyWith(
-            savedLessonIds: {...preferences.savedLessonIds, ...newSaved},
-            unlockedReferenceIds: {
-              ...preferences.unlockedReferenceIds,
-              ...newUnlocked,
-            },
-            pointsBalance: restoredPoints,
-          ),
+        var next = preferences.copyWith(
+          savedLessonIds: {...preferences.savedLessonIds, ...newSaved},
+          unlockedReferenceIds: {
+            ...preferences.unlockedReferenceIds,
+            ...newUnlocked,
+          },
+          pointsBalance: restoredPoints,
         );
+        final study = restoreStudyPreferences ? plan.studyPreferences : null;
+        if (study != null) {
+          next = next.copyWith(
+            pace: study.pace,
+            preferredLanguage: study.preferredLanguage,
+            appearance: study.appearance,
+            textScale: study.textScale,
+            displayName: study.displayName,
+            targetRole: study.targetRole,
+            experienceLevel: study.experienceLevel,
+            clearExperienceLevel: study.experienceLevel == null,
+            onboardingSeen: study.onboardingSeen,
+            weeklyGoalDays: study.weeklyGoalDays,
+            dailyGoalMinutes: study.dailyGoalMinutes,
+            selectedTrack: study.selectedTrack,
+            targetInterviewDate: study.targetInterviewDate,
+            clearTargetInterviewDate: study.targetInterviewDate == null,
+            diagnosticCompletedAt: study.diagnosticCompletedAt,
+            clearDiagnosticResult: study.diagnosticCompletedAt == null,
+            diagnosticScores: study.diagnosticScores,
+            diagnosticAnswers: study.diagnosticAnswers,
+          );
+        }
+        await updatePreferences(next);
       } catch (_) {
         savedFailed = true;
       }
