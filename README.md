@@ -116,10 +116,13 @@ Useful guides:
 - [Local AI evaluation](docs/LOCAL_AI_VALIDATION.md)
 - [Code runner scope](docs/REFERENCE_RUNNER.md)
 - [Release and monetization plan](docs/RELEASE_MONETIZATION.md)
+- [Google Play release preparation](docs/PLAY_RELEASE.md)
+- [Play listing draft](docs/PLAY_STORE_LISTING.md)
+- [Public privacy policy](https://looploom-coach-2026.web.app/privacy.html)
 
 ## Project status
 
-LoopLoom is under active development. The Gemini provider is implemented but requires a Firebase project, App Check registration, and learner consent before it can make live requests. Accounts, cross-device sync, production-grade AI evaluation, secure hosted code execution, and billing are not implemented. Public release still needs curriculum review, device and accessibility checks, release signing, and Play Store preparation. See the [delivery roadmap](docs/PRODUCT_ROADMAP.md) for the current plan.
+LoopLoom is under active development. The hosted build has Firebase AI Logic and App Check configured, while a fresh checkout needs its own ignored Firebase configuration; learners must also opt in before sending an answer. Accounts, cross-device sync, production-grade AI evaluation, secure hosted code execution, and billing are not implemented. A separately signed Play upload bundle can be built for internal testing. Public release still needs curriculum review, real-device and accessibility checks, the account owner's Play Console declarations and testing, key recovery backup, and a Play-installed AI/App Check check. See the [delivery roadmap](docs/PRODUCT_ROADMAP.md) for the current plan.
 
 ## License
 

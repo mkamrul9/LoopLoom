@@ -7,6 +7,7 @@ abstract interface class SessionRepository {
   Future<void> deleteSession(String id);
   Future<Map<String, Object?>?> loadPreferences();
   Future<void> savePreferences(Map<String, Object?> preferences);
+  Future<void> clearAll();
   Future<void> close();
 }
 
@@ -48,12 +49,21 @@ class MemorySessionRepository implements SessionRepository {
     records.remove(id);
     _deleted.add(id);
   }
+
   @override
   Future<Map<String, Object?>?> loadPreferences() async =>
       preferences == null ? null : Map<String, Object?>.of(preferences!);
   @override
   Future<void> savePreferences(Map<String, Object?> value) async =>
       preferences = Map<String, Object?>.of(value);
+  @override
+  Future<void> clearAll() async {
+    records.clear();
+    _deleted.clear();
+    _restoring.clear();
+    preferences = null;
+  }
+
   @override
   Future<void> close() async {}
 }
@@ -81,9 +91,8 @@ class SembastSessionRepository implements SessionRepository {
       _saveAll(snapshots);
 
   @override
-  Future<void> restoreDeleted(
-    Map<String, Map<String, Object?>> snapshots,
-  ) => _saveAll(snapshots, allowDeleted: true);
+  Future<void> restoreDeleted(Map<String, Map<String, Object?>> snapshots) =>
+      _saveAll(snapshots, allowDeleted: true);
 
   Future<void> _saveAll(
     Map<String, Map<String, Object?>> snapshots, {
@@ -139,9 +148,7 @@ class SembastSessionRepository implements SessionRepository {
         throw SessionWriteConflict();
       }
       await record.delete(transaction);
-      await _deletions.record(id).put(transaction, {
-        'version': currentVersion,
-      });
+      await _deletions.record(id).put(transaction, {'version': currentVersion});
     });
     _versions[id] = -1;
   }
@@ -153,6 +160,16 @@ class SembastSessionRepository implements SessionRepository {
   @override
   Future<void> savePreferences(Map<String, Object?> preferences) async {
     await _settings.record('learner').put(database, preferences);
+  }
+
+  @override
+  Future<void> clearAll() async {
+    await database.transaction((transaction) async {
+      await _sessions.delete(transaction);
+      await _settings.delete(transaction);
+      await _deletions.delete(transaction);
+    });
+    _versions.clear();
   }
 
   @override

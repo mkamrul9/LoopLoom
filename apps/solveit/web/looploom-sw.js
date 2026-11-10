@@ -4,6 +4,7 @@
 const CACHE_NAME = 'looploom-app-__BUILD_ID__';
 const SHELL = [
   '/index.html',
+  '/privacy.html',
   '/flutter_bootstrap.js',
   '/main.dart.js',
   '/flutter.js',
@@ -45,7 +46,9 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const fallbackKey = request.mode === 'navigate' ? '/index.html' : request;
+    const fallbackKey = request.mode === 'navigate'
+      ? (url.pathname === '/privacy.html' ? '/privacy.html' : '/index.html')
+      : request;
     try {
       const response = await fetch(request);
       if (response.ok && response.type === 'basic') {

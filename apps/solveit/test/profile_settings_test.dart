@@ -2,12 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:looploom/data/pilot_lessons.dart';
 import 'package:looploom/features/coaching/reference_runner.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 import 'package:looploom/ui/settings_screen.dart';
 import 'package:looploom/ui/looploom_theme.dart';
 
 void main() {
+  testWidgets('privacy control asks before clearing local study data', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = PracticeStore();
+    store.startOrResume(pilotLessons.first);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: studyTheme(),
+        home: SettingsScreen(store: store),
+      ),
+    );
+    await tester.scrollUntilVisible(
+      find.text('Clear local workbook'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Privacy policy'), findsOneWidget);
+    await tester.tap(find.text('Clear local workbook'));
+    await tester.pumpAndSettle();
+    expect(find.text('Clear this device’s workbook?'), findsOneWidget);
+    await tester.tap(find.text('Keep workbook'));
+    await tester.pumpAndSettle();
+    expect(store.sessions, hasLength(1));
+    await tester.tap(find.text('Clear local workbook'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear workbook'));
+    await tester.pumpAndSettle();
+    expect(store.sessions, isEmpty);
+    await tester.pumpWidget(const SizedBox());
+    await store.close();
+  });
+
   testWidgets('runner settings confirm reachable languages before saving', (
     tester,
   ) async {

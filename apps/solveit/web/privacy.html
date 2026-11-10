@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="How LoopLoom handles your study data, optional AI requests, and feedback.">
+  <title>Privacy policy · LoopLoom</title>
+  <style>
+    :root { color-scheme: light dark; --paper:#f7f4ef; --ink:#252a2c; --muted:#5b6264; --line:#d8cec5; --accent:#91513f; }
+    @media (prefers-color-scheme:dark) { :root { --paper:#17191b; --ink:#f3eee8; --muted:#c2b9b1; --line:#4f4945; --accent:#d49882; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:17px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:760px; margin:0 auto; padding:32px 22px 80px; }
+    a { color:var(--accent); text-underline-offset:3px; }
+    a:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+    header { border-bottom:1px solid var(--line); padding-bottom:24px; margin-bottom:30px; }
+    .brand { font-size:25px; font-weight:750; letter-spacing:-.05em; text-decoration:none; color:var(--ink); }
+    .brand span { color:var(--accent); }
+    .eyebrow { margin:24px 0 5px; color:var(--accent); text-transform:uppercase; letter-spacing:.12em; font-size:12px; font-weight:700; }
+    h1 { font-size:clamp(32px,6vw,46px); line-height:1.13; letter-spacing:-.045em; margin:0 0 12px; }
+    h2 { font-size:23px; line-height:1.3; margin:34px 0 10px; letter-spacing:-.02em; }
+    p, ul { margin:0 0 16px; } ul { padding-left:24px; } li { margin:7px 0; }
+    .date { color:var(--muted); font-size:14px; } .lead { font-size:19px; }
+    .callout { border:1px solid var(--line); border-left:4px solid var(--accent); padding:18px 20px 2px; border-radius:8px; }
+    footer { border-top:1px solid var(--line); margin-top:44px; padding-top:20px; color:var(--muted); font-size:14px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <a class="brand" href="/learn" aria-label="LoopLoom home">L<span>oo</span>pL<span>oo</span>m</a>
+    <p class="eyebrow">Your practice, your pace</p>
+    <h1>Privacy policy</h1>
+    <p class="date">Effective 10 November 2026</p>
+  </header>
+
+  <p class="lead">LoopLoom is a coding interview practice app for Android and the web. You can use its guided lessons without an account. This policy explains what stays on your device and what leaves it when you choose an online feature.</p>
+
+  <h2>Study data on your device</h2>
+  <p>LoopLoom saves your profile choices, diagnostic answers, practice history, reasoning and code drafts, notes, saved problems, points, and settings in local app storage. We do not run a cloud account or sync service for this workbook. If you export a workbook backup, it is plain JSON that you choose where to save or share. A backup outside the app is no longer controlled by LoopLoom.</p>
+
+  <h2>Optional AI coaching</h2>
+  <p>AI coaching is off until you allow it in the app. When you tap Ask AI, LoopLoom sends your current answer, a small amount of recent conversation, and relevant problem context to Google Firebase AI Logic and the Gemini Developer API for feedback. It does not send your entire workbook in the background. Google also receives the technical data needed for Firebase App Check to protect the request, which may include app or device identifiers and integrity signals. Google processes this data under its applicable service terms and privacy practices. The free tier may use submitted prompts to improve Google products. Do not put personal or confidential information in an AI answer. You can turn AI feedback off in Settings.</p>
+
+  <h2>Optional code runner</h2>
+  <p>If you configure a private runner and tap Run reference cases, the current code draft, selected language, and lesson ID go to the runner address you entered. The runner is a separate service that you or its operator control. A private LAN HTTP connection is not encrypted; use it only on a trusted network and do not submit secrets. LoopLoom stores the runner address and token in local app preferences.</p>
+
+  <h2>Feedback and contact</h2>
+  <p>The Feedback button opens a draft in your email app. Nothing is sent until you send it yourself. If you email us, we receive your email address and the message you chose to send, and use them to respond or investigate your request. Your email provider also processes the message under its own policy.</p>
+
+  <h2>Other network activity</h2>
+  <p>The web app downloads its pages and updates over HTTPS and may cache app files for offline use. The Android app uses the internet for optional AI requests and any external problem pages you open. LoopLoom does not currently include an advertising or analytics SDK or sell learner data. External challenge pages, Google services, and a runner you configure have their own data practices.</p>
+
+  <h2>Retention and your choices</h2>
+  <div class="callout">
+    <p>Your workbook stays in local app storage until you clear it, uninstall the Android app, or clear the browser’s site data. In <strong>Profile &amp; settings → Privacy &amp; data</strong>, choose <strong>Clear local workbook</strong> to remove local attempts, drafts, profile, points, and runner settings. Export a backup first if you want a copy. Clearing the workbook does not erase backups you saved elsewhere, email you sent, or data already processed by Google or your runner operator.</p>
+  </div>
+  <p>We keep support emails as needed to answer and investigate requests. For questions about a message you sent, or a privacy request concerning data we hold, contact the address below. We do not create LoopLoom user accounts in this release, so there is no account to delete.</p>
+
+  <h2>Changes and contact</h2>
+  <p>We may update this page when LoopLoom’s features or data handling change. The effective date above will change with a material revision. For privacy questions, contact <a href="mailto:cdkamrul9@gmail.com">cdkamrul9@gmail.com</a>.</p>
+  <footer>LoopLoom · Think · Trace · Code</footer>
+</main>
+</body>
+</html>

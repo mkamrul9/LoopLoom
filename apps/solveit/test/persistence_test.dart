@@ -29,6 +29,31 @@ class DelayedRepository extends MemorySessionRepository {
 
 void main() {
   test(
+    'clearing the workbook removes pending drafts and preferences durably',
+    () async {
+      final database = await databaseFactoryMemory.openDatabase(
+        'clear-workbook',
+      );
+      final repository = SembastSessionRepository(database);
+      final store = await PracticeStore.load(repository, pilotLessons);
+      final session = store.startOrResume(pilotLessons.first);
+      session.saveReasoningDraft('Unsent private thinking');
+      await store.updatePreferences(
+        store.preferences.copyWith(displayName: 'Ari', runnerToken: 'secret'),
+      );
+
+      await store.clearLocalWorkbook();
+      expect(store.sessions, isEmpty);
+      expect(store.preferences.displayName, isEmpty);
+      expect(store.preferences.runnerToken, isEmpty);
+      expect(await repository.load(), isEmpty);
+      expect(await repository.loadPreferences(), isNull);
+      await store.close();
+      store.dispose();
+    },
+  );
+
+  test(
     'a stale writer cannot overwrite work saved by another window',
     () async {
       final database = await databaseFactoryMemory.openDatabase(

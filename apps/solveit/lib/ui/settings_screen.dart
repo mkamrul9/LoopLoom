@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../domain/learner_preferences.dart';
 import '../domain/lesson.dart';
 import '../features/coaching/session_controller.dart';
@@ -30,6 +31,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static final _privacyPolicy = Uri.https(
+    'looploom-coach-2026.web.app',
+    '/privacy.html',
+  );
   PracticeStore get store => widget.store;
   late final TextEditingController _name;
   late final TextEditingController _role;
@@ -41,6 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   DateTime? _targetDate;
   bool _savingProfile = false;
   bool _checkingRunner = false;
+  bool _clearingWorkbook = false;
   bool _runnerReady = false;
   String? _runnerStatus;
 
@@ -232,6 +238,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showMessage(String message) => ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
+
+  Future<void> _openPrivacyPolicy() async {
+    try {
+      if (await launchUrl(
+        _privacyPolicy,
+        mode: LaunchMode.externalApplication,
+      )) {
+        return;
+      }
+    } catch (_) {
+      // The URL remains visible below for devices without a browser handler.
+    }
+    if (mounted) _showMessage('Open looploom-coach-2026.web.app/privacy.html');
+  }
+
+  Future<void> _clearWorkbook() async {
+    if (_clearingWorkbook) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Clear this device’s workbook?'),
+        content: const Text(
+          'This permanently removes your attempts, drafts, profile, saved problems, study points, and runner settings from this device. Export a workbook backup first if you want to keep them. Copies you saved elsewhere and emails you sent are not removed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Keep workbook'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Clear workbook'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _clearingWorkbook = true);
+    try {
+      await store.clearLocalWorkbook();
+      if (!mounted) return;
+      _showMessage('Workbook cleared from this device.');
+      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) _showMessage('Could not clear the workbook. Try again.');
+    } finally {
+      if (mounted) setState(() => _clearingWorkbook = false);
+    }
+  }
 
   Future<void> _chooseTargetDate() async {
     final today = DateUtils.dateOnly(DateTime.now());
@@ -796,6 +851,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
               icon: const Icon(Icons.feedback_outlined),
               label: const Text('Feedback & contact'),
+            ),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 22),
+            _sectionHeading(
+              'Privacy & data',
+              'Your workbook stays yours',
+              'Review how LoopLoom handles study data and clear this device when you need to.',
+            ),
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed: _openPrivacyPolicy,
+              icon: const Icon(Icons.privacy_tip_outlined),
+              label: const Text('Privacy policy'),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'looploom-coach-2026.web.app/privacy.html',
+              style: TextStyle(fontSize: 14, color: context.palette.muted),
+            ),
+            const SizedBox(height: 18),
+            TextButton.icon(
+              onPressed: _clearingWorkbook ? null : _clearWorkbook,
+              icon: const Icon(Icons.delete_outline),
+              label: const Text('Clear local workbook'),
             ),
           ],
         ),

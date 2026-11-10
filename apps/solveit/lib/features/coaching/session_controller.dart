@@ -516,6 +516,7 @@ class PracticeStore extends ChangeNotifier {
   Timer? _timer;
   Future<void>? _saving, _closing;
   bool _disposed = false;
+  bool _clearing = false;
   bool saveFailed = false;
   bool saveConflict = false;
   int unavailableAttempts = 0, _nextAttempt = 1;
@@ -834,7 +835,7 @@ class PracticeStore extends ChangeNotifier {
   }
 
   void _scheduleSave(SessionController session) {
-    if (_disposed || _deleting.contains(session.id)) return;
+    if (_disposed || _clearing || _deleting.contains(session.id)) return;
     _pending[session.id] = session.toJson();
     saveFailed = false;
     _timer?.cancel();
@@ -862,6 +863,7 @@ class PracticeStore extends ChangeNotifier {
   }
 
   SessionController startOrResume(Lesson lesson) {
+    if (_clearing) throw StateError('The workbook is being cleared.');
     for (final session in sessions) {
       if (session.lesson.id == lesson.id &&
           session.stage != CoachingStage.complete) {
@@ -881,6 +883,7 @@ class PracticeStore extends ChangeNotifier {
   }
 
   Future<void> updatePreferences(LearnerPreferences value) async {
+    if (_clearing) throw StateError('The workbook is being cleared.');
     preferences = value;
     preferencesSaving = true;
     preferencesSaveFailed = false;
@@ -914,6 +917,38 @@ class PracticeStore extends ChangeNotifier {
   Future<void> retrySave() async {
     if (preferencesSaveFailed) await updatePreferences(preferences);
     if (saveFailed) await flush();
+  }
+
+  Future<void> clearLocalWorkbook() async {
+    if (_clearing) return;
+    _clearing = true;
+    _timer?.cancel();
+    try {
+      await flush();
+      try {
+        await _preferencesWrite;
+      } catch (_) {
+        // Deletion is still allowed when the previous preference save failed.
+      }
+      await repository.clearAll();
+      _pending.clear();
+      _unavailableRecords.clear();
+      _deleting.clear();
+      for (final session in _sessions) {
+        session.dispose();
+      }
+      _sessions.clear();
+      _nextAttempt = 1;
+      unavailableAttempts = 0;
+      preferences = const LearnerPreferences();
+      preferencesSaving = false;
+      preferencesSaveFailed = false;
+      saveFailed = false;
+      saveConflict = false;
+      notifyListeners();
+    } finally {
+      _clearing = false;
+    }
   }
 
   Future<void> flush() {
