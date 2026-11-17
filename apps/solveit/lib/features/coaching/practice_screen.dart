@@ -28,6 +28,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
   final scroll = ScrollController();
   final questionKey = GlobalKey();
   final checkpointKey = GlobalKey();
+  Timer? _aiProgressTimer;
+  int _aiWaitSeconds = 0;
   bool get focusView => session.focusView;
   SessionController get session => widget.session;
   @override
@@ -40,6 +42,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   @override
   void dispose() {
     unawaited(widget.store.flush());
+    _aiProgressTimer?.cancel();
     composer.dispose();
     editor.dispose();
     scroll.dispose();
@@ -207,7 +210,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
     if (!await _confirmAiConsent() || !mounted) return;
     FocusScope.of(context).unfocus();
+    _aiProgressTimer?.cancel();
+    setState(() => _aiWaitSeconds = 0);
+    _aiProgressTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted || !session.reviewing) return;
+      setState(() => _aiWaitSeconds += 5);
+    });
     await session.reviewWithCoach();
+    _aiProgressTimer?.cancel();
+    _aiProgressTimer = null;
     if (!mounted) return;
     final result = session.messages.last;
     if (result.kind == MessageKind.feedback ||
@@ -658,30 +669,69 @@ class _PracticeScreenState extends State<PracticeScreen> {
   );
 
   Widget _message(CoachMessage message) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          message.isLearner
-              ? 'YOUR THINKING'
-              : message.kind == MessageKind.feedback
-              ? 'AI COACH / SUGGESTION'
-              : message.kind == MessageKind.error
-              ? 'AI COACH / UNAVAILABLE'
-              : message.kind == MessageKind.offlineCoach
-              ? 'OFFLINE COACH / CURATED GUIDANCE'
-              : 'GUIDED NOTE',
-          style: noteLabel,
+    padding: const EdgeInsets.symmetric(vertical: 7),
+    child: Align(
+      alignment: message.isLearner
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * .84,
         ),
-        const SizedBox(height: 10),
-        SelectableText(
-          message.text,
-          style: const TextStyle(fontSize: 16, height: 1.7),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+          decoration: BoxDecoration(
+            color: message.isLearner
+                ? context.palette.accentWash
+                : context.palette.sheet,
+            border: message.isLearner
+                ? null
+                : Border.all(color: context.palette.line),
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(16),
+              topRight: const Radius.circular(16),
+              bottomLeft: Radius.circular(message.isLearner ? 16 : 5),
+              bottomRight: Radius.circular(message.isLearner ? 5 : 16),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _messageSpeaker(message),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: message.kind == MessageKind.error
+                      ? Theme.of(context).colorScheme.error
+                      : context.palette.muted,
+                ),
+              ),
+              const SizedBox(height: 5),
+              SelectableText(
+                message.text,
+                style: const TextStyle(fontSize: 16, height: 1.6),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     ),
   );
+
+  String _messageSpeaker(CoachMessage message) {
+    if (message.isLearner) return 'You';
+    return switch (message.kind) {
+      MessageKind.feedback => 'AI coach',
+      MessageKind.error => 'AI coach · connection issue',
+      MessageKind.offlineCoach => 'Offline coach',
+      MessageKind.hint => 'Hint',
+      MessageKind.solution => 'Explanation',
+      MessageKind.checkpoint => 'Self-check',
+      MessageKind.question => 'LoopLoom',
+      MessageKind.note => 'Session note',
+    };
+  }
 
   Widget _coaching() {
     final complete = session.stage == CoachingStage.complete;
@@ -898,7 +948,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     )
                   : const Icon(Icons.chat_bubble_outline, size: 18),
               label: Text(
-                session.reviewing ? 'AI coach is reviewing…' : 'Review with AI',
+                !session.reviewing
+                    ? 'Review with AI'
+                    : _aiWaitSeconds >= 15
+                    ? 'Still waiting · your answer is saved'
+                    : _aiWaitSeconds >= 5
+                    ? 'Waiting for Gemini…'
+                    : 'Connecting securely…',
               ),
             ),
             const SizedBox(height: 8),
@@ -936,18 +992,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
             spacing: 8,
             runSpacing: 4,
             children: [
-              TextButton.icon(
-                style: TextButton.styleFrom(
-                  foregroundColor: context.palette.muted,
-                ),
+              FilledButton.tonalIcon(
                 onPressed:
                     !session.reviewing &&
                         session.hintsUsed < session.lesson.hints.length
                     ? _showNextHint
                     : null,
-                icon: const Icon(Icons.lightbulb_outline, size: 16),
+                icon: const Icon(Icons.lightbulb_outline, size: 18),
                 label: Text(
-                  'Hint ${session.hintsUsed}/${session.lesson.hints.length}',
+                  session.hintsUsed < session.lesson.hints.length
+                      ? 'Show hint · ${session.hintsUsed}/${session.lesson.hints.length}'
+                      : 'All hints shown · ${session.hintsUsed}/${session.lesson.hints.length}',
                 ),
               ),
             ],
@@ -1010,10 +1065,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
           title: Text(
-            'Session notes / ${session.messages.length}',
-            style: TextStyle(fontSize: 13, color: context.palette.muted),
+            'Session conversation · ${session.messages.length}',
+            style: TextStyle(fontSize: 15, color: context.palette.ink),
           ),
-          children: session.messages.map(_message).toList(),
+          children: [
+            SizedBox(
+              height: (session.messages.length * 112.0 + 24).clamp(
+                160.0,
+                480.0,
+              ),
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+                itemCount: session.messages.length,
+                itemBuilder: (context, index) =>
+                    _message(session.messages[index]),
+              ),
+            ),
+          ],
         ),
       ],
     );

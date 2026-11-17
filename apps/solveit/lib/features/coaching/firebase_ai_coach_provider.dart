@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/foundation.dart';
 
 import 'coach_provider.dart';
 import 'firebase_runtime_config.dart';
@@ -16,19 +17,17 @@ class FirebaseAiCoachProvider implements CoachProvider {
   bool get enabled => true;
 
   Future<void> _ensureReady() async {
+    final initializing = _initializing ??=
+        FirebaseRuntimeConfig.initializeForAi();
     try {
-      await (_initializing ??= FirebaseRuntimeConfig.initializeForAi()).timeout(
-        const Duration(seconds: 8),
-      );
+      await initializing.timeout(const Duration(seconds: 15));
     } on TimeoutException {
       throw const CoachUnavailable(
-        'Secure AI setup took too long. Your work is saved; try again or use the offline coach.',
+        'Secure AI setup took too long. Your thinking is saved. Check your connection and Firebase App Check, then try again or use the offline coach.',
       );
-    } catch (_) {
-      _initializing = null;
-      throw const CoachUnavailable(
-        'Secure AI setup is unavailable. Check the Firebase setup, or use the offline coach.',
-      );
+    } catch (error) {
+      if (identical(_initializing, initializing)) _initializing = null;
+      throw CoachUnavailable(_setupFailure(error));
     }
     _model ??= FirebaseAI.googleAI().generativeModel(
       model: 'gemini-3.8-flash',
@@ -55,6 +54,61 @@ Give a brief, evidence-based assessment of this specific answer: likely sound, n
 Do not claim that code passed tests or that a solution is verified. Do not give a complete algorithm, pseudocode, or replacement code. Keep feedback to at most three short sentences and ask exactly one useful follow-up question.
 Return only JSON with the required feedback and next_question fields.
 ''';
+
+  static String _setupFailure(Object error) {
+    if (error is ServiceApiNotEnabled) {
+      return 'Firebase AI Logic is not enabled for this project yet. Enable it in Firebase Console, wait a few minutes, then retry. Your thinking is saved.';
+    }
+    if (error is InvalidApiKey) {
+      return 'Firebase rejected this app’s API key. Check the Firebase app configuration for this build. Your thinking is saved.';
+    }
+    return _requestFailure(error, duringSetup: true);
+  }
+
+  static String _requestFailure(Object error, {bool duringSetup = false}) {
+    if (error is QuotaExceeded) {
+      return 'The free Gemini limit is temporarily reached. Try again later or continue with the offline coach. Your thinking is saved.';
+    }
+    if (error is UnsupportedUserLocation) {
+      return 'Gemini is unavailable from this location. Your thinking is saved; use the offline coach for now.';
+    }
+    if (error is ServiceApiNotEnabled) {
+      return 'Firebase AI Logic is not enabled for this project. Enable it in Firebase Console, wait a few minutes, then retry. Your thinking is saved.';
+    }
+    if (error is InvalidApiKey) {
+      return 'Firebase rejected this app’s API key. Check the Firebase app configuration for this build. Your thinking is saved.';
+    }
+
+    final detail = error.toString().toLowerCase();
+    if (detail.contains('app check') ||
+        detail.contains('app_check') ||
+        detail.contains('attestation') ||
+        detail.contains('play integrity') ||
+        detail.contains('recaptcha')) {
+      return kIsWeb
+          ? 'Firebase App Check blocked this request. Open LoopLoom from its configured web domain, or check the reCAPTCHA Enterprise setup. Your thinking is saved.'
+          : 'Firebase App Check blocked this request. Install the Play-distributed Android build, or use a debug build with its App Check debug token registered. Your thinking is saved.';
+    }
+    if (detail.contains('permission_denied') ||
+        detail.contains('403') ||
+        detail.contains('unauthenticated')) {
+      return 'Google rejected the Firebase request. Check that Firebase AI Logic is enabled and App Check accepts this app. A sideloaded Android build may need the Play-distributed version. Your thinking is saved.';
+    }
+    if (detail.contains('429') || detail.contains('resource_exhausted')) {
+      return 'The free Gemini limit is temporarily reached. Try again later or continue with the offline coach. Your thinking is saved.';
+    }
+    if (detail.contains('socketexception') ||
+        detail.contains('network') ||
+        detail.contains('connection')) {
+      return 'Gemini could not connect. Check your internet connection and try again. Your thinking is saved.';
+    }
+    if (error is FirebaseAISdkException) {
+      return 'The Firebase AI SDK could not read Google’s response. Update the app and try again. Your thinking is saved.';
+    }
+    return duringSetup
+        ? 'Secure AI setup failed. Check your connection, Firebase AI Logic, and App Check settings. Your thinking is saved; the offline coach is still available.'
+        : 'Gemini could not respond. Check your connection, Firebase AI Logic, and App Check settings, then retry. Your thinking is saved; the offline coach is still available.';
+  }
 
   static String _bounded(Object? value, int maxLength) {
     if (value is! String) return '';
@@ -114,7 +168,7 @@ Return only JSON with the required feedback and next_question fields.
       _model!.generateContentStream([Content.text(prompt)]),
     );
     final output = StringBuffer();
-    final deadline = DateTime.now().add(const Duration(seconds: 15));
+    final deadline = DateTime.now().add(const Duration(seconds: 25));
     try {
       while (true) {
         final remaining = deadline.difference(DateTime.now());
@@ -158,16 +212,14 @@ Return only JSON with the required feedback and next_question fields.
       rethrow;
     } on TimeoutException {
       throw const CoachUnavailable(
-        'The AI coach took too long. Your answer is saved; try again or use the offline coach.',
+        'Gemini did not respond within 25 seconds. Your thinking is saved; retry or continue with the offline coach.',
       );
     } on FormatException {
       throw const CoachUnavailable(
         'The AI coach returned an unusable reply. Your progress was not changed; try again or use the offline coach.',
       );
-    } catch (_) {
-      throw const CoachUnavailable(
-        'The AI coach could not connect. Check your connection or Firebase setup; your work is saved.',
-      );
+    } catch (error) {
+      throw CoachUnavailable(_requestFailure(error));
     }
   }
 

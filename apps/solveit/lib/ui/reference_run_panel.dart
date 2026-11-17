@@ -169,7 +169,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Text(
-          'Set a self-hosted runner address in Settings to run these cases from your phone. Your draft stays saved here.',
+          'To run your code, connect your self-hosted PC runner in Settings. It will check ${spec.cases.length} authored reference cases for this problem. The PC must be on; these are not hidden tests or the official LeetCode judge.',
           style: TextStyle(
             fontSize: 14,
             height: 1.6,
@@ -190,7 +190,7 @@ class _ReferenceRunPanelState extends State<ReferenceRunPanel> {
         const SizedBox(height: 12),
         Text(
           supported
-              ? 'Local development execution · reference cases only. This does not establish a verified solve.'
+              ? 'Runs ${spec.cases.length} authored reference cases on your PC. No hidden tests; this does not establish an official or verified solve.'
               : 'Reference execution currently supports C++, JavaScript, TypeScript and Python. You can keep drafting in any language.',
           style: TextStyle(
             fontSize: 12,

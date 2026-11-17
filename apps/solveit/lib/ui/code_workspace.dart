@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/code_specs.dart';
 import '../data/blind75_curriculum.dart';
@@ -72,6 +73,14 @@ class CodeWorkspace extends StatelessWidget {
         const SnackBar(content: Text('Could not save the unlock. Try again.')),
       );
     }
+  }
+
+  Future<void> _copyReferenceCode(BuildContext context, String code) async {
+    await Clipboard.setData(ClipboardData(text: code));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${language.label} reference code copied.')),
+    );
   }
 
   @override
@@ -229,6 +238,30 @@ class CodeWorkspace extends StatelessWidget {
                 style: const TextStyle(fontSize: 14),
               ),
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${language.label} reference',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: context.palette.muted,
+                          ),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => _copyReferenceCode(
+                          context,
+                          reference.code[language] ?? '',
+                        ),
+                        icon: const Icon(Icons.copy_outlined, size: 17),
+                        label: const Text('Copy code'),
+                      ),
+                    ],
+                  ),
+                ),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
