@@ -12,6 +12,8 @@ import '../../ui/readable_surface.dart';
 import 'firebase_ai_coach_provider.dart';
 import 'session_controller.dart';
 
+enum _StepTool { revise, explanation, walkthrough }
+
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({super.key, required this.session, required this.store});
   final SessionController session;
@@ -660,7 +662,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
     final total = session.lesson.hints.length;
     final canRevealNext = !complete && !session.reviewing && used < total;
     final canReview = !session.reviewing && used > 0;
-    return FilledButton.tonalIcon(
+    return FilledButton.icon(
+      style: FilledButton.styleFrom(
+        backgroundColor: context.palette.accent,
+        foregroundColor: context.palette.onAccent,
+        minimumSize: const Size(0, 38),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
       onPressed: canRevealNext
           ? _showNextHint
           : canReview
@@ -668,17 +679,105 @@ class _PracticeScreenState extends State<PracticeScreen> {
           : null,
       icon: Icon(
         canRevealNext ? Icons.lightbulb_outline : Icons.history,
-        size: 18,
+        size: 16,
       ),
       label: Text(
         canRevealNext
-            ? 'Show next hint · $used/$total'
+            ? 'Hint ${used + 1}/$total'
             : used > 0
-            ? 'Review hints · $used'
-            : 'Hints · 0/$total',
+            ? 'Review $used/$total'
+            : 'Hints 0/$total',
       ),
     );
   }
+
+  Widget _stepTools() => Container(
+    decoration: BoxDecoration(
+      color: context.palette.sheet,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: context.palette.line),
+    ),
+    child: PopupMenuButton<_StepTool>(
+      tooltip: 'Open step tools',
+      onSelected: (tool) {
+        switch (tool) {
+          case _StepTool.revise:
+            if (session.stage == CoachingStage.code) {
+              _reviseCode();
+            } else {
+              _reviseThinking();
+            }
+          case _StepTool.explanation:
+            reveal();
+          case _StepTool.walkthrough:
+            _showExampleWalkthrough();
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: _StepTool.revise,
+          enabled: !session.reviewing,
+          child: ListTile(
+            dense: true,
+            leading: const Icon(Icons.edit_outlined),
+            title: Text(
+              session.stage == CoachingStage.code
+                  ? 'Edit code'
+                  : 'Revise thinking',
+            ),
+          ),
+        ),
+        PopupMenuItem(
+          value: _StepTool.explanation,
+          enabled: !session.reviewing,
+          child: ListTile(
+            dense: true,
+            leading: const Icon(Icons.menu_book_outlined),
+            title: Text(
+              session.solutionRevealed
+                  ? 'View explanation'
+                  : 'Reveal explanation',
+            ),
+          ),
+        ),
+        PopupMenuItem(
+          value: _StepTool.walkthrough,
+          enabled: !session.reviewing,
+          child: const ListTile(
+            dense: true,
+            leading: Icon(Icons.route_outlined),
+            title: Text('Walk through example'),
+          ),
+        ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        child: Row(
+          children: [
+            Icon(Icons.more_horiz, color: context.palette.accent, size: 20),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Step tools',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Revise, explain, or trace an example',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down, color: context.palette.muted),
+          ],
+        ),
+      ),
+    ),
+  );
 
   Widget _coaching() {
     final complete = session.stage == CoachingStage.complete;
@@ -886,6 +985,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
           const SizedBox(height: 12),
           if (session.coach.enabled) ...[
             OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: context.palette.accent,
+                backgroundColor: context.palette.accentWash,
+                side: BorderSide(color: context.palette.accent),
+                minimumSize: const Size.fromHeight(46),
+              ),
               onPressed: session.reviewing ? null : _requestAiReview,
               icon: session.reviewing
                   ? const SizedBox(
@@ -907,6 +1012,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
             const SizedBox(height: 8),
           ],
           OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: context.palette.ink,
+              backgroundColor: context.palette.recess,
+              side: BorderSide(color: context.palette.line),
+              minimumSize: const Size.fromHeight(46),
+            ),
             onPressed: session.reviewing ? null : _reviewOffline,
             icon: const Icon(Icons.fact_check_outlined, size: 18),
             label: const Text('Review offline'),
@@ -940,55 +1051,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               alignment: Alignment.centerLeft,
               child: _hintAction(complete: false),
             ),
-          if (saved)
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: const Text(
-                'Review this step',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              subtitle: const Text(
-                'Edit your work, view the explanation, or dry-run the example.',
-                style: TextStyle(fontSize: 14, height: 1.4),
-              ),
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    onPressed: session.reviewing
-                        ? null
-                        : session.stage == CoachingStage.code
-                        ? _reviseCode
-                        : _reviseThinking,
-                    child: Text(
-                      session.stage == CoachingStage.code
-                          ? 'Edit my code'
-                          : 'Revise my thinking',
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    onPressed: session.reviewing ? null : reveal,
-                    child: Text(
-                      session.solutionRevealed
-                          ? 'View explanation'
-                          : 'Reveal explanation',
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    onPressed: session.reviewing
-                        ? null
-                        : _showExampleWalkthrough,
-                    child: const Text('Walk through the example'),
-                  ),
-                ),
-              ],
-            ),
+          if (saved) _stepTools(),
         ] else ...[
           if (session.hintsUsed > 0) ...[
             const SizedBox(height: 12),

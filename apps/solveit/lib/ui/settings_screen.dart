@@ -12,6 +12,8 @@ import 'save_status.dart';
 import 'looploom_theme.dart';
 import 'feedback_screen.dart';
 
+enum SettingsSection { profile, aiCoach, codeRunner, appearance, data, support }
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
@@ -19,12 +21,14 @@ class SettingsScreen extends StatefulWidget {
     this.onOpenBackup,
     this.onOpenFeedback,
     this.runnerClientFactory,
+    this.section,
   });
   final PracticeStore store;
   final VoidCallback? onOpenBackup;
   final VoidCallback? onOpenFeedback;
   final ReferenceRunnerClient Function(String address, String token)?
   runnerClientFactory;
+  final SettingsSection? section;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -324,7 +328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final name = _name.text.trim();
     final initial = name.isEmpty ? 'L' : name.substring(0, 1).toUpperCase();
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: context.palette.sheet,
         borderRadius: BorderRadius.circular(12),
@@ -333,7 +337,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Row(
         children: [
           CircleAvatar(
-            radius: 26,
+            radius: 21,
             backgroundColor: context.palette.recess,
             foregroundColor: context.palette.ink,
             child: Text(
@@ -341,7 +345,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,515 +372,640 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  String get _sectionTitle => switch (widget.section) {
+    SettingsSection.profile => 'Profile & goals',
+    SettingsSection.aiCoach => 'AI coach',
+    SettingsSection.codeRunner => 'Code runner',
+    SettingsSection.appearance => 'Appearance',
+    SettingsSection.data => 'Data & privacy',
+    SettingsSection.support => 'Help & feedback',
+    null => 'Profile',
+  };
+
+  Future<void> _openSection(SettingsSection section) =>
+      Navigator.of(context).push<void>(
+        MaterialPageRoute<void>(
+          builder: (_) => SettingsScreen(
+            store: store,
+            section: section,
+            onOpenBackup: widget.onOpenBackup,
+            onOpenFeedback: widget.onOpenFeedback,
+            runnerClientFactory: widget.runnerClientFactory,
+          ),
+        ),
+      );
+
+  Widget _settingsTile({
+    required SettingsSection section,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) => Card(
+    margin: EdgeInsets.zero,
+    color: context.palette.sheet,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(14),
+      side: BorderSide(color: context.palette.line),
+    ),
+    child: ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      leading: Icon(icon, color: context.palette.accent),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _openSection(section),
+    ),
+  );
+
+  List<Widget> _hubChildren() => [
+    const Text('YOUR STUDY SPACE', style: noteLabel),
+    const SizedBox(height: 6),
+    const Text(
+      'Profile',
+      style: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -.6,
+      ),
+    ),
+    const SizedBox(height: 14),
+    _profileCard(),
+    const SizedBox(height: 20),
+    _settingsTile(
+      section: SettingsSection.profile,
+      icon: Icons.person_outline,
+      title: 'Profile & goals',
+      subtitle: 'Experience, interview target, and study plan',
+    ),
+    const SizedBox(height: 9),
+    _settingsTile(
+      section: SettingsSection.appearance,
+      icon: Icons.tune,
+      title: 'Appearance & coaching',
+      subtitle:
+          '${store.preferences.appearance.label} theme · ${store.preferences.preferredLanguage.label}',
+    ),
+    const SizedBox(height: 9),
+    _settingsTile(
+      section: SettingsSection.aiCoach,
+      icon: Icons.forum_outlined,
+      title: 'AI coach',
+      subtitle: store.preferences.aiCoachConsent
+          ? 'AI feedback is enabled'
+          : 'Manage optional AI feedback',
+    ),
+    const SizedBox(height: 9),
+    _settingsTile(
+      section: SettingsSection.codeRunner,
+      icon: Icons.terminal,
+      title: 'Code runner',
+      subtitle: store.preferences.runnerAddress.isEmpty
+          ? 'Connect your self-hosted runner'
+          : 'Runner connection settings',
+    ),
+    const SizedBox(height: 9),
+    _settingsTile(
+      section: SettingsSection.data,
+      icon: Icons.shield_outlined,
+      title: 'Data & privacy',
+      subtitle: 'Workbook, backup, and privacy controls',
+    ),
+    const SizedBox(height: 9),
+    _settingsTile(
+      section: SettingsSection.support,
+      icon: Icons.chat_bubble_outline,
+      title: 'Help & feedback',
+      subtitle: 'Report a bug or share an idea',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: store,
     builder: (context, _) => ReadableSurface(
       scale: store.preferences.textScale,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Profile & settings')),
+        appBar: AppBar(title: Text(_sectionTitle)),
         body: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
           children: [
-            const Text('YOUR STUDY SPACE', style: noteLabel),
-            const SizedBox(height: 10),
-            const Text(
-              'Set up for your next step.',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -.7,
+            if (widget.section == null) ..._hubChildren(),
+            if (widget.section != null) ...[
+              Text(
+                'SETTINGS',
+                style: noteLabel.copyWith(color: context.palette.accent),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Shape a quiet, practical place to prepare. Your profile and preferences are saved locally.',
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.6,
-                color: context.palette.muted,
-              ),
-            ),
-            const SizedBox(height: 22),
-            _profileCard(),
-            const SizedBox(height: 34),
-            _sectionHeading(
-              'Profile',
-              'Your interview goal',
-              'These details personalize your workbook and are optional.',
-            ),
-            const SizedBox(height: 18),
-            TextField(
-              controller: _name,
-              textCapitalization: TextCapitalization.words,
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(labelText: 'Name or nickname'),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 14),
-            TextField(
-              controller: _role,
-              textCapitalization: TextCapitalization.sentences,
-              textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(
-                labelText: 'Target role (optional)',
-                hintText: 'e.g. Backend engineer',
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 20),
-            const Text('YOUR CURRENT EXPERIENCE', style: noteLabel),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ...ExperienceLevel.values.map(
-                  (level) => ChoiceChip(
-                    label: Text(level.label),
-                    selected: _level == level,
-                    onSelected: (_) => setState(() => _level = level),
-                  ),
-                ),
-                ChoiceChip(
-                  label: const Text('Not sure yet'),
-                  selected: _level == null,
-                  onSelected: (_) => setState(() => _level = null),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Optional. This only changes the suggested path on Home.',
-              style: TextStyle(fontSize: 14, color: context.palette.muted),
-            ),
-            const SizedBox(height: 20),
-            const Text('TARGET INTERVIEW DATE', style: noteLabel),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _chooseTargetDate,
-              icon: const Icon(Icons.event_outlined),
-              label: Text(
-                _targetDate == null
-                    ? 'Add a target date'
-                    : MaterialLocalizations.of(
-                        context,
-                      ).formatMediumDate(_targetDate!),
-              ),
-            ),
-            if (_targetDate != null)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => setState(() => _targetDate = null),
-                  icon: const Icon(Icons.close, size: 18),
-                  label: const Text('Remove date'),
-                ),
-              ),
-            const SizedBox(height: 20),
-            const Text('PRACTICE DAYS EACH WEEK', style: noteLabel),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: List.generate(7, (index) => index + 1)
-                  .map(
-                    (days) => ChoiceChip(
-                      label: Text('$days ${days == 1 ? 'day' : 'days'}'),
-                      selected: _weeklyGoalDays == days,
-                      onSelected: (_) => setState(() => _weeklyGoalDays = days),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 20),
-            const Text('DAILY PRACTICE TARGET', style: noteLabel),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [15, 30, 45, 60, 90, 120]
-                  .map(
-                    (minutes) => ChoiceChip(
-                      label: Text('$minutes min'),
-                      selected: _dailyGoalMinutes == minutes,
-                      onSelected: (_) =>
-                          setState(() => _dailyGoalMinutes = minutes),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: _savingProfile ? null : _saveProfile,
-              icon: const Icon(Icons.save_outlined),
-              label: Text(
-                _savingProfile ? 'Saving profile…' : 'Save profile and goals',
-              ),
-            ),
-            const SizedBox(height: 36),
-            const Divider(),
-            const SizedBox(height: 24),
-            _sectionHeading(
-              'Accessibility',
-              'Comfortable to read',
-              'Choose a size for lesson prompts, examples, and settings throughout the app.',
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children:
-                  const [
-                        (1.0, 'Standard'),
-                        (1.15, 'Comfortable'),
-                        (1.3, 'Large'),
-                        (1.5, 'Extra large'),
-                      ]
-                      .map(
-                        (option) => ChoiceChip(
-                          label: Text(option.$2),
-                          selected:
-                              (store.preferences.textScale - option.$1).abs() <
-                              .01,
-                          onSelected: (_) => _savePreference(
-                            store.preferences.copyWith(textScale: option.$1),
-                          ),
-                        ),
-                      )
-                      .toList(),
-            ),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: context.palette.recess,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                'A clear line, a useful hint, and enough room to think.',
-                style: TextStyle(
-                  fontSize: 18,
-                  height: 1.55,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'LoopLoom respects your device text setting as well.',
-              style: TextStyle(fontSize: 14, color: context.palette.muted),
-            ),
-            const SizedBox(height: 34),
-            const Divider(),
-            const SizedBox(height: 24),
-            _sectionHeading(
-              'Optional cloud feature',
-              'Gemini AI coach',
-              'AI feedback only runs when you ask. The offline coach keeps working without internet.',
-            ),
-            const SizedBox(height: 12),
-            if (store.coach is FirebaseAiCoachProvider)
-              SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                value: store.preferences.aiCoachConsent,
-                onChanged: _setAiCoachConsent,
-                title: const Text('Allow AI feedback'),
-                subtitle: Text(
-                  store.preferences.aiCoachConsent
-                      ? 'Your answers are sent only after you tap Ask AI. You can turn this off any time.'
-                      : 'Review the data notice before enabling.',
-                ),
-              )
-            else if (store.coach.enabled)
-              const ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.science_outlined),
-                title: Text('Experimental local AI is configured'),
-                subtitle: Text(
-                  'It is for development only. Its feedback has not passed the quality checks for learner use.',
-                ),
-              )
-            else
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.cloud_off_outlined),
-                title: const Text('Cloud AI is not configured'),
-                subtitle: const Text(
-                  'The offline coach is ready. Gemini requires the Firebase setup described in docs/AI_SETUP.md.',
-                ),
-              ),
-            const SizedBox(height: 34),
-            const Divider(),
-            const SizedBox(height: 24),
-            _sectionHeading(
-              'Code practice',
-              'Run your draft',
-              'Use a Docker-backed runner on your own PC or server. Your phone and runner must share a trusted private network.',
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Study points: ${store.preferences.pointsBalance} · Reference code costs 10 points per problem and unlocks all four languages.',
-              style: const TextStyle(fontSize: 15, height: 1.5),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _runnerAddress,
-              onChanged: (_) => setState(() => _runnerStatus = null),
-              keyboardType: TextInputType.url,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Runner address',
-                hintText: 'http://192.168.1.20:8766',
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _runnerToken,
-              onChanged: (_) => setState(() => _runnerStatus = null),
-              obscureText: true,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Runner access token',
-                helperText:
-                    'Use the same random token configured on the runner PC.',
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: _saveRunner,
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('Save connection'),
-                ),
-                FilledButton.icon(
-                  onPressed: _checkingRunner ? null : _testRunner,
-                  icon: _checkingRunner
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.wifi_tethering, size: 18),
-                  label: Text(
-                    _checkingRunner ? 'Checking…' : 'Test connection',
-                  ),
-                ),
-              ],
-            ),
-            if (_runnerStatus case final status?) ...[
-              const SizedBox(height: 10),
-              Semantics(
-                liveRegion: true,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      _runnerReady
-                          ? Icons.check_circle_outline
-                          : Icons.info_outline,
-                      size: 20,
-                      color: _runnerReady
-                          ? context.palette.accent
-                          : context.palette.muted,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        status,
-                        style: const TextStyle(fontSize: 15, height: 1.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 7),
+              Text(switch (widget.section!) {
+                SettingsSection.profile => 'Set a goal that fits you.',
+                SettingsSection.aiCoach => 'Choose how AI can help.',
+                SettingsSection.codeRunner => 'Run code on your own machine.',
+                SettingsSection.appearance => 'Make practice comfortable.',
+                SettingsSection.data => 'Your workbook stays yours.',
+                SettingsSection.support => 'We’re listening.',
+              }, style: TextStyle(fontSize: 16, color: context.palette.muted)),
+              const SizedBox(height: 20),
             ],
-            const SizedBox(height: 8),
-            Text(
-              'The runner PC must be on when you tap Run. The hosted web app cannot call this HTTP LAN service; use the Android app or local preview. Reference code and edge cases stay available offline. Do not expose the runner to the internet.',
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.5,
-                color: context.palette.muted,
+            if (widget.section == SettingsSection.profile) ...[
+              _profileCard(),
+              const SizedBox(height: 24),
+              _sectionHeading(
+                'Profile',
+                'Your interview goal',
+                'These details personalize your workbook and are optional.',
               ),
-            ),
-            const SizedBox(height: 34),
-            const Divider(),
-            const SizedBox(height: 24),
-            _sectionHeading(
-              'Appearance',
-              'Choose a theme',
-              'System follows your device setting. Light and Dark stay selected on this device.',
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: AppearancePreference.values.map((appearance) {
-                final icon = switch (appearance) {
-                  AppearancePreference.system =>
-                    Icons.settings_suggest_outlined,
-                  AppearancePreference.light => Icons.light_mode_outlined,
-                  AppearancePreference.dark => Icons.dark_mode_outlined,
-                };
-                return ChoiceChip(
-                  avatar: Icon(icon, size: 18),
-                  label: Text(appearance.label),
-                  selected: store.preferences.appearance == appearance,
-                  onSelected: (_) => _savePreference(
-                    store.preferences.copyWith(appearance: appearance),
+              const SizedBox(height: 18),
+              TextField(
+                controller: _name,
+                textCapitalization: TextCapitalization.words,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Name or nickname',
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: _role,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(
+                  labelText: 'Target role (optional)',
+                  hintText: 'e.g. Backend engineer',
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 20),
+              const Text('YOUR CURRENT EXPERIENCE', style: noteLabel),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ...ExperienceLevel.values.map(
+                    (level) => ChoiceChip(
+                      label: Text(level.label),
+                      selected: _level == level,
+                      onSelected: (_) => setState(() => _level = level),
+                    ),
                   ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 34),
-            const Divider(),
-            const SizedBox(height: 24),
-            _sectionHeading(
-              'Coaching',
-              'Choose your working style',
-              'This changes the prompts for new attempts. It does not change problem difficulty or correctness rules.',
-            ),
-            const SizedBox(height: 12),
-            RadioGroup<CoachingPace>(
-              groupValue: store.preferences.pace,
-              onChanged: (value) {
-                if (value != null) {
-                  _savePreference(store.preferences.copyWith(pace: value));
-                }
-              },
-              child: Column(
-                children: CoachingPace.values
+                  ChoiceChip(
+                    label: const Text('Not sure yet'),
+                    selected: _level == null,
+                    onSelected: (_) => setState(() => _level = null),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Optional. This only changes the suggested path on Home.',
+                style: TextStyle(fontSize: 14, color: context.palette.muted),
+              ),
+              const SizedBox(height: 20),
+              const Text('TARGET INTERVIEW DATE', style: noteLabel),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _chooseTargetDate,
+                icon: const Icon(Icons.event_outlined),
+                label: Text(
+                  _targetDate == null
+                      ? 'Add a target date'
+                      : MaterialLocalizations.of(
+                          context,
+                        ).formatMediumDate(_targetDate!),
+                ),
+              ),
+              if (_targetDate != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () => setState(() => _targetDate = null),
+                    icon: const Icon(Icons.close, size: 18),
+                    label: const Text('Remove date'),
+                  ),
+                ),
+              const SizedBox(height: 20),
+              const Text('PRACTICE DAYS EACH WEEK', style: noteLabel),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(7, (index) => index + 1)
                     .map(
-                      (pace) => RadioListTile<CoachingPace>(
-                        value: pace,
-                        title: Text(pace.label),
-                        subtitle: Text(pace.description),
-                        contentPadding: EdgeInsets.zero,
-                        activeColor: context.palette.ink,
+                      (days) => ChoiceChip(
+                        label: Text('$days ${days == 1 ? 'day' : 'days'}'),
+                        selected: _weeklyGoalDays == days,
+                        onSelected: (_) =>
+                            setState(() => _weeklyGoalDays = days),
                       ),
                     )
                     .toList(),
               ),
-            ),
-            const SizedBox(height: 18),
-            const Text('DEFAULT CODE LANGUAGE', style: noteLabel),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: CodeLanguage.values
-                  .map(
-                    (language) => ChoiceChip(
-                      label: Text(language.label),
-                      selected: store.preferences.preferredLanguage == language,
-                      onSelected: (_) => _savePreference(
-                        store.preferences.copyWith(preferredLanguage: language),
+              const SizedBox(height: 20),
+              const Text('DAILY PRACTICE TARGET', style: noteLabel),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [15, 30, 45, 60, 90, 120]
+                    .map(
+                      (minutes) => ChoiceChip(
+                        label: Text('$minutes min'),
+                        selected: _dailyGoalMinutes == minutes,
+                        onSelected: (_) =>
+                            setState(() => _dailyGoalMinutes = minutes),
                       ),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 28),
-            const Divider(),
-            const SizedBox(height: 22),
-            _sectionHeading(
-              'Your data',
-              'Private by default',
-              'LoopLoom currently works without an online account. Practice history, profile details, and settings remain in this workbook on this device.',
-            ),
-            const SizedBox(height: 14),
-            if (kIsWeb) ...[
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: _savingProfile ? null : _saveProfile,
+                icon: const Icon(Icons.save_outlined),
+                label: Text(
+                  _savingProfile ? 'Saving profile…' : 'Save profile and goals',
+                ),
+              ),
+            ],
+            if (widget.section == SettingsSection.appearance) ...[
+              const SizedBox(height: 36),
+              const Divider(),
+              const SizedBox(height: 24),
+              _sectionHeading(
+                'Accessibility',
+                'Comfortable to read',
+                'Choose a size for lesson prompts, examples, and settings throughout the app.',
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children:
+                    const [
+                          (1.0, 'Standard'),
+                          (1.15, 'Comfortable'),
+                          (1.3, 'Large'),
+                          (1.5, 'Extra large'),
+                        ]
+                        .map(
+                          (option) => ChoiceChip(
+                            label: Text(option.$2),
+                            selected:
+                                (store.preferences.textScale - option.$1)
+                                    .abs() <
+                                .01,
+                            onSelected: (_) => _savePreference(
+                              store.preferences.copyWith(textScale: option.$1),
+                            ),
+                          ),
+                        )
+                        .toList(),
+              ),
+              const SizedBox(height: 14),
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: context.palette.recess,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('INSTALL ON YOUR PHONE', style: noteLabel),
-                    SizedBox(height: 8),
-                    Text(
-                      'Open your browser menu and choose Install app or Add to Home Screen. LoopLoom then opens like an app. Download the lessons once while online before practicing offline.',
-                      style: TextStyle(fontSize: 15, height: 1.55),
-                    ),
-                  ],
+                child: const Text(
+                  'A clear line, a useful hint, and enough room to think.',
+                  style: TextStyle(
+                    fontSize: 18,
+                    height: 1.55,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'LoopLoom respects your device text setting as well.',
+                style: TextStyle(fontSize: 14, color: context.palette.muted),
+              ),
+            ],
+            if (widget.section == SettingsSection.aiCoach) ...[
+              const SizedBox(height: 34),
+              const Divider(),
+              const SizedBox(height: 24),
+              _sectionHeading(
+                'Optional cloud feature',
+                'Gemini AI coach',
+                'AI feedback only runs when you ask. The offline coach keeps working without internet.',
+              ),
+              const SizedBox(height: 12),
+              if (store.coach is FirebaseAiCoachProvider)
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  value: store.preferences.aiCoachConsent,
+                  onChanged: _setAiCoachConsent,
+                  title: const Text('Allow AI feedback'),
+                  subtitle: Text(
+                    store.preferences.aiCoachConsent
+                        ? 'Your answers are sent only after you tap Ask AI. You can turn this off any time.'
+                        : 'Review the data notice before enabling.',
+                  ),
+                )
+              else if (store.coach.enabled)
+                const ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.science_outlined),
+                  title: Text('Experimental local AI is configured'),
+                  subtitle: Text(
+                    'It is for development only. Its feedback has not passed the quality checks for learner use.',
+                  ),
+                )
+              else
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.cloud_off_outlined),
+                  title: const Text('Cloud AI is not configured'),
+                  subtitle: const Text(
+                    'The offline coach is ready. Gemini requires the Firebase setup described in docs/AI_SETUP.md.',
+                  ),
+                ),
+              const SizedBox(height: 34),
+            ],
+            if (widget.section == SettingsSection.codeRunner) ...[
+              const Divider(),
+              const SizedBox(height: 24),
+              _sectionHeading(
+                'Code practice',
+                'Run your draft',
+                'Use a Docker-backed runner on your own PC or server. Your phone and runner must share a trusted private network.',
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Study points: ${store.preferences.pointsBalance} · Reference code costs 10 points per problem and unlocks all four languages.',
+                style: const TextStyle(fontSize: 15, height: 1.5),
               ),
               const SizedBox(height: 16),
-            ],
-            Text(
-              'Use a workbook backup to move your attempts to another device. Backups are plain text and are not encrypted; store them somewhere you trust.',
-              style: TextStyle(
-                fontSize: 15,
-                height: 1.6,
-                color: context.palette.muted,
+              TextField(
+                controller: _runnerAddress,
+                onChanged: (_) => setState(() => _runnerStatus = null),
+                keyboardType: TextInputType.url,
+                autocorrect: false,
+                decoration: const InputDecoration(
+                  labelText: 'Runner address',
+                  hintText: 'http://192.168.1.20:8766',
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            OutlinedButton.icon(
-              onPressed:
-                  widget.onOpenBackup ??
-                  () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => BackupScreen(store: store),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _runnerToken,
+                onChanged: (_) => setState(() => _runnerStatus = null),
+                obscureText: true,
+                autocorrect: false,
+                decoration: const InputDecoration(
+                  labelText: 'Runner access token',
+                  helperText:
+                      'Use the same random token configured on the runner PC.',
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _saveRunner,
+                    icon: const Icon(Icons.save_outlined),
+                    label: const Text('Save connection'),
+                  ),
+                  FilledButton.icon(
+                    onPressed: _checkingRunner ? null : _testRunner,
+                    icon: _checkingRunner
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.wifi_tethering, size: 18),
+                    label: Text(
+                      _checkingRunner ? 'Checking…' : 'Test connection',
                     ),
                   ),
-              icon: const Icon(Icons.inventory_2_outlined),
-              label: const Text('Open workbook backup'),
-            ),
-            const SizedBox(height: 18),
-            SaveStatus(store: store),
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 22),
-            _sectionHeading(
-              'Support',
-              'Feedback & contact',
-              'Report a bug, share an idea, or contact the LoopLoom team.',
-            ),
-            const SizedBox(height: 14),
-            OutlinedButton.icon(
-              onPressed:
-                  widget.onOpenFeedback ??
-                  () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const FeedbackScreen(),
-                    ),
+                ],
+              ),
+              if (_runnerStatus case final status?) ...[
+                const SizedBox(height: 10),
+                Semantics(
+                  liveRegion: true,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        _runnerReady
+                            ? Icons.check_circle_outline
+                            : Icons.info_outline,
+                        size: 20,
+                        color: _runnerReady
+                            ? context.palette.accent
+                            : context.palette.muted,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          status,
+                          style: const TextStyle(fontSize: 15, height: 1.5),
+                        ),
+                      ),
+                    ],
                   ),
-              icon: const Icon(Icons.feedback_outlined),
-              label: const Text('Feedback & contact'),
-            ),
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 22),
-            _sectionHeading(
-              'Privacy & data',
-              'Your workbook stays yours',
-              'Review how LoopLoom handles study data and clear this device when you need to.',
-            ),
-            const SizedBox(height: 14),
-            OutlinedButton.icon(
-              onPressed: _openPrivacyPolicy,
-              icon: const Icon(Icons.privacy_tip_outlined),
-              label: const Text('Privacy policy'),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'looploom-coach-2026.web.app/privacy.html',
-              style: TextStyle(fontSize: 14, color: context.palette.muted),
-            ),
-            const SizedBox(height: 18),
-            TextButton.icon(
-              onPressed: _clearingWorkbook ? null : _clearWorkbook,
-              icon: const Icon(Icons.delete_outline),
-              label: const Text('Clear local workbook'),
-            ),
+                ),
+              ],
+              const SizedBox(height: 8),
+              Text(
+                'The runner PC must be on when you tap Run. The hosted web app cannot call this HTTP LAN service; use the Android app or local preview. Reference code and edge cases stay available offline. Do not expose the runner to the internet.',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: context.palette.muted,
+                ),
+              ),
+            ],
+            if (widget.section == SettingsSection.appearance) ...[
+              const SizedBox(height: 34),
+              const Divider(),
+              const SizedBox(height: 24),
+              _sectionHeading(
+                'Appearance',
+                'Choose a theme',
+                'System follows your device setting. Light and Dark stay selected on this device.',
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: AppearancePreference.values.map((appearance) {
+                  final icon = switch (appearance) {
+                    AppearancePreference.system =>
+                      Icons.settings_suggest_outlined,
+                    AppearancePreference.light => Icons.light_mode_outlined,
+                    AppearancePreference.dark => Icons.dark_mode_outlined,
+                  };
+                  return ChoiceChip(
+                    avatar: Icon(icon, size: 18),
+                    label: Text(appearance.label),
+                    selected: store.preferences.appearance == appearance,
+                    onSelected: (_) => _savePreference(
+                      store.preferences.copyWith(appearance: appearance),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 34),
+              const Divider(),
+              const SizedBox(height: 24),
+              _sectionHeading(
+                'Coaching',
+                'Choose your working style',
+                'This changes the prompts for new attempts. It does not change problem difficulty or correctness rules.',
+              ),
+              const SizedBox(height: 12),
+              RadioGroup<CoachingPace>(
+                groupValue: store.preferences.pace,
+                onChanged: (value) {
+                  if (value != null) {
+                    _savePreference(store.preferences.copyWith(pace: value));
+                  }
+                },
+                child: Column(
+                  children: CoachingPace.values
+                      .map(
+                        (pace) => RadioListTile<CoachingPace>(
+                          value: pace,
+                          title: Text(pace.label),
+                          subtitle: Text(pace.description),
+                          contentPadding: EdgeInsets.zero,
+                          activeColor: context.palette.ink,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text('DEFAULT CODE LANGUAGE', style: noteLabel),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: CodeLanguage.values
+                    .map(
+                      (language) => ChoiceChip(
+                        label: Text(language.label),
+                        selected:
+                            store.preferences.preferredLanguage == language,
+                        onSelected: (_) => _savePreference(
+                          store.preferences.copyWith(
+                            preferredLanguage: language,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+            if (widget.section == SettingsSection.data) ...[
+              const SizedBox(height: 28),
+              const Divider(),
+              const SizedBox(height: 22),
+              _sectionHeading(
+                'Your data',
+                'Private by default',
+                'LoopLoom currently works without an online account. Practice history, profile details, and settings remain in this workbook on this device.',
+              ),
+              const SizedBox(height: 14),
+              if (kIsWeb) ...[
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: context.palette.recess,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('INSTALL ON YOUR PHONE', style: noteLabel),
+                      SizedBox(height: 8),
+                      Text(
+                        'Open your browser menu and choose Install app or Add to Home Screen. LoopLoom then opens like an app. Download the lessons once while online before practicing offline.',
+                        style: TextStyle(fontSize: 15, height: 1.55),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              Text(
+                'Use a workbook backup to move your attempts to another device. Backups are plain text and are not encrypted; store them somewhere you trust.',
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.6,
+                  color: context.palette.muted,
+                ),
+              ),
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
+                onPressed:
+                    widget.onOpenBackup ??
+                    () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => BackupScreen(store: store),
+                      ),
+                    ),
+                icon: const Icon(Icons.inventory_2_outlined),
+                label: const Text('Open workbook backup'),
+              ),
+              const SizedBox(height: 18),
+              SaveStatus(store: store),
+              const SizedBox(height: 18),
+              const Divider(),
+              const SizedBox(height: 18),
+              _sectionHeading(
+                'Privacy & data',
+                'Your workbook stays yours',
+                'Review how LoopLoom handles study data and clear this device when you need to.',
+              ),
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
+                onPressed: _openPrivacyPolicy,
+                icon: const Icon(Icons.privacy_tip_outlined),
+                label: const Text('Privacy policy'),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'looploom-coach-2026.web.app/privacy.html',
+                style: TextStyle(fontSize: 14, color: context.palette.muted),
+              ),
+              const SizedBox(height: 18),
+              TextButton.icon(
+                onPressed: _clearingWorkbook ? null : _clearWorkbook,
+                icon: const Icon(Icons.delete_outline),
+                label: const Text('Clear local workbook'),
+              ),
+            ],
+            if (widget.section == SettingsSection.support) ...[
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 22),
+              _sectionHeading(
+                'Support',
+                'Feedback & contact',
+                'Report a bug, share an idea, or contact the LoopLoom team.',
+              ),
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
+                onPressed:
+                    widget.onOpenFeedback ??
+                    () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const FeedbackScreen(),
+                      ),
+                    ),
+                icon: const Icon(Icons.feedback_outlined),
+                label: const Text('Feedback & contact'),
+              ),
+            ],
           ],
         ),
       ),
