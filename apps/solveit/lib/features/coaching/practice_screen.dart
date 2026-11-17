@@ -12,8 +12,6 @@ import '../../ui/readable_surface.dart';
 import 'firebase_ai_coach_provider.dart';
 import 'session_controller.dart';
 
-enum _OfflineCoachAction { clarify, example, edgeCase, selfCheck, nextHint }
-
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({super.key, required this.session, required this.store});
   final SessionController session;
@@ -132,6 +130,79 @@ class _PracticeScreenState extends State<PracticeScreen> {
     session.requestHint();
     unawaited(widget.store.flush());
     await _showGuidance('Your next hint', session.messages.last.text);
+  }
+
+  Future<void> _reviewHints() async {
+    final revealed = session.messages
+        .where((message) => message.kind == MessageKind.hint)
+        .toList(growable: false);
+    if (revealed.isEmpty) return;
+    final text = [
+      for (var i = 0; i < revealed.length; i++)
+        'Hint ${i + 1}\n${revealed[i].text}',
+    ].join('\n\n');
+    await _showGuidance('Hints revealed', text);
+  }
+
+  Future<void> _showExampleWalkthrough() async {
+    final lesson = session.lesson;
+    final walkthrough =
+        'Example\n${lesson.example}\n\n'
+        'Dry run\n'
+        '1. Start with the input shown above.\n'
+        '2. ${_traceInstruction(lesson.pattern)}\n'
+        '3. Record the state after each step, then compare your result with the example output.';
+    final alreadySaved = session.messages.any(
+      (message) =>
+          message.kind == MessageKind.offlineCoach &&
+          message.text == walkthrough,
+    );
+    if (!alreadySaved) {
+      session.addOfflineGuidance(walkthrough);
+      unawaited(widget.store.flush());
+    }
+    await _showGuidance('Walk through the example', walkthrough);
+  }
+
+  String _traceInstruction(String pattern) {
+    final name = pattern.toLowerCase();
+    if (name.contains('pointer')) {
+      return 'Write down both pointer positions and the comparison that decides each move.';
+    }
+    if (name.contains('window')) {
+      return 'Track the current window, its running value, and what enters or leaves.';
+    }
+    if (name.contains('prefix')) {
+      return 'Track the running prefix and the earlier state that matches the current step.';
+    }
+    if (name.contains('stack')) {
+      return 'Show the stack after each input and note which earlier items get resolved.';
+    }
+    if (name.contains('interval')) {
+      return 'Compare each interval with the current range and record when that range changes.';
+    }
+    if (name.contains('binary search')) {
+      return 'Record the low, middle, and high positions, then state why one half can be skipped.';
+    }
+    if (name.contains('tree')) {
+      return 'Track the node being visited and the values waiting to be processed.';
+    }
+    if (name.contains('graph')) {
+      return 'Track the current node, its neighbors, and which nodes have already been visited.';
+    }
+    if (name.contains('dynamic programming') || name.contains('dp')) {
+      return 'Record each result and the earlier result it depends on.';
+    }
+    if (name.contains('backtrack')) {
+      return 'Show each choice added to the partial answer and when that choice is undone.';
+    }
+    if (name.contains('heap')) {
+      return 'Track the values kept in the heap and how each new value changes it.';
+    }
+    if (name.contains('hash') || name.contains('lookup')) {
+      return 'Track what has been seen so far and what the current item needs to find.';
+    }
+    return 'Track the important state before and after processing each input item.';
   }
 
   void advance() {
@@ -269,170 +340,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     await _showGuidance('Review your thinking', guidance);
     if (mounted) revealTarget(checkpointKey);
   }
-
-  Future<void> _openOfflineCoach() async {
-    final action = await showModalBottomSheet<_OfflineCoachAction>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (sheetContext) => SafeArea(
-        top: false,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(sheetContext).height * .86,
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Theme.of(sheetContext).colorScheme.outlineVariant,
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 22),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('OFFLINE COACH', style: noteLabel),
-                    ),
-                    IconButton(
-                      tooltip: 'Close offline coach',
-                      onPressed: () => Navigator.pop(sheetContext),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'What would help right now?',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Uses this problem’s own statement, example, checks, and hints. It will not grade your answer or change your draft.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.55,
-                    color: Theme.of(sheetContext).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _coachAction(
-                  sheetContext,
-                  _OfflineCoachAction.clarify,
-                  Icons.subject_outlined,
-                  'Clarify the task',
-                  'Restate what the problem asks you to produce.',
-                ),
-                _coachAction(
-                  sheetContext,
-                  _OfflineCoachAction.example,
-                  Icons.play_circle_outline,
-                  'Walk through the example',
-                  'Trace the example by hand and name each state change.',
-                ),
-                _coachAction(
-                  sheetContext,
-                  _OfflineCoachAction.edgeCase,
-                  Icons.tune,
-                  'Think about edge cases',
-                  'Use the constraints to choose boundary cases to consider.',
-                ),
-                _coachAction(
-                  sheetContext,
-                  _OfflineCoachAction.selfCheck,
-                  Icons.fact_check_outlined,
-                  'Use the current self-check',
-                  'Compare your own reasoning with this step’s checkpoint.',
-                ),
-                _coachAction(
-                  sheetContext,
-                  _OfflineCoachAction.nextHint,
-                  Icons.lightbulb_outline,
-                  session.hintsUsed < session.lesson.hints.length
-                      ? 'Give me the next hint'
-                      : 'All hints have been used',
-                  session.hintsUsed < session.lesson.hints.length
-                      ? 'Reveal one authored hint. You can still solve it yourself.'
-                      : 'You can revisit any hint in the session notes below.',
-                  enabled: session.hintsUsed < session.lesson.hints.length,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Guidance is saved in session notes. Your step only advances when you choose to continue.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.5,
-                    color: Theme.of(sheetContext).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    if (!mounted || action == null) return;
-    late String guidance;
-    late String title;
-    switch (action) {
-      case _OfflineCoachAction.clarify:
-        title = 'Clarify the task';
-        guidance =
-            'Task check\n\n${session.lesson.statement}\n\nYour turn: In one sentence, name the input and the exact result the solution must return. Which part of the statement tells you that?';
-        break;
-      case _OfflineCoachAction.example:
-        title = 'Walk through the example';
-        guidance =
-            'Walk through this example\n\n${session.lesson.example}\n\nTrace it by hand. What is the state before each step, and what should the final output be?';
-        break;
-      case _OfflineCoachAction.edgeCase:
-        title = 'Think about edge cases';
-        guidance =
-            'Edge-case prompt\n\nConstraints: ${session.lesson.constraints}\n\nChoose a smallest or largest valid input, plus a duplicate, empty, or boundary case when allowed by the statement. Which case would challenge your current approach, and why?';
-        break;
-      case _OfflineCoachAction.selfCheck:
-        title = 'Check your reasoning';
-        guidance =
-            'Self-check for ${session.stage.label.toLowerCase()}\n\n${session.selfCheck}\n\nCompare your current thinking with each point. Which can you justify, and what still needs work? This is a reflection prompt, not a verdict.';
-        break;
-      case _OfflineCoachAction.nextHint:
-        session.requestHint();
-        unawaited(widget.store.flush());
-        title = 'Your next hint';
-        guidance = session.messages.last.text;
-    }
-    if (action != _OfflineCoachAction.nextHint) {
-      session.addOfflineGuidance(guidance);
-      unawaited(widget.store.flush());
-    }
-    await _showGuidance(title, guidance);
-  }
-
-  Widget _coachAction(
-    BuildContext sheetContext,
-    _OfflineCoachAction action,
-    IconData icon,
-    String title,
-    String subtitle, {
-    bool enabled = true,
-  }) => ListTile(
-    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-    leading: Icon(icon),
-    title: Text(title, style: const TextStyle(fontSize: 16)),
-    subtitle: Text(subtitle, style: const TextStyle(fontSize: 13, height: 1.4)),
-    enabled: enabled,
-    onTap: enabled ? () => Navigator.pop(sheetContext, action) : null,
-  );
 
   void revealTarget(GlobalKey target) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -668,56 +575,71 @@ class _PracticeScreenState extends State<PracticeScreen> {
     ],
   );
 
-  Widget _message(CoachMessage message) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 7),
-    child: Align(
-      alignment: message.isLearner
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * .84,
+  Widget _message(CoachMessage message) {
+    final isLearner = message.isLearner;
+    final bubbleColor = isLearner
+        ? context.palette.accentWash
+        : context.palette.sheet;
+    final bubble = ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.sizeOf(context).width * .82,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        decoration: BoxDecoration(
+          color: bubbleColor,
+          border: isLearner ? null : Border.all(color: context.palette.line),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isLearner ? 16 : 5),
+            bottomRight: Radius.circular(isLearner ? 5 : 16),
+          ),
         ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-          decoration: BoxDecoration(
-            color: message.isLearner
-                ? context.palette.accentWash
-                : context.palette.sheet,
-            border: message.isLearner
-                ? null
-                : Border.all(color: context.palette.line),
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(16),
-              topRight: const Radius.circular(16),
-              bottomLeft: Radius.circular(message.isLearner ? 16 : 5),
-              bottomRight: Radius.circular(message.isLearner ? 5 : 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _messageSpeaker(message),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: message.kind == MessageKind.error
+                    ? Theme.of(context).colorScheme.error
+                    : context.palette.muted,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _messageSpeaker(message),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: message.kind == MessageKind.error
-                      ? Theme.of(context).colorScheme.error
-                      : context.palette.muted,
-                ),
-              ),
-              const SizedBox(height: 5),
-              SelectableText(
-                message.text,
-                style: const TextStyle(fontSize: 16, height: 1.6),
-              ),
-            ],
-          ),
+            const SizedBox(height: 5),
+            SelectableText(
+              message.text,
+              style: const TextStyle(fontSize: 16, height: 1.6),
+            ),
+          ],
         ),
       ),
-    ),
-  );
+    );
+    final tail = CustomPaint(
+      size: const Size(8, 10),
+      painter: _MessageTailPainter(
+        color: bubbleColor,
+        borderColor: context.palette.line,
+        pointsRight: isLearner,
+        outlined: !isLearner,
+      ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: Align(
+        alignment: isLearner ? Alignment.centerRight : Alignment.centerLeft,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: isLearner ? [bubble, tail] : [tail, bubble],
+        ),
+      ),
+    );
+  }
 
   String _messageSpeaker(CoachMessage message) {
     if (message.isLearner) return 'You';
@@ -731,6 +653,31 @@ class _PracticeScreenState extends State<PracticeScreen> {
       MessageKind.question => 'LoopLoom',
       MessageKind.note => 'Session note',
     };
+  }
+
+  Widget _hintAction({required bool complete}) {
+    final used = session.hintsUsed;
+    final total = session.lesson.hints.length;
+    final canRevealNext = !complete && !session.reviewing && used < total;
+    final canReview = !session.reviewing && used > 0;
+    return FilledButton.tonalIcon(
+      onPressed: canRevealNext
+          ? _showNextHint
+          : canReview
+          ? _reviewHints
+          : null,
+      icon: Icon(
+        canRevealNext ? Icons.lightbulb_outline : Icons.history,
+        size: 18,
+      ),
+      label: Text(
+        canRevealNext
+            ? 'Show next hint · $used/$total'
+            : used > 0
+            ? 'Review hints · $used'
+            : 'Hints · 0/$total',
+      ),
+    );
   }
 
   Widget _coaching() {
@@ -988,29 +935,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ],
         if (!complete) ...[
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              FilledButton.tonalIcon(
-                onPressed:
-                    !session.reviewing &&
-                        session.hintsUsed < session.lesson.hints.length
-                    ? _showNextHint
-                    : null,
-                icon: const Icon(Icons.lightbulb_outline, size: 18),
-                label: Text(
-                  session.hintsUsed < session.lesson.hints.length
-                      ? 'Show hint · ${session.hintsUsed}/${session.lesson.hints.length}'
-                      : 'All hints shown · ${session.hintsUsed}/${session.lesson.hints.length}',
-                ),
-              ),
-            ],
-          ),
+          if (session.lesson.hints.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _hintAction(complete: false),
+            ),
           if (saved)
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
-              title: const Text('More options', style: TextStyle(fontSize: 15)),
+              title: const Text(
+                'Review this step',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              subtitle: const Text(
+                'Edit your work, view the explanation, or dry-run the example.',
+                style: TextStyle(fontSize: 14, height: 1.4),
+              ),
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
@@ -1041,13 +981,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton(
-                    onPressed: session.reviewing ? null : _openOfflineCoach,
-                    child: const Text('Explore offline prompts'),
+                    onPressed: session.reviewing
+                        ? null
+                        : _showExampleWalkthrough,
+                    child: const Text('Walk through the example'),
                   ),
                 ),
               ],
             ),
         ] else ...[
+          if (session.hintsUsed > 0) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _hintAction(complete: true),
+            ),
+          ],
           Text(
             session.assisted
                 ? 'Completed with assistance.'
@@ -1086,4 +1035,65 @@ class _PracticeScreenState extends State<PracticeScreen> {
       ],
     );
   }
+}
+
+class _MessageTailPainter extends CustomPainter {
+  const _MessageTailPainter({
+    required this.color,
+    required this.borderColor,
+    required this.pointsRight,
+    required this.outlined,
+  });
+
+  final Color color;
+  final Color borderColor;
+  final bool pointsRight;
+  final bool outlined;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path();
+    if (pointsRight) {
+      path
+        ..moveTo(0, 0)
+        ..lineTo(size.width, size.height)
+        ..lineTo(0, size.height - 1)
+        ..close();
+    } else {
+      path
+        ..moveTo(size.width, 0)
+        ..lineTo(0, size.height)
+        ..lineTo(size.width, size.height - 1)
+        ..close();
+    }
+    canvas.drawPath(path, Paint()..color = color);
+    if (outlined) {
+      final outline = Path();
+      if (pointsRight) {
+        outline
+          ..moveTo(0, 0)
+          ..lineTo(size.width, size.height)
+          ..lineTo(0, size.height - 1);
+      } else {
+        outline
+          ..moveTo(size.width, 0)
+          ..lineTo(0, size.height)
+          ..lineTo(size.width, size.height - 1);
+      }
+      canvas.drawPath(
+        outline,
+        Paint()
+          ..color = borderColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _MessageTailPainter oldDelegate) =>
+      color != oldDelegate.color ||
+      borderColor != oldDelegate.borderColor ||
+      pointsRight != oldDelegate.pointsRight ||
+      outlined != oldDelegate.outlined;
 }
