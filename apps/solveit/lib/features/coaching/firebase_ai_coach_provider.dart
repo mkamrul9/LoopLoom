@@ -22,6 +22,7 @@ class FirebaseAiCoachProvider implements CoachProvider {
     try {
       await initializing.timeout(const Duration(seconds: 15));
     } on TimeoutException {
+      if (identical(_initializing, initializing)) _initializing = null;
       throw const CoachUnavailable(
         'Secure AI setup took too long. Your thinking is saved. Check your connection and Firebase App Check, then try again or use the offline coach.',
       );
