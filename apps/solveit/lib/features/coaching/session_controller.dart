@@ -92,6 +92,7 @@ class SessionController extends ChangeNotifier {
   final CoachProvider coach;
   final CoachingPace pace;
   CoachingStage _stage = CoachingStage.understand;
+  int? _stepCount;
   late CodeLanguage _language;
   final Map<CodeLanguage, String> _drafts = {};
   final Map<CoachingStage, String> _reasoning = {};
@@ -105,6 +106,27 @@ class SessionController extends ChangeNotifier {
   String _takeaway = '';
 
   CoachingStage get stage => _stage;
+  int? get stepCount => _stepCount;
+  List<CoachingStage> get learningSteps => _stepCount == 3
+      ? const [
+          CoachingStage.understand,
+          CoachingStage.approach,
+          CoachingStage.code,
+        ]
+      : const [
+          CoachingStage.understand,
+          CoachingStage.approach,
+          CoachingStage.trace,
+          CoachingStage.code,
+          CoachingStage.reflect,
+        ];
+  int get currentStepNumber => _stage == CoachingStage.complete
+      ? learningSteps.length
+      : learningSteps.indexOf(_stage) + 1;
+  bool get canChangeStepCount =>
+      _stage == CoachingStage.understand &&
+      _answers.isEmpty &&
+      !_checkpointReady;
   CodeLanguage get language => _language;
   List<CoachMessage> get messages => List.unmodifiable(_messages);
   bool get checkpointReady => _checkpointReady;
@@ -146,6 +168,14 @@ class SessionController extends ChangeNotifier {
   void toggleFocus() {
     _focusView = !_focusView;
     notifyListeners();
+  }
+
+  void chooseStepCount(int? count) {
+    if (!canChangeStepCount || (count != null && count != 3 && count != 5)) {
+      return;
+    }
+    _stepCount = count;
+    _changed();
   }
 
   void changeLanguage(CodeLanguage language) {
@@ -194,13 +224,19 @@ class SessionController extends ChangeNotifier {
     if (!_checkpointReady || _stage == CoachingStage.complete || reviewing) {
       return;
     }
-    if (_stage == CoachingStage.reflect) _completedAt = DateTime.now();
-    _stage = CoachingStage.values[_stage.index + 1];
+    final steps = learningSteps;
+    final nextIndex = steps.indexOf(_stage) + 1;
+    if (nextIndex == steps.length) {
+      _completedAt = DateTime.now();
+      _stage = CoachingStage.complete;
+    } else {
+      _stage = steps[nextIndex];
+    }
     _checkpointReady = false;
     _messages.add(
       CoachMessage(
         _stage == CoachingStage.complete
-            ? 'Reflection saved. This attempt is self-reviewed. A future code judge will provide test-verified results.'
+            ? 'Attempt complete. This is a self-review, not a verified code result.'
             : question,
         kind: MessageKind.question,
       ),
@@ -354,6 +390,7 @@ class SessionController extends ChangeNotifier {
     'recallConfidence': _recallConfidence?.name,
     'takeaway': _takeaway,
     'stage': stage.name,
+    'stepCount': _stepCount,
     'language': language.name,
     'pace': pace.name,
     'drafts': _drafts.map((key, value) => MapEntry(key.name, value)),
@@ -386,6 +423,10 @@ class SessionController extends ChangeNotifier {
             (json['offlineGuidance'] is! int ||
                 (json['offlineGuidance'] as int) < 0)) ||
         (json.containsKey('takeaway') && json['takeaway'] is! String) ||
+        (json.containsKey('stepCount') &&
+            json['stepCount'] != null &&
+            json['stepCount'] != 3 &&
+            json['stepCount'] != 5) ||
         (json['completedAt'] != null && json['completedAt'] is! String) ||
         json['messages'] is! List ||
         (json['messages'] as List).isEmpty) {
@@ -401,6 +442,9 @@ class SessionController extends ChangeNotifier {
       initialLanguage: _enum(CodeLanguage.values, json['language']),
     );
     session._stage = _enum(CoachingStage.values, json['stage']);
+    session._stepCount = json.containsKey('stepCount')
+        ? json['stepCount'] as int?
+        : 5;
     if (json['completedAt'] case final String completedAt) {
       session._completedAt = DateTime.parse(completedAt).toLocal();
     }

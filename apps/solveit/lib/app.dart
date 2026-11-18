@@ -963,7 +963,7 @@ class _LearningHomeState extends State<LearningHome> {
                   ? 'A ${dueReview.intervalDays}-day recall check is due. Try the problem from memory before reviewing your notes.'
                   : allTrackLessonsReviewed
                   ? 'You have self-reviewed every lesson in $trackTitle. Start another attempt to practice recall, or choose another path.'
-                  : 'Next unreviewed lesson in $trackTitle. Work through the approach, trace, code, and reflection at your pace.',
+                  : 'Next unreviewed lesson in $trackTitle. Choose a focused 3-step or guided 5-step practice path.',
               style: TextStyle(
                 fontSize: 15,
                 height: 1.55,
@@ -2155,7 +2155,7 @@ class _LearningHomeState extends State<LearningHome> {
         5 => oneWeekInterviewSprint.description,
         6 => lastDayInterviewSprint.description,
         _ =>
-          'A 300-problem interview path across core and advanced patterns. Each challenge has five guided reasoning checkpoints and links to its official statement.',
+          'A 300-problem interview path across core and advanced patterns. Choose three or five coaching steps per attempt; official challenge pages provide full statements.',
       }, style: TextStyle(fontSize: 13, height: 1.65, color: context.palette.muted)),
       const SizedBox(height: 16),
       if (track == 3 || track == 4) ...[
@@ -2176,7 +2176,7 @@ class _LearningHomeState extends State<LearningHome> {
       _mastery300Plan(),
       const SizedBox(height: 16),
       Text(
-        'The 300 guided entries use original LoopLoom coaching prompts and five checkpoints each. Content remains under editorial review. Reference-case execution covers the one-week track and other supported lessons.',
+        'The 300 guided entries use original LoopLoom coaching prompts. Content remains under editorial review. Reference-case execution covers the one-week track and other supported lessons.',
         style: TextStyle(
           fontSize: 12,
           height: 1.65,

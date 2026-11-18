@@ -5,6 +5,47 @@ import 'package:looploom/domain/lesson.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 
 void main() {
+  test('focused practice skips trace and reflection and resumes correctly', () {
+    final session = SessionController(pilotLessons.first, attemptNumber: 1);
+    addTearDown(session.dispose);
+    expect(session.stepCount, isNull);
+    session.chooseStepCount(3);
+    expect(session.currentStepNumber, 1);
+    session.submit(
+      'The input is an array and the output is a pair of indices.',
+    );
+    session.advanceAfterSelfCheck();
+    expect(session.stage, CoachingStage.approach);
+    session.chooseStepCount(5);
+    expect(session.stepCount, 3);
+    session.submit('Keep a map of values already seen.');
+    session.advanceAfterSelfCheck();
+    expect(session.stage, CoachingStage.code);
+    expect(session.currentStepNumber, 3);
+    final restored = SessionController.restore(
+      pilotLessons.first,
+      session.toJson(),
+    );
+    addTearDown(restored.dispose);
+    expect(restored.stepCount, 3);
+    expect(restored.stage, CoachingStage.code);
+    restored.submit('print(1)');
+    restored.advanceAfterSelfCheck();
+    expect(restored.stage, CoachingStage.complete);
+    expect(restored.completedAt, isNotNull);
+    expect(restored.reflection, isEmpty);
+  });
+
+  test('older sessions continue with five steps', () {
+    final session = SessionController(pilotLessons.first, attemptNumber: 1);
+    addTearDown(session.dispose);
+    final oldRecord = session.toJson()..remove('stepCount');
+    final restored = SessionController.restore(pilotLessons.first, oldRecord);
+    addTearDown(restored.dispose);
+    expect(restored.stepCount, 5);
+    expect(restored.learningSteps.length, 5);
+  });
+
   test('completed reflections and optional takeaways survive restore', () {
     final session = SessionController(pilotLessons.first, attemptNumber: 1);
     addTearDown(session.dispose);

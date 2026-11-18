@@ -20,7 +20,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
-    await tester.tap(find.text('Roadmaps'));
+    await tester.tap(find.text('Problems'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Mastery · 300'));
     await tester.tap(find.text('Mastery · 300'));
@@ -57,6 +57,7 @@ void main() {
         original.advanceAfterSelfCheck();
       }
       final snapshot = original.toJson();
+      snapshot.remove('stepCount'); // Simulate a record saved before path choice.
       final messages = snapshot['messages'] as List;
       (messages.last as Map)['text'] = 'Obsolete code execution instruction';
       final restored = SessionController.restore(
@@ -89,7 +90,7 @@ void main() {
       }
     }
     await tester.pumpWidget(LoopLoomApp(store: store));
-    await tester.tap(find.text('Roadmaps'));
+    await tester.tap(find.text('Problems'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Intermediate · 27'));
     await tester.pumpAndSettle();
@@ -114,9 +115,21 @@ void main() {
     final backup = source.exportBackup();
     final target = PracticeStore();
     await tester.pumpWidget(LoopLoomApp(store: target));
-    await tester.tap(find.byTooltip('Workbook options'));
+    await tester.tap(find.byTooltip('Profile & settings'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Workbook backup'));
+    await tester.scrollUntilVisible(
+      find.text('Data & privacy'),
+      220,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Data & privacy'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Open workbook backup'),
+      220,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Open workbook backup'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), backup);
     await tester.ensureVisible(find.text('Review backup'));
@@ -141,6 +154,10 @@ void main() {
     await tester.ensureVisible(find.text('Start guided practice'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Start guided practice'));
+    await tester.pumpAndSettle();
+    expect(find.text('3 steps · Focused'), findsOneWidget);
+    expect(find.text('5 steps · Guided'), findsOneWidget);
+    await tester.tap(find.text('5 steps · Guided'));
     await tester.pumpAndSettle();
     expect(find.text('The problem'), findsOneWidget);
     expect(find.text('Save my thinking'), findsOneWidget);
@@ -180,7 +197,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     expect(find.byType(NavigationRail), findsOneWidget);
-    await tester.tap(find.text('Roadmaps'));
+    await tester.tap(find.text('Problems'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Intermediate · 27'));
     await tester.pumpAndSettle();
@@ -202,7 +219,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
-    await tester.tap(find.text('Roadmaps'));
+    await tester.tap(find.text('Problems'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Starter 30 · 30'));
     await tester.pumpAndSettle();
@@ -221,9 +238,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final store = PracticeStore();
     await tester.pumpWidget(LoopLoomApp(store: store));
-    await tester.tap(find.byTooltip('Workbook options'));
+    await tester.tap(find.byTooltip('Profile & settings'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Profile & settings'));
+    await tester.tap(find.text('Appearance & coaching'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
       find.text('Beginner'),
@@ -252,7 +269,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
-    await tester.tap(find.text('Roadmaps'));
+    await tester.tap(find.text('Problems'));
     await tester.pumpAndSettle();
     expect(find.textContaining('0 of 75 self-reviewed'), findsOneWidget);
     expect(find.text('Phase 1 · Sequences and search'), findsOneWidget);
@@ -276,7 +293,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
-    await tester.tap(find.text('Roadmaps'));
+    await tester.tap(find.text('Problems'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Interview Mastery · 300'));
     await tester.tap(find.text('Interview Mastery · 300'));
@@ -303,7 +320,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
-    await tester.tap(find.text('Roadmaps'));
+    await tester.tap(find.text('Problems'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Mastery · 300'));
     await tester.tap(find.text('Mastery · 300'));
@@ -344,6 +361,8 @@ void main() {
     await tester.pumpWidget(LoopLoomApp(store: PracticeStore()));
     await tester.ensureVisible(find.text('Start guided practice'));
     await tester.tap(find.text('Start guided practice'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('3 steps · Focused'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Focus'));
     await tester.pumpAndSettle();

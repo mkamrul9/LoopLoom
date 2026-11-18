@@ -468,11 +468,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            problem,
-                            const SizedBox(height: 28),
-                            _coaching(),
-                          ],
+                          children: session.stepCount == null
+                              ? [
+                                  _coaching(),
+                                  const SizedBox(height: 24),
+                                  problem,
+                                ]
+                              : [
+                                  problem,
+                                  const SizedBox(height: 28),
+                                  _coaching(),
+                                ],
                         ),
                 ),
               ),
@@ -779,18 +785,103 @@ class _PracticeScreenState extends State<PracticeScreen> {
     ),
   );
 
+  Widget _choosePracticePath() => Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: context.palette.sheet,
+      border: Border.all(color: context.palette.line),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('HOW WOULD YOU LIKE TO PRACTICE?', style: noteLabel),
+        const SizedBox(height: 8),
+        const Text(
+          'Choose your pace for this attempt.',
+          style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'You can change this before saving your first answer.',
+          style: TextStyle(fontSize: 14, color: context.palette.muted),
+        ),
+        const SizedBox(height: 18),
+        _pathChoice(
+          count: 3,
+          title: '3 steps · Focused',
+          description: 'Understand, plan, then code.',
+          icon: Icons.bolt_outlined,
+        ),
+        const SizedBox(height: 10),
+        _pathChoice(
+          count: 5,
+          title: '5 steps · Guided',
+          description: 'Add a dry run and a final reflection.',
+          icon: Icons.route_outlined,
+        ),
+      ],
+    ),
+  );
+
+  Widget _pathChoice({
+    required int count,
+    required String title,
+    required String description,
+    required IconData icon,
+  }) => Material(
+    color: count == 3 ? context.palette.accentWash : context.palette.recess,
+    borderRadius: BorderRadius.circular(10),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () {
+        session.chooseStepCount(count);
+        unawaited(widget.store.flush());
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, color: context.palette.accent),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(description, style: const TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward, size: 18),
+          ],
+        ),
+      ),
+    ),
+  );
+
   Widget _coaching() {
+    if (session.stepCount == null) return _choosePracticePath();
     final complete = session.stage == CoachingStage.complete;
     final saved = session.checkpointReady;
     final reviewed = _reviewedCurrentStep;
+    final steps = session.learningSteps;
+    final stepNumber = session.currentStepNumber;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Semantics(
           label: 'Guided practice progress',
           value: complete
-              ? 'Self-review complete. Five of five steps.'
-              : 'Step ${session.stage.index + 1} of five. ${session.stage.label}.',
+              ? 'Self-review complete. ${steps.length} of ${steps.length} steps.'
+              : 'Step $stepNumber of ${steps.length}. ${session.stage.label}.',
           liveRegion: true,
           child: ExcludeSemantics(
             child: Column(
@@ -803,24 +894,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         style: noteLabel,
                       ),
                     ),
-                    Text(
-                      complete ? '05 / 05' : '0${session.stage.index + 1} / 05',
-                      style: noteLabel,
-                    ),
+                    Text('$stepNumber / ${steps.length}', style: noteLabel),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: List.generate(
-                    5,
+                    steps.length,
                     (i) => Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(right: i < 4 ? 5 : 0),
+                        padding: EdgeInsets.only(
+                          right: i < steps.length - 1 ? 5 : 0,
+                        ),
                         child: Container(
                           height: 3,
-                          color: complete || i < session.stage.index
+                          color: complete || i < stepNumber - 1
                               ? context.palette.accent
-                              : i == session.stage.index
+                              : i == stepNumber - 1
                               ? context.palette.ink
                               : context.palette.line,
                         ),
@@ -833,6 +923,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
           ),
         ),
         const SizedBox(height: 24),
+        if (!complete && session.canChangeStepCount) ...[
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {
+                session.chooseStepCount(null);
+                unawaited(widget.store.flush());
+              },
+              child: Text('${steps.length} steps · Change'),
+            ),
+          ),
+        ],
         Container(
           key: questionKey,
           child: AnimatedSwitcher(
@@ -864,7 +966,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 const SizedBox(height: 14),
                 Text(
                   complete
-                      ? 'Reflection saved. This attempt is self-reviewed. No test verdict yet.'
+                      ? 'Attempt saved as self-reviewed. Your code has no verified test verdict yet.'
                       : session.question,
                   style: const TextStyle(fontSize: 16, height: 1.7),
                 ),
@@ -1038,7 +1140,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
             onPressed: session.reviewing ? null : advance,
             icon: const Icon(Icons.check, size: 18),
             label: Text(
-              session.stage == CoachingStage.reflect
+              session.stage == CoachingStage.reflect ||
+                      (session.stepCount == 3 &&
+                          session.stage == CoachingStage.code)
                   ? 'Finish my self-review'
                   : 'I checked my work · continue',
             ),
