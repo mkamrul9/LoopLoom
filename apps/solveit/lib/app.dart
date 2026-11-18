@@ -599,6 +599,42 @@ class _LearningHomeState extends State<LearningHome> {
     }
   }
 
+  Future<void> _searchProblems() async {
+    final lesson = await showSearch<Lesson?>(
+      context: context,
+      delegate: _ProblemSearchDelegate(store),
+    );
+    if (mounted && lesson != null) openLesson(lesson);
+  }
+
+  Future<void> _openStudyPlan() => Navigator.of(context).push<void>(
+    MaterialPageRoute<void>(
+      builder: (_) => ReadableSurface(
+        scale: store.preferences.textScale,
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Study plan')),
+          body: ListenableBuilder(
+            listenable: store,
+            builder: (context, _) => ListView(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+              children: [
+                _studyPlanCard(),
+                const SizedBox(height: 16),
+                _dailyPracticeCard(),
+                const SizedBox(height: 16),
+                _weeklyPracticeCard(),
+                const SizedBox(height: 16),
+                _diagnosticCard(),
+                const SizedBox(height: 16),
+                _reviewPlan(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
   Future<void> openDiagnostic() async {
     final onOpenDiagnostic = widget.onOpenDiagnostic;
     final lesson = onOpenDiagnostic == null
@@ -621,17 +657,6 @@ class _LearningHomeState extends State<LearningHome> {
           )
         : await widget.onOpenOnboarding!();
     if (mounted && takeCheck == true) await openDiagnostic();
-  }
-
-  void openFeedback() {
-    final callback = widget.onOpenFeedback;
-    if (callback != null) {
-      callback();
-    } else {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute<void>(builder: (_) => const FeedbackScreen()));
-    }
   }
 
   Future<void> toggleSaved(Lesson lesson) async {
@@ -686,6 +711,11 @@ class _LearningHomeState extends State<LearningHome> {
                 ),
                 actions: [
                   IconButton(
+                    tooltip: 'Find a problem',
+                    icon: const Icon(Icons.search),
+                    onPressed: _searchProblems,
+                  ),
+                  IconButton(
                     tooltip: 'Profile & settings',
                     icon: const Icon(Icons.account_circle_outlined),
                     onPressed:
@@ -695,70 +725,6 @@ class _LearningHomeState extends State<LearningHome> {
                             builder: (_) => SettingsScreen(store: store),
                           ),
                         ),
-                  ),
-                  PopupMenuButton<String>(
-                    tooltip: 'Workbook options',
-                    icon: const Icon(Icons.more_horiz),
-                    constraints: const BoxConstraints(minWidth: 224),
-                    onSelected: (option) {
-                      if (option == 'settings') {
-                        final openSettings = widget.onOpenSettings;
-                        if (openSettings != null) {
-                          openSettings();
-                        } else {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => SettingsScreen(store: store),
-                            ),
-                          );
-                        }
-                      } else if (option == 'feedback') {
-                        openFeedback();
-                      } else {
-                        final openBackup = widget.onOpenBackup;
-                        if (openBackup != null) {
-                          openBackup();
-                        } else {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => BackupScreen(store: store),
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(
-                        value: 'settings',
-                        child: Row(
-                          children: [
-                            Icon(Icons.tune_outlined, size: 19),
-                            SizedBox(width: 12),
-                            Text('Profile & settings'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'feedback',
-                        child: Row(
-                          children: [
-                            Icon(Icons.feedback_outlined, size: 19),
-                            SizedBox(width: 12),
-                            Text('Feedback & contact'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'backup',
-                        child: Row(
-                          children: [
-                            Icon(Icons.inventory_2_outlined, size: 19),
-                            SizedBox(width: 12),
-                            Text('Workbook backup'),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
                   if (wide)
                     Padding(
@@ -781,11 +747,11 @@ class _LearningHomeState extends State<LearningHome> {
                       destinations: const [
                         NavigationRailDestination(
                           icon: Icon(Icons.auto_stories_outlined),
-                          label: Text('Learn'),
+                          label: Text('Today'),
                         ),
                         NavigationRailDestination(
                           icon: Icon(Icons.route_outlined),
-                          label: Text('Roadmaps'),
+                          label: Text('Problems'),
                         ),
                         NavigationRailDestination(
                           icon: Icon(Icons.history),
@@ -843,11 +809,11 @@ class _LearningHomeState extends State<LearningHome> {
                         destinations: const [
                           NavigationDestination(
                             icon: Icon(Icons.auto_stories_outlined),
-                            label: 'Learn',
+                            label: 'Today',
                           ),
                           NavigationDestination(
                             icon: Icon(Icons.route_outlined),
-                            label: 'Roadmaps',
+                            label: 'Problems',
                           ),
                           NavigationDestination(
                             icon: Icon(Icons.history),
@@ -1043,84 +1009,65 @@ class _LearningHomeState extends State<LearningHome> {
         _recommendationCard(suggestion),
       ],
       const SizedBox(height: 20),
-      ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        title: const Text(
-          'Study plan & review',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+      Card(
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 8,
+          ),
+          leading: Icon(
+            Icons.event_note_outlined,
+            color: context.palette.accent,
+          ),
+          title: const Text(
+            'Study plan',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: const Text('Goals, daily practice, and due reviews'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: _openStudyPlan,
         ),
-        subtitle: const Text(
-          'Today’s practice, goals, quick check, and due reviews',
-        ),
-        children: [
-          _studyPlanCard(),
-          const SizedBox(height: 16),
-          _dailyPracticeCard(),
-          const SizedBox(height: 16),
-          _weeklyPracticeCard(),
-          const SizedBox(height: 16),
-          _diagnosticCard(),
-          const SizedBox(height: 16),
-          _reviewPlan(),
-          const SizedBox(height: 16),
-        ],
       ),
-      const SizedBox(height: 30),
-      LayoutBuilder(
-        builder: (context, constraints) {
-          final heading = const Text(
-            'Practice by pattern',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -.4,
-            ),
-          );
-          final progress = Text(
-            '${reviewedInTrack()}/${trackLessons.length} SELF-REVIEWED',
-            style: noteLabel,
-          );
-          if (constraints.maxWidth < 420) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [heading, const SizedBox(height: 4), progress],
-            );
-          }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+      const SizedBox(height: 14),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: heading),
-              progress,
+              const Text('EXPLORE', style: noteLabel),
+              const SizedBox(height: 8),
+              Text(
+                trackTitle,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${reviewedInTrack()} of ${trackLessons.length} self-reviewed',
+                style: TextStyle(color: context.palette.muted),
+              ),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton.tonalIcon(
+                    onPressed: () => _selectTab(1),
+                    icon: const Icon(Icons.route_outlined, size: 18),
+                    label: const Text('Browse problems'),
+                  ),
+                  TextButton.icon(
+                    onPressed: _searchProblems,
+                    icon: const Icon(Icons.search, size: 18),
+                    label: const Text('Search'),
+                  ),
+                ],
+              ),
             ],
-          );
-        },
-      ),
-      const SizedBox(height: 16),
-      trackPicker(),
-      const SizedBox(height: 12),
-      if (track == 3 || track == 4) ...[
-        _curriculumPath(track == 3 ? blind75Entries : mastery300Entries),
-      ] else if (track == 5 || track == 6) ...[
-        _interviewSprintPath(
-          track == 5 ? oneWeekInterviewSprint : lastDayInterviewSprint,
-        ),
-      ] else ...[
-        ...trackLessons.indexed.map(
-          (item) => _lessonTile(item.$2, item.$1 + 1),
-        ),
-      ],
-      const SizedBox(height: 24),
-      Text(
-        'C++ / Python / JavaScript / TypeScript',
-        style: TextStyle(fontSize: 12, color: context.palette.muted),
-      ),
-      const SizedBox(height: 10),
-      Text(
-        'Your workbook saves on this device. Guided checkpoints are self-reviewed; reference-case matches do not establish verified solves.',
-        style: TextStyle(
-          fontSize: 12,
-          color: context.palette.muted,
-          height: 1.6,
+          ),
         ),
       ),
     ],
@@ -1293,11 +1240,12 @@ class _LearningHomeState extends State<LearningHome> {
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
-          onPressed: () => _selectTrack(suggestion.trackIndex),
+          onPressed: () {
+            _selectTrack(suggestion.trackIndex);
+            _selectTab(1);
+          },
           icon: const Icon(Icons.route_outlined),
-          label: Text(
-            track == suggestion.trackIndex ? 'Current path' : 'Explore path',
-          ),
+          label: const Text('Explore path'),
         ),
       ],
     ),
@@ -2602,6 +2550,83 @@ class _LearningHomeState extends State<LearningHome> {
                   )
                   .toList(),
       ),
+    );
+  }
+}
+
+class _ProblemSearchDelegate extends SearchDelegate<Lesson?> {
+  _ProblemSearchDelegate(this.store)
+    : super(searchFieldLabel: 'Find a problem');
+
+  final PracticeStore store;
+
+  @override
+  List<Widget> buildActions(BuildContext context) => [
+    if (query.isNotEmpty)
+      IconButton(
+        tooltip: 'Clear search',
+        onPressed: () => query = '',
+        icon: const Icon(Icons.close),
+      ),
+  ];
+
+  @override
+  Widget buildLeading(BuildContext context) => IconButton(
+    tooltip: 'Close search',
+    onPressed: () => close(context, null),
+    icon: const Icon(Icons.arrow_back),
+  );
+
+  @override
+  Widget buildResults(BuildContext context) => _results(context);
+
+  @override
+  Widget buildSuggestions(BuildContext context) => _results(context);
+
+  Widget _results(BuildContext context) {
+    final term = query.trim().toLowerCase();
+    final lessons = term.isEmpty
+        ? oneWeekInterviewSprint.lessons.take(8).toList()
+        : allLessons
+              .where((lesson) {
+                final searchable = '${lesson.title} ${lesson.pattern}'
+                    .toLowerCase();
+                return searchable.contains(term);
+              })
+              .take(60)
+              .toList();
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
+          child: Text(
+            term.isEmpty
+                ? 'POPULAR INTERVIEW PRACTICE'
+                : '${lessons.length}${lessons.length == 60 ? '+' : ''} MATCHES',
+            style: noteLabel,
+          ),
+        ),
+        if (lessons.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text('No matching problems. Try a title or pattern.'),
+          ),
+        for (final lesson in lessons)
+          Card(
+            child: ListTile(
+              title: Text(lesson.title),
+              subtitle: Text(lesson.pattern),
+              trailing: Icon(
+                store.sessions.any((session) => session.lesson.id == lesson.id)
+                    ? Icons.history
+                    : Icons.north_east,
+                size: 19,
+              ),
+              onTap: () => close(context, lesson),
+            ),
+          ),
+      ],
     );
   }
 }
