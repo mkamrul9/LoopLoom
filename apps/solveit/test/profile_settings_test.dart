@@ -25,10 +25,19 @@ void main() {
       ),
     );
     await tester.scrollUntilVisible(
+      find.text('Data & privacy'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Data & privacy'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
       find.text('Clear local workbook'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('Clear local workbook'));
+    await tester.pumpAndSettle();
     expect(find.text('Privacy policy'), findsOneWidget);
     await tester.tap(find.text('Clear local workbook'));
     await tester.pumpAndSettle();
@@ -71,6 +80,13 @@ void main() {
         ),
       ),
     );
+    await tester.scrollUntilVisible(
+      find.text('Code runner'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Code runner'));
+    await tester.pumpAndSettle();
     final address = find.byWidgetPredicate(
       (widget) =>
           widget is TextField &&
@@ -118,6 +134,9 @@ void main() {
       ),
     );
 
+    await tester.tap(find.text('Profile & goals'));
+    await tester.pumpAndSettle();
+
     await tester.scrollUntilVisible(
       find.text('Name or nickname'),
       260,
@@ -131,16 +150,20 @@ void main() {
     );
     await tester.enterText(find.byType(TextField).at(1), 'Backend engineer');
     await tester.scrollUntilVisible(
-      find.text('PRACTICE DAYS EACH WEEK'),
+      find.text('4 days'),
       260,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('4 days'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('4 days'));
     await tester.scrollUntilVisible(
-      find.text('DAILY PRACTICE TARGET'),
+      find.text('45 min'),
       220,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('45 min'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('45 min'));
     await tester.scrollUntilVisible(
       find.text('Save profile and goals'),
@@ -148,6 +171,15 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     await tester.tap(find.text('Save profile and goals'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Appearance & coaching'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Appearance & coaching'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
       find.text('Large'),

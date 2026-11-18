@@ -10,9 +10,9 @@ This copy describes the current Android app. Review it in Play Console before su
 
 ## Full description
 
-Work through coding interview problems one step at a time. LoopLoom asks you to explain your approach, trace an example, write code, and reflect on what you learned.
+Work through coding interview problems at your pace. Choose three focused steps or five guided steps to explain your approach, trace an example, write code, and reflect on what you learned.
 
-Explore the Blind 75 and Interview Mastery 300 paths, plus focused one-week and last-day interview prep lists. Save problems, follow your progress, revisit completed attempts, and use reminders from your own reflections. Choose C++, Python, JavaScript, or TypeScript for your code drafts.
+Explore Blind 75, Interview Mastery 300, and an independent FAANG-style coding roadmap, plus focused one-week and last-day interview prep lists. The FAANG-style route groups 48 existing problems into eight topic blocks; it is not affiliated with any employer and does not predict interview questions. Save problems, follow your progress, revisit completed attempts, and use reminders from your own reflections. Choose C++, Python, JavaScript, or TypeScript for your code drafts.
 
 Hints and the offline coach help you think through an approach without immediately showing the answer. Reference solutions for selected problems can be unlocked with free in-app study points. Optional Gemini coaching is available only after you allow it and request feedback. Code execution for supported problems requires a separately configured private runner on your own computer; it is not built into the phone.
 

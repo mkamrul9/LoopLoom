@@ -1,5 +1,11 @@
 # Google Play release preparation
 
+## Readiness status · 18 November 2026
+
+The app is usable as a PWA and local Android APK, but it is **not ready for a public Google Play rollout**. The catalog contains 300 unique entries. Ninety of the 225 Mastery extensions have problem-specific coaching; 135 still use pattern-level guidance and need editorial review. The new 48-problem FAANG-style route uses only authored Blind 75 lessons or extensions with problem-specific guides, and shares attempt progress with the 300 path. This is an independent study route, not a company question list or interview prediction.
+
+Before public release: create and verify a Play Console developer account; back up a dedicated upload key; upload an AAB to internal testing; register the Play App Signing SHA-256 fingerprint with Firebase; verify AI and App Check, offline use, backup restore, and readability on real Play-installed phones; review the remaining curriculum and reference-code coverage; and complete Play listing, Data safety, content rating, and other account-owner declarations. New personal Play accounts may need [12 opted-in closed testers for 14 continuous days](https://support.google.com/googleplay/android-developer/answer/14151465) before applying for production access. The Android target API is 36, matching [Google Play's current target requirement](https://developer.android.com/google/play/requirements/target-sdk).
+
 The Android application ID is `dev.solveit.solveit`; keep it stable to preserve installed workbooks. The current build targets Android API 36. The GitHub APK is for local installation and uses the existing local debug signing identity. It is not the Play upload artifact. A Play-installed app will have a different signing identity, so a user moving from the GitHub APK should export a workbook backup before uninstalling and then import it after installing from Play. On the import preview, select **Restore profile & study settings** to bring over the learner setup. AI consent and private runner credentials must be configured again.
 
 The public privacy page is `https://looploom-coach-2026.web.app/privacy.html` and Settings links to it. Use the copy and screenshot plan in [the store listing draft](PLAY_STORE_LISTING.md). Verify the Data safety answers against the final SDKs and Play-installed build before submission.

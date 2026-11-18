@@ -16,6 +16,13 @@ class FailingPreferenceRepository extends MemorySessionRepository {
 }
 
 void main() {
+  test('FAANG-style roadmap selection survives preference restore', () {
+    final restored = LearnerPreferences.fromJson(
+      const LearnerPreferences(selectedTrack: 7).toJson(),
+    );
+    expect(restored.selectedTrack, 7);
+  });
+
   test(
     'support modes add stage-specific scaffolding without replacing lesson questions',
     () {

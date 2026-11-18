@@ -3,6 +3,7 @@ import 'package:looploom/data/interview_lessons.dart';
 import 'package:looploom/data/lesson_catalog.dart';
 import 'package:looploom/data/blind75_curriculum.dart';
 import 'package:looploom/data/mastery300_curriculum.dart';
+import 'package:looploom/data/faang_roadmap.dart';
 import 'package:looploom/domain/lesson.dart';
 import 'package:looploom/features/coaching/session_controller.dart';
 
@@ -161,6 +162,31 @@ void main() {
       expect(entry.lesson.hints, hasLength(3), reason: entry.title);
       expect(entry.challengeUri.host, 'leetcode.com');
     }
+  });
+  test('FAANG-style route reuses 48 distinct Mastery 300 problems', () {
+    final slugs = faangStyleRoadmap.days
+        .expand((block) => block.slugs)
+        .toList();
+    final catalogSlugs = mastery300Entries.map((entry) => entry.slug).toSet();
+    final authoredBlindSlugs = blind75Entries
+        .map((entry) => entry.slug)
+        .toSet();
+    expect(faangStyleRoadmap.days, hasLength(8));
+    expect(slugs, hasLength(48));
+    expect(slugs.toSet(), hasLength(48));
+    expect(slugs.every(catalogSlugs.contains), isTrue);
+    expect(
+      slugs.every(
+        (slug) =>
+            authoredBlindSlugs.contains(slug) ||
+            masteryProblemGuides.containsKey(slug),
+      ),
+      isTrue,
+    );
+    expect(
+      faangStyleRoadmap.lessons.map((lesson) => lesson.id).toSet(),
+      hasLength(48),
+    );
   });
   test(
     'prefix and stack references agree with exhaustive small-input baselines',

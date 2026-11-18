@@ -10,6 +10,7 @@ import 'data/mastery300_curriculum.dart';
 import 'data/pilot_lessons.dart';
 import 'data/interview_lessons.dart';
 import 'data/interview_sprints.dart';
+import 'data/faang_roadmap.dart';
 import 'data/path_recommendation.dart';
 import 'data/sprint_references.dart';
 import 'domain/learner_preferences.dart';
@@ -386,7 +387,8 @@ class _LearningHomeState extends State<LearningHome> {
     3 => blind75Lessons,
     4 => mastery300Lessons,
     5 => oneWeekInterviewSprint.lessons,
-    _ => lastDayInterviewSprint.lessons,
+    6 => lastDayInterviewSprint.lessons,
+    _ => faangStyleRoadmap.lessons,
   };
 
   String get trackTitle => switch (track) {
@@ -396,7 +398,8 @@ class _LearningHomeState extends State<LearningHome> {
     3 => 'Blind 75 · guided path',
     4 => 'Interview Mastery · 300',
     5 => oneWeekInterviewSprint.title,
-    _ => lastDayInterviewSprint.title,
+    6 => lastDayInterviewSprint.title,
+    _ => faangStyleRoadmap.title,
   };
 
   bool _hasCodeAndCases(Lesson lesson) =>
@@ -536,7 +539,7 @@ class _LearningHomeState extends State<LearningHome> {
         ],
       ),
       const SizedBox(height: 14),
-      const Text('SHORT INTERVIEW PREP', style: noteLabel),
+      const Text('INTERVIEW PREP', style: noteLabel),
       const SizedBox(height: 6),
       Wrap(
         spacing: 10,
@@ -551,6 +554,11 @@ class _LearningHomeState extends State<LearningHome> {
             label: const Text('Last day · 7'),
             selected: track == 6,
             onSelected: (_) => _selectTrack(6),
+          ),
+          ChoiceChip(
+            label: Text('FAANG-style · ${faangStyleRoadmap.lessons.length}'),
+            selected: track == 7,
+            onSelected: (_) => _selectTrack(7),
           ),
         ],
       ),
@@ -2009,7 +2017,9 @@ class _LearningHomeState extends State<LearningHome> {
                 const SizedBox(height: 10),
               ],
               Text(
-                'Selected from LoopLoom’s guided catalog using Grind 75’s priority order and topic coverage. These are practice candidates, not predictions of a specific interview. Progress is shared across roadmaps.',
+                sprint == faangStyleRoadmap
+                    ? 'An independent study route through LoopLoom’s existing catalog. Topic coverage follows public interview-preparation guidance; these are practice candidates, not company question predictions. Progress is shared across roadmaps.'
+                    : 'Selected from LoopLoom’s guided catalog using Grind 75’s priority order and topic coverage. These are practice candidates, not predictions of a specific interview. Progress is shared across roadmaps.',
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.55,
@@ -2018,11 +2028,20 @@ class _LearningHomeState extends State<LearningHome> {
               ),
               TextButton.icon(
                 onPressed: () => launchUrl(
-                  Uri.https('www.techinterviewhandbook.org', '/grind75/'),
+                  sprint == faangStyleRoadmap
+                      ? Uri.https(
+                          'www.techinterviewhandbook.org',
+                          '/coding-interview-study-plan/',
+                        )
+                      : Uri.https('www.techinterviewhandbook.org', '/grind75/'),
                   mode: LaunchMode.externalApplication,
                 ),
                 icon: const Icon(Icons.open_in_new, size: 18),
-                label: const Text('View Grind 75 source'),
+                label: Text(
+                  sprint == faangStyleRoadmap
+                      ? 'Study topic guidance'
+                      : 'View Grind 75 source',
+                ),
               ),
               if (sprint == oneWeekInterviewSprint) ...[
                 const SizedBox(height: 12),
@@ -2154,15 +2173,20 @@ class _LearningHomeState extends State<LearningHome> {
           'A 75-question interview-preparation path arranged by patterns and study phases, with one guided reasoning sequence per problem.',
         5 => oneWeekInterviewSprint.description,
         6 => lastDayInterviewSprint.description,
+        7 => faangStyleRoadmap.description,
         _ =>
           'A 300-problem interview path across core and advanced patterns. Choose three or five coaching steps per attempt; official challenge pages provide full statements.',
       }, style: TextStyle(fontSize: 13, height: 1.65, color: context.palette.muted)),
       const SizedBox(height: 16),
       if (track == 3 || track == 4) ...[
         _curriculumPath(track == 3 ? blind75Entries : mastery300Entries),
-      ] else if (track == 5 || track == 6) ...[
+      ] else if (track >= 5) ...[
         _interviewSprintPath(
-          track == 5 ? oneWeekInterviewSprint : lastDayInterviewSprint,
+          track == 5
+              ? oneWeekInterviewSprint
+              : track == 6
+              ? lastDayInterviewSprint
+              : faangStyleRoadmap,
           showDescription: false,
         ),
       ] else ...[

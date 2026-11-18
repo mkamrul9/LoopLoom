@@ -85,7 +85,7 @@ void main() {
       );
       expect(find.text('Open official LeetCode problem'), findsOneWidget);
       expect(
-        find.textContaining('Set a self-hosted runner address'),
+        find.textContaining('A configured private runner receives your draft'),
         findsOneWidget,
       );
       expect(find.text('Run reference cases'), findsNothing);

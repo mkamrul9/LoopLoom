@@ -191,7 +191,7 @@ class LearnerPreferences {
           ? rawMinutes
           : 30,
       aiCoachConsent: json['aiCoachConsent'] == true,
-      selectedTrack: rawTrack is int && rawTrack >= 0 && rawTrack <= 6
+      selectedTrack: rawTrack is int && rawTrack >= 0 && rawTrack <= 7
           ? rawTrack
           : 3,
       targetInterviewDate: parsedDate,

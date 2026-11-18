@@ -54,17 +54,13 @@ The coach asks for the next step instead of revealing a complete solution by def
 
 ### How a session works
 
-1. Read the constraints and explain what the problem asks.
-2. Describe an approach and why it should work.
-3. Trace the approach through an example and an edge case.
-4. Write a code draft in your preferred language.
-5. State the complexity and reflect on a follow-up.
+Choose a focused **3-step** path (understand, approach, code) or a guided **5-step** path (understand, approach, trace, code, reflect). The choice is saved per attempt and can be changed before the first answer is saved.
 
 At each step, save your thinking, review it with the AI coach or the authored offline self-check, then choose to continue or revise. Only the action needed for the current step is prominent; hints remain available. Progress is labeled **self-reviewed**. It does not claim a verified solve when code has not been judged.
 
 ## The curriculum, honestly described
 
-LoopLoom writes its own learning prompts, hints, and explanations. The Blind 75 path links to the official challenge pages and is not affiliated with LeetCode. The 300-problem roadmap combines the Blind 75 with additional interview challenges; canonical statements and online judging remain on their linked sites.
+LoopLoom writes its own learning prompts, hints, and explanations. The Blind 75 path links to the official challenge pages and is not affiliated with LeetCode. The 300-problem roadmap contains 300 unique entries: Blind 75 plus 225 additional challenges. The FAANG-style route selects 48 of those same problems across eight topic blocks, with shared progress and authored coaching for every selection. It is an independent study plan, not a prediction of questions at any company. Canonical statements and online judging remain on their linked sites.
 
 The curriculum is still being reviewed. Every problem in the one-week interview track and its last-day subset now has three local reference cases, problem-specific edge cases, and original C++, Python, JavaScript, and TypeScript reference code. Reference code starts hidden and costs 10 of the 10,000 local study points to unlock per problem. These are practice credits, not purchases or a secure payment balance. Other challenges may still need an external judge. The optional self-hosted runner executes authored reference cases in disposable Docker containers; see [phone setup](docs/REFERENCE_RUNNER.md). It is not a public production code-execution service.
 

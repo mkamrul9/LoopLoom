@@ -34,6 +34,7 @@ void main() {
   ) async {
     final store = PracticeStore(coach: _ReplyCoach());
     final session = store.startOrResume(pilotLessons.first);
+    session.chooseStepCount(5);
     session.submit('I identify the exact input and output.');
     await tester.pumpWidget(
       MaterialApp(
@@ -60,6 +61,7 @@ void main() {
   ) async {
     final store = PracticeStore(coach: _ReplyCoach(fail: true));
     final session = store.startOrResume(pilotLessons.first);
+    session.chooseStepCount(5);
     session.submit('I identify the exact input and output.');
     await tester.pumpWidget(
       MaterialApp(
@@ -86,6 +88,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final store = PracticeStore();
     final session = store.startOrResume(pilotLessons.first);
+    session.chooseStepCount(5);
     await tester.pumpWidget(
       MaterialApp(
         theme: studyTheme(),
@@ -150,7 +153,7 @@ void main() {
   );
 
   testWidgets(
-    'offline guidance opens visibly and can be dismissed on a phone',
+    'example walkthrough opens visibly and can be dismissed on a phone',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -158,6 +161,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final store = PracticeStore();
       final session = store.startOrResume(pilotLessons.first);
+      session.chooseStepCount(5);
       session.submit('I will describe the input and output first.');
       await tester.pumpWidget(
         MaterialApp(
@@ -167,24 +171,17 @@ void main() {
       );
 
       await tester.scrollUntilVisible(
-        find.text('More options'),
+        find.text('Step tools'),
         400,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(find.text('More options'));
+      await tester.tap(find.text('Step tools'));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.text('Explore offline prompts'),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('Explore offline prompts'));
+      await tester.tap(find.text('Walk through example'));
       await tester.pumpAndSettle();
-      expect(find.text('What would help right now?'), findsOneWidget);
-      await tester.tap(find.text('Clarify the task'));
-      await tester.pumpAndSettle();
+      expect(find.text('Walk through the example'), findsOneWidget);
       expect(find.text('I understand'), findsOneWidget);
-      expect(find.textContaining('Task check'), findsWidgets);
+      expect(find.textContaining('Dry run'), findsWidgets);
       await tester.tap(find.text('I understand'));
       await tester.pumpAndSettle();
       expect(find.text('I understand'), findsNothing);
@@ -203,6 +200,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final store = PracticeStore();
     final session = store.startOrResume(pilotLessons.first);
+    session.chooseStepCount(5);
     session.submit('I will describe the input and output first.');
     await tester.pumpWidget(
       MaterialApp(
@@ -211,17 +209,12 @@ void main() {
       ),
     );
     await tester.scrollUntilVisible(
-      find.text('More options'),
+      find.text('Step tools'),
       400,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('More options'));
+    await tester.tap(find.text('Step tools'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Reveal explanation'),
-      300,
-      scrollable: find.byType(Scrollable).first,
-    );
     await tester.tap(find.text('Reveal explanation'));
     await tester.pumpAndSettle();
     expect(find.text('Reveal the explanation?'), findsOneWidget);
@@ -232,11 +225,8 @@ void main() {
     await tester.tap(find.text('I understand'));
     await tester.pumpAndSettle();
     expect(session.solutionRevealed, isTrue);
-    await tester.scrollUntilVisible(
-      find.text('View explanation'),
-      400,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await tester.tap(find.text('Step tools'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('View explanation'));
     await tester.pumpAndSettle();
     expect(find.text('Solution explanation'), findsOneWidget);

@@ -57,7 +57,9 @@ void main() {
         original.advanceAfterSelfCheck();
       }
       final snapshot = original.toJson();
-      snapshot.remove('stepCount'); // Simulate a record saved before path choice.
+      snapshot.remove(
+        'stepCount',
+      ); // Simulate a record saved before path choice.
       final messages = snapshot['messages'] as List;
       (messages.last as Map)['text'] = 'Obsolete code execution instruction';
       final restored = SessionController.restore(
@@ -100,6 +102,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('1 of 3 self-reviewed'), findsOneWidget);
     expect(find.text('Interview warm-ups'), findsOneWidget);
+  });
+  testWidgets('phone opens FAANG-style roadmap and keeps its selection', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = PracticeStore();
+    await tester.pumpWidget(LoopLoomApp(store: store));
+    await tester.tap(find.text('Problems'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('FAANG-style · 48'));
+    await tester.tap(find.text('FAANG-style · 48'));
+    await tester.pumpAndSettle();
+    expect(find.text('FAANG-style coding prep'), findsOneWidget);
+    expect(find.text('Block 1 · Arrays & hashing'), findsOneWidget);
+    expect(store.preferences.selectedTrack, 7);
+    expect(tester.takeException(), isNull);
   });
   testWidgets('phone backup review restores only after the restore action', (
     tester,
