@@ -1,13 +1,37 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../../data/mastery300_curriculum.dart';
 import '../../domain/lesson.dart';
 import '../../ui/looploom_theme.dart';
 
 part 'pattern_lessons_extra.dart';
 part 'pattern_diagram.dart';
+part 'pattern_templates.dart';
+
+/// The learning library defines its own coverage; problem roadmaps can link to
+/// these ideas, but do not determine which lessons exist here.
+const patternLearningFamilies = <String>[
+  'Arrays & hashing',
+  'Two pointers',
+  'Sliding window',
+  'Binary search',
+  'Linked lists',
+  'Stacks',
+  'Trees',
+  'Tries',
+  'Backtracking',
+  'Heaps',
+  'Graphs',
+  'Advanced graphs',
+  '1-D dynamic programming',
+  '2-D dynamic programming',
+  'Greedy',
+  'Intervals',
+  'Bit manipulation',
+  'Math & geometry',
+];
 
 enum PatternVisual {
   sequence,
@@ -46,10 +70,11 @@ class PatternLesson {
     required this.title,
     required this.cue,
     required this.concept,
+    required this.recognize,
     required this.whenToUse,
     required this.watchFor,
     required this.example,
-    required this.problemSlug,
+    this.problemSlug,
     required this.tokens,
     required this.frames,
     required this.code,
@@ -59,10 +84,11 @@ class PatternLesson {
       title,
       cue,
       concept,
+      recognize,
       whenToUse,
       watchFor,
-      example,
-      problemSlug;
+      example;
+  final String? problemSlug;
   final PatternVisual visual;
   final List<String> tokens;
   final List<PatternFrame> frames;
@@ -77,6 +103,8 @@ const patternLessons = <PatternLesson>[
     cue: 'Remember what you have already seen.',
     concept:
         'A map turns a search through earlier values into a direct lookup. Store only the information the next item needs.',
+    recognize:
+        'Look for complements, counts, duplicates, or repeated questions about values already scanned.',
     whenToUse:
         'You need to find a complement, count frequencies, or remember the first position of a value.',
     watchFor:
@@ -122,6 +150,8 @@ const patternLessons = <PatternLesson>[
     cue: 'Move the boundary that can improve the answer.',
     concept:
         'Keep two positions and use an ordering rule to discard impossible choices. Each move must be justified by an invariant.',
+    recognize:
+        'The input is sorted, or comparing two ends tells you which side to move.',
     whenToUse:
         'The data is sorted, or a comparison at both ends tells you which side can be discarded.',
     watchFor:
@@ -173,6 +203,8 @@ const patternLessons = <PatternLesson>[
     cue: 'Update a range instead of rebuilding it.',
     concept:
         'Keep a contiguous window and maintain a small summary as one item leaves and another enters. The example uses a fixed window; variable windows also need a clear validity rule.',
+    recognize:
+        'The question says contiguous subarray or substring, and asks for a fixed length, longest, or shortest valid range.',
     whenToUse:
         'The question asks about a contiguous subarray or substring, especially with a fixed length or a condition that changes as the range grows.',
     watchFor:
@@ -225,6 +257,8 @@ const patternLessons = <PatternLesson>[
     cue: 'Discard half using a monotonic rule.',
     concept:
         'Maintain an inclusive search interval. Compare the middle with a target, then discard the half that cannot contain the answer.',
+    recognize:
+        'Values are sorted, or a yes/no condition changes only once across a range of candidate answers.',
     whenToUse:
         'The input is sorted or the possible answers follow a monotonic yes/no condition.',
     watchFor:
@@ -270,6 +304,8 @@ const patternLessons = <PatternLesson>[
     cue: 'Visit each reachable state once.',
     concept:
         'Model states as nodes and connections as edges. Breadth-first search keeps a queue so nearby states are visited before distant ones.',
+    recognize:
+        'The input describes connections, cells, or moves, and asks what is reachable or how many steps away.',
     whenToUse:
         'The problem describes connections, reachability, shortest unweighted paths, or a grid you can move through.',
     watchFor:
@@ -324,6 +360,8 @@ const patternLessons = <PatternLesson>[
     cue: 'Reuse answers to smaller states.',
     concept:
         'Define what one state means, its base cases, and how earlier states produce the next one. Store each answer once.',
+    recognize:
+        'The same smaller question repeats, and an answer for position i depends on earlier positions.',
     whenToUse:
         'The same subproblem appears repeatedly and the answer can be built from smaller answers.',
     watchFor:
@@ -372,8 +410,8 @@ const patternLessons = <PatternLesson>[
 ];
 
 class PatternLibrary extends StatefulWidget {
-  const PatternLibrary({super.key, required this.onStartProblem});
-  final void Function(Lesson) onStartProblem;
+  const PatternLibrary({super.key, this.onPractice});
+  final ValueChanged<PatternLesson>? onPractice;
 
   @override
   State<PatternLibrary> createState() => _PatternLibraryState();
@@ -412,7 +450,7 @@ class _PatternLibraryState extends State<PatternLibrary> {
         ),
         const SizedBox(height: 8),
         Text(
-          '${patternLessons.length} interview patterns. Learn the idea, watch it move, then try a problem.',
+          '${patternLessons.length} standalone lessons. Learn at your own pace; try a related problem when you are ready.',
           style: TextStyle(
             fontSize: 16,
             height: 1.5,
@@ -462,7 +500,7 @@ class _PatternLibraryState extends State<PatternLibrary> {
                             MaterialPageRoute<void>(
                               builder: (_) => PatternLessonScreen(
                                 lesson: pattern,
-                                onStartProblem: widget.onStartProblem,
+                                onPractice: widget.onPractice,
                               ),
                             ),
                           );
@@ -494,7 +532,7 @@ class _PatternLibraryState extends State<PatternLibrary> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                'Concept · Code · Dry run',
+                                'Concept · Templates · Dry run',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: context.palette.accent,
@@ -522,14 +560,12 @@ class _PatternLibraryState extends State<PatternLibrary> {
 
 enum _LessonView { concept, code, dryRun }
 
+enum _CodeMode { template, worked }
+
 class PatternLessonScreen extends StatefulWidget {
-  const PatternLessonScreen({
-    super.key,
-    required this.lesson,
-    required this.onStartProblem,
-  });
+  const PatternLessonScreen({super.key, required this.lesson, this.onPractice});
   final PatternLesson lesson;
-  final void Function(Lesson) onStartProblem;
+  final ValueChanged<PatternLesson>? onPractice;
 
   @override
   State<PatternLessonScreen> createState() => _PatternLessonScreenState();
@@ -538,6 +574,7 @@ class PatternLessonScreen extends StatefulWidget {
 class _PatternLessonScreenState extends State<PatternLessonScreen> {
   _LessonView _view = _LessonView.concept;
   CodeLanguage _language = CodeLanguage.python;
+  _CodeMode _codeMode = _CodeMode.template;
   int _frame = 0;
   Timer? _timer;
 
@@ -578,9 +615,6 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final entry = mastery300Entries.singleWhere(
-      (entry) => entry.slug == widget.lesson.problemSlug,
-    );
     return Scaffold(
       appBar: AppBar(title: Text(widget.lesson.title)),
       bottomNavigationBar: _view == _LessonView.dryRun
@@ -660,14 +694,16 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    FilledButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        widget.onStartProblem(entry.lesson);
-                      },
-                      icon: const Icon(Icons.arrow_forward),
-                      label: Text('Practice: ${entry.lesson.title}'),
-                    ),
+                    if (widget.onPractice != null &&
+                        widget.lesson.problemSlug != null)
+                      FilledButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          widget.onPractice!(widget.lesson);
+                        },
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text('Try a related problem'),
+                      ),
                   ],
                 ),
               ),
@@ -684,6 +720,12 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
       _heading('The idea'),
       Text(
         widget.lesson.concept,
+        style: const TextStyle(fontSize: 16, height: 1.65),
+      ),
+      const SizedBox(height: 20),
+      _heading('How to recognize it'),
+      Text(
+        widget.lesson.recognize,
         style: const TextStyle(fontSize: 16, height: 1.65),
       ),
       const SizedBox(height: 20),
@@ -707,49 +749,90 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
     ],
   );
 
-  Widget _code(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _heading('Pattern example'),
-      Text(
-        'This is a small teaching example, not a solution for every problem in this pattern.',
-        style: TextStyle(fontSize: 14, color: context.palette.muted),
-      ),
-      const SizedBox(height: 12),
-      Wrap(
-        spacing: 7,
-        runSpacing: 7,
-        children: [
-          for (final language in CodeLanguage.values)
-            ChoiceChip(
-              label: Text(language.label),
-              selected: _language == language,
-              onSelected: (_) => setState(() => _language = language),
-            ),
-        ],
-      ),
-      const SizedBox(height: 12),
-      Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: context.palette.recess,
-          borderRadius: BorderRadius.circular(12),
+  Widget _code(BuildContext context) {
+    final code = _codeMode == _CodeMode.template
+        ? patternTemplates[widget.lesson.title]![_language]!
+        : widget.lesson.code[_language]!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _heading(
+          _codeMode == _CodeMode.template ? 'Reusable template' : 'Worked code',
         ),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SelectableText(
-            widget.lesson.code[_language]!,
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontSize: 15,
-              height: 1.6,
+        Text(
+          _codeMode == _CodeMode.template
+              ? 'Adapt the input, decision, and return value to your problem.'
+              : 'A complete example of this pattern on a small problem.',
+          style: TextStyle(fontSize: 14, color: context.palette.muted),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('Template'),
+              selected: _codeMode == _CodeMode.template,
+              onSelected: (_) => setState(() => _codeMode = _CodeMode.template),
+            ),
+            ChoiceChip(
+              label: const Text('Worked code'),
+              selected: _codeMode == _CodeMode.worked,
+              onSelected: (_) => setState(() => _codeMode = _CodeMode.worked),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 7,
+          runSpacing: 7,
+          children: [
+            for (final language in CodeLanguage.values)
+              ChoiceChip(
+                label: Text(language.label),
+                selected: _language == language,
+                onSelected: (_) => setState(() => _language = language),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: code));
+              if (context.mounted) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Code copied')));
+              }
+            },
+            icon: const Icon(Icons.copy_outlined, size: 18),
+            label: const Text('Copy code'),
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.palette.recess,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SelectableText(
+              code,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 15,
+                height: 1.6,
+              ),
             ),
           ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 
   Widget _dryRun(BuildContext context) {
     final frame = widget.lesson.frames[_frame];

@@ -8,6 +8,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Save the next link before changing the current one.',
     concept:
         'A linked list is held together by references. Reversal changes one arrow at a time while prev keeps the already reversed chain.',
+    recognize:
+        'The input is a chain of nodes, and the task changes, skips, or reorders next links.',
     whenToUse:
         'A problem asks you to reorder nodes in place or move through a chain with constant extra space.',
     watchFor:
@@ -63,6 +65,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Keep only unresolved candidates.',
     concept:
         'A monotonic stack holds indices whose answer has not appeared yet. A warmer temperature resolves every cooler index on top.',
+    recognize:
+        'The prompt asks for the next greater or smaller item, or how long an item waits to be resolved.',
     whenToUse:
         'You need the next greater or smaller value, or an earlier item must wait for a future one.',
     watchFor:
@@ -118,6 +122,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Let each child return a useful answer.',
     concept:
         'A recursive call solves the same question for a smaller subtree. For depth, the parent combines left and right depths with one extra level.',
+    recognize:
+        'The input is a tree and each node asks the same question of its children.',
     whenToUse:
         'The input branches into subtrees and a parent answer can be built from child answers.',
     watchFor:
@@ -164,6 +170,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Share common letter paths.',
     concept:
         'A trie stores one edge per character. Words with the same prefix share nodes, and an end marker distinguishes a full word from a prefix.',
+    recognize:
+        'Many words share beginnings, and the task repeatedly inserts, searches, or checks prefixes.',
     whenToUse:
         'You need many prefix checks, word insertions, or dictionary searches over the same vocabulary.',
     watchFor:
@@ -219,6 +227,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Build one partial answer at a time.',
     concept:
         'Backtracking explores a decision tree. Make a choice, recurse, then undo it before trying the next choice.',
+    recognize:
+        'The prompt asks for all valid arrangements, subsets, paths, or combinations rather than one optimal answer.',
     whenToUse:
         'You must enumerate combinations, subsets, permutations, or valid placements.',
     watchFor:
@@ -274,6 +284,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Discard values that cannot win.',
     concept:
         'A min-heap of size k stores the k largest values seen so far. Its root is the kth largest.',
+    recognize:
+        'You repeatedly need the current smallest or largest candidate, or only the best k items matter.',
     whenToUse:
         'You need a repeated minimum or maximum, or only the best k candidates matter.',
     watchFor:
@@ -329,6 +341,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Resolve prerequisites before dependents.',
     concept:
         'In a directed acyclic graph, nodes with zero incoming edges can be completed now. Removing one may unlock others.',
+    recognize:
+        'Words such as prerequisite, dependency, ordering, or cycle describe directed relationships.',
     whenToUse:
         'The task has prerequisites, dependency order, or asks whether all tasks can be completed.',
     watchFor:
@@ -384,6 +398,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Combine answers from two directions.',
     concept:
         'A two-dimensional DP table records one answer per cell. For grid paths, every route to a cell comes from above or the left.',
+    recognize:
+        'Two changing positions define each subproblem, such as a grid cell or two string prefixes.',
     whenToUse:
         'Two independent indices describe a state, such as row and column or two string prefixes.',
     watchFor:
@@ -439,6 +455,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Keep the best boundary seen so far.',
     concept:
         'At each index, record the farthest position you can reach. If the current index lies past that boundary, no earlier choice can reach it.',
+    recognize:
+        'The task asks for reachability or minimum choices, and one boundary summarizes earlier options.',
     whenToUse:
         'A locally best boundary summarizes all choices made so far, and you can justify why no discarded choice helps.',
     watchFor:
@@ -484,6 +502,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Sort by start, then maintain one open range.',
     concept:
         'Once intervals are sorted by start, only the current merged interval can overlap the next one.',
+    recognize:
+        'Input items are start/end ranges and the output depends on overlap, gaps, or coverage.',
     whenToUse:
         'The input describes ranges of time, positions, or values and asks about overlap or coverage.',
     watchFor:
@@ -532,6 +552,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Equal values cancel bit by bit.',
     concept:
         'XOR is associative and x XOR x equals zero. Pairwise duplicates disappear, leaving the single value.',
+    recognize:
+        'The constraints describe paired duplicates, toggles, parity, or values represented as bits.',
     whenToUse:
         'Values repeat in pairs and one value is unpaired, or a compact mask can represent a set of binary choices.',
     watchFor:
@@ -587,6 +609,8 @@ const extraPatternLessons = <PatternLesson>[
     cue: 'Turn a numeric answer into a boundary search.',
     concept:
         'For nonnegative x, candidate roots whose square is at most x form a monotonic prefix. Find the greatest feasible root.',
+    recognize:
+        'A formula defines a numeric boundary, and the prompt asks for an integer or rounded result.',
     whenToUse:
         'A numeric or geometric condition has a clear formula and a monotonic true/false boundary.',
     watchFor:

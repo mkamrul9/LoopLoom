@@ -597,6 +597,15 @@ class _LearningHomeState extends State<LearningHome> {
     );
   }
 
+  void _openPatternPractice(PatternLesson pattern) {
+    final slug = pattern.problemSlug;
+    if (slug == null) return;
+    final related = mastery300Entries
+        .where((entry) => entry.slug == slug)
+        .firstOrNull;
+    if (related != null) openLesson(related.lesson);
+  }
+
   void openAttempt(SessionController session) {
     final onOpenAttempt = widget.onOpenAttempt;
     if (onOpenAttempt != null) {
@@ -809,7 +818,9 @@ class _LearningHomeState extends State<LearningHome> {
                               child: selected == 0
                                   ? _learn(wide)
                                   : selected == 1
-                                  ? PatternLibrary(onStartProblem: openLesson)
+                                  ? PatternLibrary(
+                                      onPractice: _openPatternPractice,
+                                    )
                                   : selected == 2
                                   ? _roadmaps()
                                   : _history(),

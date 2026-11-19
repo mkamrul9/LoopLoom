@@ -36,7 +36,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 ## What is in the app
 
 - **Guided interview practice** across five checkpoints: Understand, Approach, Trace, Code, and Reflect.
-- **Pattern lessons:** The Patterns tab covers all 18 families in the 300-problem roadmap through concise concepts, C++/Python/JavaScript/TypeScript examples, and animated, controllable dry runs. Visual traces show changing arrays, links, stacks, trees, graphs, grids, intervals, and bit state. Each lesson opens a related practice problem.
+- **Learn patterns:** A standalone learning section with 18 foundational lessons. Each explains the idea, how to recognize it, when to use it, and common pitfalls; it offers reusable templates and worked code in C++, Python, JavaScript, and TypeScript. Controllable animated dry runs show changing arrays, links, stacks, trees, graphs, grids, intervals, and bit state. Learners can study any lesson without choosing a problem roadmap; a related problem is optional practice.
 - **Interview study paths:** Starter 30, Blind 75, Interview Mastery 300, a one-week prep list, and a last-day review list, organized around interview patterns and phases.
 - **Optional starting-point setup** for experience, target role, practice language, time goal, and interview date. An eight-scenario pattern check can refine a suggested path on Home; it does not change the selected roadmap or restrict any path.
 - **Feedback and contact** from the app menu or settings, with bug, idea, and question email drafts addressed to `cdkamrul9@gmail.com`. The learner reviews and sends the email in their own mail app.

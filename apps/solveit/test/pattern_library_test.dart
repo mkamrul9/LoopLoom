@@ -7,18 +7,27 @@ import 'package:looploom/features/coaching/session_controller.dart';
 import 'package:looploom/features/patterns/pattern_library.dart';
 
 void main() {
-  test('every pattern lesson has a valid example and practice problem', () {
-    final slugs = mastery300Entries.map((entry) => entry.slug).toSet();
-    final categories = mastery300Seeds.map((seed) => seed.pattern).toSet();
-    expect(patternLessons.length, categories.length);
-    expect(patternLessons.map((lesson) => lesson.category).toSet(), categories);
+  test('the standalone learning curriculum covers its own families', () {
+    expect(patternLessons.length, patternLearningFamilies.length);
+    expect(
+      patternLessons.map((lesson) => lesson.category).toSet(),
+      patternLearningFamilies.toSet(),
+    );
     expect(
       patternLessons.map((lesson) => lesson.title).toSet().length,
       patternLessons.length,
     );
+    expect(
+      patternTemplates.keys.toSet(),
+      patternLessons.map((lesson) => lesson.title).toSet(),
+    );
     for (final lesson in patternLessons) {
-      expect(slugs, contains(lesson.problemSlug));
+      expect(lesson.recognize, isNotEmpty);
       expect(lesson.code.keys.toSet(), CodeLanguage.values.toSet());
+      expect(
+        patternTemplates[lesson.title]!.keys.toSet(),
+        CodeLanguage.values.toSet(),
+      );
       expect(lesson.frames, isNotEmpty);
       for (final frame in lesson.frames) {
         expect(frame.state, isNotEmpty);
@@ -27,6 +36,13 @@ void main() {
           expect(index, inInclusiveRange(0, lesson.tokens.length - 1));
         }
       }
+    }
+  });
+
+  test('optional practice links resolve in the shared problem catalog', () {
+    final slugs = mastery300Entries.map((entry) => entry.slug).toSet();
+    for (final lesson in patternLessons) {
+      expect(slugs, contains(lesson.problemSlug));
     }
   });
 
@@ -43,12 +59,12 @@ void main() {
           home: PatternLessonScreen(
             key: ValueKey(lesson.category),
             lesson: lesson,
-            onStartProblem: (_) {},
           ),
         ),
       );
       await tester.tap(find.text('Dry run'));
       await tester.pumpAndSettle();
+      expect(find.text('Try a related problem'), findsNothing);
       expect(find.byKey(const Key('pattern-diagram')), findsOneWidget);
       expect(find.text(lesson.frames.first.state), findsOneWidget);
       await tester.ensureVisible(find.text('Next'));
@@ -78,6 +94,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Hash map lookup'));
     await tester.pumpAndSettle();
+    expect(find.text('How to recognize it'), findsOneWidget);
     await tester.tap(find.text('Dry run'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Start at 2'), findsOneWidget);
@@ -91,12 +108,17 @@ void main() {
     await tester.tap(find.text('TypeScript'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Map<number, number>'), findsOneWidget);
+    expect(find.text('Reusable template'), findsOneWidget);
+    expect(find.text('Copy code'), findsOneWidget);
+    await tester.tap(find.text('Worked code'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('function twoSum'), findsOneWidget);
     await tester.scrollUntilVisible(
-      find.text('Practice: The supply pair'),
+      find.text('Try a related problem'),
       250,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Practice: The supply pair'));
+    await tester.tap(find.text('Try a related problem'));
     await tester.pumpAndSettle();
     expect(find.text('The supply pair'), findsWidgets);
     expect(tester.takeException(), isNull);
@@ -111,9 +133,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final lesson = patternLessons.first;
     await tester.pumpWidget(
-      MaterialApp(
-        home: PatternLessonScreen(lesson: lesson, onStartProblem: (_) {}),
-      ),
+      MaterialApp(home: PatternLessonScreen(lesson: lesson)),
     );
     await tester.tap(find.text('Dry run'));
     await tester.pumpAndSettle();
@@ -140,9 +160,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: SingleChildScrollView(
-            child: PatternLibrary(onStartProblem: (_) {}),
-          ),
+          body: SingleChildScrollView(child: const PatternLibrary()),
         ),
       ),
     );
