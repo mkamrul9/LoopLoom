@@ -6,15 +6,43 @@ import '../../data/mastery300_curriculum.dart';
 import '../../domain/lesson.dart';
 import '../../ui/looploom_theme.dart';
 
+part 'pattern_lessons_extra.dart';
+part 'pattern_diagram.dart';
+
+enum PatternVisual {
+  sequence,
+  links,
+  stack,
+  tree,
+  trie,
+  branches,
+  heap,
+  graph,
+  grid,
+  intervals,
+  bits,
+  numberLine,
+}
+
 class PatternFrame {
-  const PatternFrame(this.title, this.note, this.active);
+  const PatternFrame(
+    this.title,
+    this.note,
+    this.active, {
+    this.state = '',
+    this.display = const [],
+  });
   final String title;
   final String note;
   final List<int> active;
+  final String state;
+  final List<String> display;
 }
 
 class PatternLesson {
   const PatternLesson({
+    required this.category,
+    required this.visual,
     required this.title,
     required this.cue,
     required this.concept,
@@ -27,7 +55,15 @@ class PatternLesson {
     required this.code,
   });
 
-  final String title, cue, concept, whenToUse, watchFor, example, problemSlug;
+  final String category,
+      title,
+      cue,
+      concept,
+      whenToUse,
+      watchFor,
+      example,
+      problemSlug;
+  final PatternVisual visual;
   final List<String> tokens;
   final List<PatternFrame> frames;
   final Map<CodeLanguage, String> code;
@@ -35,6 +71,8 @@ class PatternLesson {
 
 const patternLessons = <PatternLesson>[
   PatternLesson(
+    category: 'Arrays & hashing',
+    visual: PatternVisual.sequence,
     title: 'Hash map lookup',
     cue: 'Remember what you have already seen.',
     concept:
@@ -51,15 +89,20 @@ const patternLessons = <PatternLesson>[
         'Start at 2',
         'Need 7. The map is empty, so save 2 at index 0.',
         [0],
+        state: 'seen: {2 → 0} · need: 7',
       ),
-      PatternFrame('Move to 7', 'Need 2. The map already has 2 at index 0.', [
-        0,
-        1,
-      ]),
-      PatternFrame('Return the pair', 'Indices 0 and 1 give 2 + 7 = 9.', [
-        0,
-        1,
-      ]),
+      PatternFrame(
+        'Move to 7',
+        'Need 2. The map already has 2 at index 0.',
+        [0, 1],
+        state: 'seen: {2 → 0} · need: 2 · found',
+      ),
+      PatternFrame(
+        'Return the pair',
+        'Indices 0 and 1 give 2 + 7 = 9.',
+        [0, 1],
+        state: 'answer: [0, 1]',
+      ),
     ],
     code: {
       CodeLanguage.python:
@@ -73,6 +116,8 @@ const patternLessons = <PatternLesson>[
     },
   ),
   PatternLesson(
+    category: 'Two pointers',
+    visual: PatternVisual.sequence,
     title: 'Two pointers',
     cue: 'Move the boundary that can improve the answer.',
     concept:
@@ -89,14 +134,26 @@ const patternLessons = <PatternLesson>[
         'Start at both ends',
         '1 + 9 = 10. Too small: move the left pointer right.',
         [0, 4],
+        state: 'left = 0 · right = 4 · sum = 10',
       ),
       PatternFrame(
         'Compare again',
         '3 + 9 = 12. Too large: move the right pointer left.',
         [1, 4],
+        state: 'left = 1 · right = 4 · sum = 12',
       ),
-      PatternFrame('Narrow the range', '3 + 7 = 10. Move left again.', [1, 3]),
-      PatternFrame('Match', '4 + 7 = 11. Return this pair.', [2, 3]),
+      PatternFrame(
+        'Narrow the range',
+        '3 + 7 = 10. Move left again.',
+        [1, 3],
+        state: 'left = 1 · right = 3 · sum = 10',
+      ),
+      PatternFrame(
+        'Match',
+        '4 + 7 = 11. Return this pair.',
+        [2, 3],
+        state: 'left = 2 · right = 3 · sum = 11',
+      ),
     ],
     code: {
       CodeLanguage.python:
@@ -110,6 +167,8 @@ const patternLessons = <PatternLesson>[
     },
   ),
   PatternLesson(
+    category: 'Sliding window',
+    visual: PatternVisual.sequence,
     title: 'Sliding window',
     cue: 'Update a range instead of rebuilding it.',
     concept:
@@ -123,21 +182,29 @@ const patternLessons = <PatternLesson>[
     problemSlug: 'maximum-average-subarray-i',
     tokens: ['2', '1', '5', '1', '3', '2'],
     frames: [
-      PatternFrame('First window', '2 + 1 + 5 = 8. Best is 8.', [0, 1, 2]),
-      PatternFrame('Slide right', 'Remove 2, add 1: sum is 7. Best stays 8.', [
-        1,
-        2,
-        3,
-      ]),
+      PatternFrame(
+        'First window',
+        '2 + 1 + 5 = 8. Best is 8.',
+        [0, 1, 2],
+        state: 'window sum = 8 · best = 8',
+      ),
+      PatternFrame(
+        'Slide right',
+        'Remove 2, add 1: sum is 7. Best stays 8.',
+        [1, 2, 3],
+        state: 'window sum = 7 · best = 8',
+      ),
       PatternFrame(
         'Slide again',
         'Remove 1, add 3: sum is 9. Best becomes 9.',
         [2, 3, 4],
+        state: 'window sum = 9 · best = 9',
       ),
       PatternFrame(
         'Last window',
         'Remove 5, add 2: sum is 6. Best sum 9 gives average 9 / 3 = 3.',
         [3, 4, 5],
+        state: 'window sum = 6 · best average = 3',
       ),
     ],
     code: {
@@ -152,6 +219,8 @@ const patternLessons = <PatternLesson>[
     },
   ),
   PatternLesson(
+    category: 'Binary search',
+    visual: PatternVisual.numberLine,
     title: 'Binary search',
     cue: 'Discard half using a monotonic rule.',
     concept:
@@ -168,16 +237,19 @@ const patternLessons = <PatternLesson>[
         'Check the middle',
         'Low 0, high 5, middle 2: value 5 is too small.',
         [0, 2, 5],
+        state: 'low = 0 · mid = 2 · high = 5',
       ),
       PatternFrame(
         'Discard the left half',
         'Low becomes 3. Middle 4 has value 9.',
         [3, 4, 5],
+        state: 'low = 3 · mid = 4 · high = 5',
       ),
       PatternFrame(
         'Found',
         'Return index 4. No other positions need checking.',
         [4],
+        state: 'answer = index 4',
       ),
     ],
     code: {
@@ -192,6 +264,8 @@ const patternLessons = <PatternLesson>[
     },
   ),
   PatternLesson(
+    category: 'Graphs',
+    visual: PatternVisual.graph,
     title: 'Graph traversal',
     cue: 'Visit each reachable state once.',
     concept:
@@ -204,17 +278,33 @@ const patternLessons = <PatternLesson>[
     problemSlug: 'number-of-islands',
     tokens: ['A', 'B', 'C', 'D', 'E'],
     frames: [
-      PatternFrame('Start', 'Queue [A]; mark A visited.', [0]),
-      PatternFrame('Expand A', 'Add B and C to the queue. Visit order: A.', [
-        1,
-        2,
-      ]),
-      PatternFrame('Expand B', 'Add D. Visit order: A, B.', [1, 3]),
-      PatternFrame('Expand C', 'Add E. Visit order: A, B, C.', [2, 4]),
-      PatternFrame('Finish', 'After D and E, BFS order is A, B, C, D, E.', [
-        3,
-        4,
-      ]),
+      PatternFrame('Start', 'Queue [A]; mark A visited.', [
+        0,
+      ], state: 'queue: [A] · seen: {A}'),
+      PatternFrame(
+        'Expand A',
+        'Add B and C to the queue. Visit order: A.',
+        [1, 2],
+        state: 'queue: [B, C] · order: [A]',
+      ),
+      PatternFrame(
+        'Expand B',
+        'Add D. Visit order: A, B.',
+        [1, 3],
+        state: 'queue: [C, D] · order: [A, B]',
+      ),
+      PatternFrame(
+        'Expand C',
+        'Add E. Visit order: A, B, C.',
+        [2, 4],
+        state: 'queue: [D, E] · order: [A, B, C]',
+      ),
+      PatternFrame(
+        'Finish',
+        'After D and E, BFS order is A, B, C, D, E.',
+        [3, 4],
+        state: 'queue: [] · order: [A, B, C, D, E]',
+      ),
     ],
     code: {
       CodeLanguage.python:
@@ -228,6 +318,8 @@ const patternLessons = <PatternLesson>[
     },
   ),
   PatternLesson(
+    category: '1-D dynamic programming',
+    visual: PatternVisual.sequence,
     title: 'Dynamic programming',
     cue: 'Reuse answers to smaller states.',
     concept:
@@ -240,11 +332,30 @@ const patternLessons = <PatternLesson>[
     problemSlug: 'climbing-stairs',
     tokens: ['0', '1', '2', '3', '4', '5'],
     frames: [
-      PatternFrame('Base cases', 'Ways(0) = 1 and ways(1) = 1.', [0, 1]),
-      PatternFrame('Stair 2', 'Ways(2) = ways(1) + ways(0) = 2.', [0, 1, 2]),
-      PatternFrame('Stair 3', 'Ways(3) = 2 + 1 = 3.', [1, 2, 3]),
-      PatternFrame('Stair 4', 'Ways(4) = 3 + 2 = 5.', [2, 3, 4]),
-      PatternFrame('Stair 5', 'Ways(5) = 5 + 3 = 8.', [3, 4, 5]),
+      PatternFrame('Base cases', 'Ways(0) = 1 and ways(1) = 1.', [
+        0,
+        1,
+      ], state: 'ways: [1, 1]'),
+      PatternFrame('Stair 2', 'Ways(2) = ways(1) + ways(0) = 2.', [
+        0,
+        1,
+        2,
+      ], state: 'ways: [1, 1, 2]'),
+      PatternFrame('Stair 3', 'Ways(3) = 2 + 1 = 3.', [
+        1,
+        2,
+        3,
+      ], state: 'ways: [1, 1, 2, 3]'),
+      PatternFrame('Stair 4', 'Ways(4) = 3 + 2 = 5.', [
+        2,
+        3,
+        4,
+      ], state: 'ways: [1, 1, 2, 3, 5]'),
+      PatternFrame('Stair 5', 'Ways(5) = 5 + 3 = 8.', [
+        3,
+        4,
+        5,
+      ], state: 'ways: [1, 1, 2, 3, 5, 8]'),
     ],
     code: {
       CodeLanguage.python:
@@ -257,101 +368,156 @@ const patternLessons = <PatternLesson>[
           'function climbStairs(n: number): number {\n  let previous = 1, current = 1;\n  for (let step = 2; step <= n; step++) {\n    [previous, current] = [current, previous + current];\n  }\n  return current;\n}',
     },
   ),
+  ...extraPatternLessons,
 ];
 
-class PatternLibrary extends StatelessWidget {
+class PatternLibrary extends StatefulWidget {
   const PatternLibrary({super.key, required this.onStartProblem});
   final void Function(Lesson) onStartProblem;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text('PATTERN LIBRARY', style: noteLabel),
-      const SizedBox(height: 12),
-      const Text(
-        'Learn the move.',
-        style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        'One idea at a time. Read it, watch the dry run, then try a problem.',
-        style: TextStyle(
-          fontSize: 16,
-          height: 1.5,
-          color: context.palette.muted,
+  State<PatternLibrary> createState() => _PatternLibraryState();
+}
+
+class _PatternLibraryState extends State<PatternLibrary> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final query = _query.trim().toLowerCase();
+    final shown = patternLessons
+        .where(
+          (lesson) =>
+              query.isEmpty ||
+              '${lesson.category} ${lesson.title} ${lesson.cue}'
+                  .toLowerCase()
+                  .contains(query),
+        )
+        .toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('PATTERN LIBRARY', style: noteLabel),
+        const SizedBox(height: 12),
+        const Text(
+          'Learn the move.',
+          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
         ),
-      ),
-      const SizedBox(height: 22),
-      LayoutBuilder(
-        builder: (context, constraints) {
-          final columns = constraints.maxWidth >= 680 ? 2 : 1;
-          final width = (constraints.maxWidth - (columns - 1) * 12) / columns;
-          return Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (final pattern in patternLessons)
-                SizedBox(
-                  width: width,
-                  child: Card(
-                    margin: EdgeInsets.zero,
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => PatternLessonScreen(
-                            lesson: pattern,
-                            onStartProblem: onStartProblem,
+        const SizedBox(height: 8),
+        Text(
+          '${patternLessons.length} interview patterns. Learn the idea, watch it move, then try a problem.',
+          style: TextStyle(
+            fontSize: 16,
+            height: 1.5,
+            color: context.palette.muted,
+          ),
+        ),
+        const SizedBox(height: 22),
+        TextField(
+          key: const Key('pattern-search'),
+          controller: _searchController,
+          onChanged: (value) => setState(() => _query = value),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: _query.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear pattern search',
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() => _query = '');
+                    },
+                  ),
+            hintText: 'Find a pattern',
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 18),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 680 ? 2 : 1;
+            final width = (constraints.maxWidth - (columns - 1) * 12) / columns;
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                for (final pattern in shown)
+                  SizedBox(
+                    width: width,
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => PatternLessonScreen(
+                                lesson: pattern,
+                                onStartProblem: widget.onStartProblem,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                pattern.category.toUpperCase(),
+                                style: noteLabel,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                pattern.title,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                pattern.cue,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: context.palette.muted,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Concept · Code · Dry run',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: context.palette.accent,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.account_tree_outlined,
-                              color: context.palette.accent,
-                              size: 24,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              pattern.title,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              pattern.cue,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: context.palette.muted,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Concept · Code · Dry run',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: context.palette.accent,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          );
-        },
-      ),
-    ],
-  );
+              ],
+            );
+          },
+        ),
+        if (shown.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 32),
+            child: Text('No matching pattern. Try another term.'),
+          ),
+      ],
+    );
+  }
 }
 
 enum _LessonView { concept, code, dryRun }
@@ -417,63 +583,93 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
     );
     return Scaffold(
       appBar: AppBar(title: Text(widget.lesson.title)),
+      bottomNavigationBar: _view == _LessonView.dryRun
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 9, 16, 9),
+                child: Center(
+                  heightFactor: 1,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 760),
+                    child: _controls(),
+                  ),
+                ),
+              ),
+            )
+          : null,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 22, 20, 36),
+          child: Column(
             children: [
-              Text(
-                widget.lesson.cue,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.lesson.cue,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Concept'),
+                          selected: _view == _LessonView.concept,
+                          onSelected: (_) => _setView(_LessonView.concept),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Code'),
+                          selected: _view == _LessonView.code,
+                          onSelected: (_) => _setView(_LessonView.code),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Dry run'),
+                          selected: _view == _LessonView.dryRun,
+                          onSelected: (_) => _setView(_LessonView.dryRun),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 18),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ChoiceChip(
-                    label: const Text('Concept'),
-                    selected: _view == _LessonView.concept,
-                    onSelected: (_) => _setView(_LessonView.concept),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Code'),
-                    selected: _view == _LessonView.code,
-                    onSelected: (_) => _setView(_LessonView.code),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Dry run'),
-                    selected: _view == _LessonView.dryRun,
-                    onSelected: (_) => _setView(_LessonView.dryRun),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              AnimatedSwitcher(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 220),
-                child: KeyedSubtree(
+              const Divider(height: 1),
+              Expanded(
+                child: ListView(
                   key: ValueKey(_view),
-                  child: switch (_view) {
-                    _LessonView.concept => _concept(context),
-                    _LessonView.code => _code(context),
-                    _LessonView.dryRun => _dryRun(context),
-                  },
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
+                  children: [
+                    AnimatedSwitcher(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 220),
+                      child: KeyedSubtree(
+                        key: ValueKey(_view),
+                        child: switch (_view) {
+                          _LessonView.concept => _concept(context),
+                          _LessonView.code => _code(context),
+                          _LessonView.dryRun => _dryRun(context),
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        widget.onStartProblem(entry.lesson);
+                      },
+                      icon: const Icon(Icons.arrow_forward),
+                      label: Text('Practice: ${entry.lesson.title}'),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  widget.onStartProblem(entry.lesson);
-                },
-                icon: const Icon(Icons.arrow_forward),
-                label: Text('Practice: ${entry.lesson.title}'),
               ),
             ],
           ),
@@ -566,40 +762,7 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
           style: const TextStyle(fontSize: 16, height: 1.6),
         ),
         const SizedBox(height: 18),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final (index, token) in widget.lesson.tokens.indexed)
-              AnimatedContainer(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 260),
-                width: 46,
-                height: 46,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: frame.active.contains(index)
-                      ? context.palette.accentWash
-                      : context.palette.sheet,
-                  border: Border.all(
-                    color: frame.active.contains(index)
-                        ? context.palette.accent
-                        : context.palette.line,
-                    width: frame.active.contains(index) ? 2 : 1,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  token,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-          ],
-        ),
+        PatternDiagram(lesson: widget.lesson, frame: frame, frameIndex: _frame),
         const SizedBox(height: 18),
         LinearProgressIndicator(
           value: (_frame + 1) / widget.lesson.frames.length,
@@ -628,41 +791,41 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          children: [
-            OutlinedButton.icon(
-              onPressed: _frame == 0 ? null : () => _move(_frame - 1),
-              icon: const Icon(Icons.arrow_back, size: 17),
-              label: const Text('Back'),
-            ),
-            FilledButton.tonalIcon(
-              onPressed: _play,
-              icon: Icon(
-                _timer?.isActive == true ? Icons.pause : Icons.play_arrow,
-                size: 18,
-              ),
-              label: Text(
-                _timer?.isActive == true
-                    ? 'Pause'
-                    : _frame == widget.lesson.frames.length - 1
-                    ? 'Replay'
-                    : 'Play',
-              ),
-            ),
-            OutlinedButton.icon(
-              onPressed: _frame == widget.lesson.frames.length - 1
-                  ? null
-                  : () => _move(_frame + 1),
-              icon: const Icon(Icons.arrow_forward, size: 17),
-              label: const Text('Next'),
-            ),
-          ],
-        ),
       ],
     );
   }
+
+  Widget _controls() => Wrap(
+    spacing: 8,
+    children: [
+      OutlinedButton.icon(
+        onPressed: _frame == 0 ? null : () => _move(_frame - 1),
+        icon: const Icon(Icons.arrow_back, size: 17),
+        label: const Text('Back'),
+      ),
+      FilledButton.tonalIcon(
+        onPressed: _play,
+        icon: Icon(
+          _timer?.isActive == true ? Icons.pause : Icons.play_arrow,
+          size: 18,
+        ),
+        label: Text(
+          _timer?.isActive == true
+              ? 'Pause'
+              : _frame == widget.lesson.frames.length - 1
+              ? 'Replay'
+              : 'Play',
+        ),
+      ),
+      OutlinedButton.icon(
+        onPressed: _frame == widget.lesson.frames.length - 1
+            ? null
+            : () => _move(_frame + 1),
+        icon: const Icon(Icons.arrow_forward, size: 17),
+        label: const Text('Next'),
+      ),
+    ],
+  );
 
   Widget _heading(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 7),
