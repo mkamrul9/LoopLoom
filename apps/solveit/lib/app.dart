@@ -18,6 +18,7 @@ import 'domain/lesson.dart';
 import 'features/coaching/interview_diagnostic_screen.dart';
 import 'features/coaching/practice_screen.dart';
 import 'features/coaching/session_controller.dart';
+import 'features/patterns/pattern_library.dart';
 import 'ui/looploom_theme.dart';
 import 'ui/save_status.dart';
 import 'ui/takeaway_dialog.dart';
@@ -89,9 +90,10 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
     if (identical(_routerStore, store) && _router != null) return _router!;
     _router?.dispose();
     _routerStore = store;
-    const tabLocations = ['/learn', '/roadmaps', '/history'];
+    const tabLocations = ['/learn', '/patterns', '/roadmaps', '/history'];
     const practiceNames = [
       'practice-learn',
+      'practice-patterns',
       'practice-roadmaps',
       'practice-history',
     ];
@@ -133,13 +135,18 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
         ShellRoute(
           builder: (context, state, child) {
             final path = state.uri.path;
-            final selected = path.startsWith('/roadmaps')
+            final selected = path.startsWith('/patterns')
                 ? 1
-                : path.startsWith('/history')
+                : path.startsWith('/roadmaps')
                 ? 2
+                : path.startsWith('/history')
+                ? 3
                 : 0;
             final isTabRoot =
-                path == '/learn' || path == '/roadmaps' || path == '/history';
+                path == '/learn' ||
+                path == '/patterns' ||
+                path == '/roadmaps' ||
+                path == '/history';
             return LearningHome(
               store: store,
               closeStoreOnDispose: false,
@@ -169,14 +176,19 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
               routes: [practiceRoute(practiceNames[0])],
             ),
             GoRoute(
-              path: '/roadmaps',
+              path: '/patterns',
               builder: (_, _) => const SizedBox.shrink(),
               routes: [practiceRoute(practiceNames[1])],
             ),
             GoRoute(
-              path: '/history',
+              path: '/roadmaps',
               builder: (_, _) => const SizedBox.shrink(),
               routes: [practiceRoute(practiceNames[2])],
+            ),
+            GoRoute(
+              path: '/history',
+              builder: (_, _) => const SizedBox.shrink(),
+              routes: [practiceRoute(practiceNames[3])],
             ),
             GoRoute(
               path: '/diagnostic',
@@ -758,6 +770,10 @@ class _LearningHomeState extends State<LearningHome> {
                           label: Text('Today'),
                         ),
                         NavigationRailDestination(
+                          icon: Icon(Icons.account_tree_outlined),
+                          label: Text('Patterns'),
+                        ),
+                        NavigationRailDestination(
                           icon: Icon(Icons.route_outlined),
                           label: Text('Problems'),
                         ),
@@ -793,6 +809,8 @@ class _LearningHomeState extends State<LearningHome> {
                               child: selected == 0
                                   ? _learn(wide)
                                   : selected == 1
+                                  ? PatternLibrary(onStartProblem: openLesson)
+                                  : selected == 2
                                   ? _roadmaps()
                                   : _history(),
                             ),
@@ -818,6 +836,10 @@ class _LearningHomeState extends State<LearningHome> {
                           NavigationDestination(
                             icon: Icon(Icons.auto_stories_outlined),
                             label: 'Today',
+                          ),
+                          NavigationDestination(
+                            icon: Icon(Icons.account_tree_outlined),
+                            label: 'Patterns',
                           ),
                           NavigationDestination(
                             icon: Icon(Icons.route_outlined),
@@ -1063,7 +1085,7 @@ class _LearningHomeState extends State<LearningHome> {
                 runSpacing: 8,
                 children: [
                   FilledButton.tonalIcon(
-                    onPressed: () => _selectTab(1),
+                    onPressed: () => _selectTab(2),
                     icon: const Icon(Icons.route_outlined, size: 18),
                     label: const Text('Browse problems'),
                   ),
@@ -1250,7 +1272,7 @@ class _LearningHomeState extends State<LearningHome> {
         OutlinedButton.icon(
           onPressed: () {
             _selectTrack(suggestion.trackIndex);
-            _selectTab(1);
+            _selectTab(2);
           },
           icon: const Icon(Icons.route_outlined),
           label: const Text('Explore path'),
