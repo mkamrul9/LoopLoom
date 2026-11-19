@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
 
 import '../../ui/looploom_theme.dart';
-import 'sql_course.dart';
 
-class SqlTraceView extends StatelessWidget {
-  const SqlTraceView({
+class EssentialsTraceView extends StatelessWidget {
+  const EssentialsTraceView({
     super.key,
-    required this.lesson,
+    required this.input,
+    required this.active,
+    required this.output,
     required this.stepIndex,
+    required this.stepCount,
   });
-  final SqlLesson lesson;
+  final List<String> input;
+  final List<int> active;
+  final List<String> output;
   final int stepIndex;
+  final int stepCount;
 
   @override
   Widget build(BuildContext context) {
-    final step = lesson.trace[stepIndex];
     final duration = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
         : const Duration(milliseconds: 360);
-    final progress = lesson.trace.length == 1
-        ? 1.0
-        : stepIndex / (lesson.trace.length - 1);
+    final progress = stepCount == 1 ? 1.0 : stepIndex / (stepCount - 1);
     return Container(
-      key: const Key('sql-trace'),
+      key: const Key('essentials-trace'),
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
@@ -38,11 +40,11 @@ class SqlTraceView extends StatelessWidget {
             style: noteLabel.copyWith(color: context.palette.muted),
           ),
           const SizedBox(height: 10),
-          for (final (index, row) in lesson.traceInput.indexed)
+          for (final (index, row) in input.indexed)
             Padding(
               padding: const EdgeInsets.only(bottom: 7),
               child: AnimatedContainer(
-                key: Key('sql-input-$index'),
+                key: Key('essentials-input-$index'),
                 duration: duration,
                 curve: Curves.easeInOutCubic,
                 padding: const EdgeInsets.symmetric(
@@ -50,14 +52,14 @@ class SqlTraceView extends StatelessWidget {
                   vertical: 9,
                 ),
                 decoration: BoxDecoration(
-                  color: step.active.contains(index)
+                  color: active.contains(index)
                       ? context.palette.accentWash
                       : context.palette.sheet,
                   border: Border.all(
-                    color: step.active.contains(index)
+                    color: active.contains(index)
                         ? context.palette.accent
                         : context.palette.line,
-                    width: step.active.contains(index) ? 2 : 1,
+                    width: active.contains(index) ? 2 : 1,
                   ),
                   borderRadius: BorderRadius.circular(9),
                 ),
@@ -123,10 +125,10 @@ class SqlTraceView extends StatelessWidget {
                 ),
               ),
               child: Column(
-                key: ValueKey('sql-result-$stepIndex'),
+                key: ValueKey('essentials-result-$stepIndex'),
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (final row in step.output)
+                  for (final row in output)
                     Container(
                       margin: const EdgeInsets.only(bottom: 6),
                       padding: const EdgeInsets.symmetric(

@@ -7,7 +7,7 @@ import '../../features/coaching/session_controller.dart';
 import '../../ui/looploom_theme.dart';
 import '../../ui/readable_surface.dart';
 import 'sql_course.dart';
-import 'sql_trace_view.dart';
+import 'essentials_trace_view.dart';
 
 class SqlLessonScreen extends StatefulWidget {
   const SqlLessonScreen({super.key, required this.lesson, required this.store});
@@ -154,7 +154,13 @@ class _SqlLessonScreenState extends State<SqlLessonScreen>
             const SizedBox(height: 5),
             _body(widget.lesson.trace[_step].explanation),
             const SizedBox(height: 18),
-            SqlTraceView(lesson: widget.lesson, stepIndex: _step),
+            EssentialsTraceView(
+              input: widget.lesson.traceInput,
+              active: widget.lesson.trace[_step].active,
+              output: widget.lesson.trace[_step].output,
+              stepIndex: _step,
+              stepCount: widget.lesson.trace.length,
+            ),
           ]),
           _panel([
             _label('IN A REAL APPLICATION'),

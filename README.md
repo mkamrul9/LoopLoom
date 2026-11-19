@@ -37,7 +37,7 @@ The coach asks for the next step instead of revealing a complete solution by def
 
 - **Guided interview practice** across five checkpoints: Understand, Approach, Trace, Code, and Reflect.
 - **Learn patterns:** A standalone learning section with 18 foundational lessons. Each explains the idea, how to recognize it, when to use it, and common pitfalls; it offers reusable templates and worked code in C++, Python, JavaScript, and TypeScript. Controllable animated dry runs show changing arrays, links, stacks, trees, graphs, grids, intervals, and bit state. Learners can study any lesson without choosing a problem roadmap; a related problem is optional practice.
-- **Software Essentials:** A separate 21-lesson database and SQL course across six units, using one small shop example. Each lesson covers the concept, purpose, use case, SQLite syntax, expected result, application code, an alternative approach, a pitfall, an interactive visual trace, and a short understanding check. Completion is saved locally and included in workbook backups. The traces are authored illustrations; they do not execute SQL.
+- **Software Essentials:** Three independent courses with 53 lessons: Databases & SQL (21), Backend Engineering (16), and Frontend Engineering (16). A small shop example connects data, APIs, and browser UI. Each lesson explains what, why, when, and how; includes code and a software use case; offers a controllable illustrated trace and a short check. Course progress is saved locally and included in workbook backups. The traces illustrate examples; they do not execute code.
 - **Interview study paths:** Starter 30, Blind 75, Interview Mastery 300, a one-week prep list, and a last-day review list, organized around interview patterns and phases.
 - **Optional starting-point setup** for experience, target role, practice language, time goal, and interview date. An eight-scenario pattern check can refine a suggested path on Home; it does not change the selected roadmap or restrict any path.
 - **Feedback and contact** from the app menu or settings, with bug, idea, and question email drafts addressed to `cdkamrul9@gmail.com`. The learner reviews and sends the email in their own mail app.
@@ -105,6 +105,7 @@ scripts/            Local development helpers and brand asset generator
 Useful guides:
 
 - [Product roadmap](docs/PRODUCT_ROADMAP.md)
+- [Software Essentials course scope](docs/SOFTWARE_ESSENTIALS.md)
 - [Architecture and data model](docs/ARCHITECTURE.md)
 - [UX and visual direction](docs/UX_SPEC.md)
 - [LoopLoom brand and color palettes](docs/LOOPLOOM_BRAND.md)

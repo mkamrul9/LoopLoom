@@ -19,6 +19,9 @@ import 'features/coaching/interview_diagnostic_screen.dart';
 import 'features/coaching/practice_screen.dart';
 import 'features/coaching/session_controller.dart';
 import 'features/essentials/software_essentials.dart';
+import 'features/essentials/essentials_catalog.dart';
+import 'features/essentials/engineering_course.dart';
+import 'features/essentials/engineering_lesson_screen.dart';
 import 'features/essentials/sql_course.dart';
 import 'features/essentials/sql_lesson_screen.dart';
 import 'features/patterns/pattern_library.dart';
@@ -175,9 +178,16 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
                 pathParameters: {'lessonId': session.lesson.id},
                 queryParameters: {'attempt': session.id},
               ),
-              onOpenSqlLesson: (lesson) => context.pushNamed(
-                'sql-lesson',
-                pathParameters: {'lessonId': lesson.id},
+              onOpenEssentialsCourse: (course) => context.pushNamed(
+                'essentials-course',
+                pathParameters: {'courseId': course.id},
+              ),
+              onOpenEssentialsLesson: (courseId, lessonId) => context.pushNamed(
+                courseId == 'sql' ? 'sql-lesson' : 'engineering-lesson',
+                pathParameters: {
+                  'lessonId': lessonId,
+                  if (courseId != 'sql') 'courseId': courseId,
+                },
               ),
               onOpenDiagnostic: () => context.pushNamed<Lesson>('diagnostic'),
               onOpenOnboarding: () => context.pushNamed<bool>('onboarding'),
@@ -203,6 +213,37 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
               routes: [
                 practiceRoute(practiceNames[2]),
                 GoRoute(
+                  path: 'course/:courseId',
+                  name: 'essentials-course',
+                  pageBuilder: (context, state) {
+                    final course = essentialsCourses
+                        .where(
+                          (item) => item.id == state.pathParameters['courseId'],
+                        )
+                        .firstOrNull;
+                    return _studyPage<void>(
+                      state,
+                      course == null
+                          ? const _RouteNotFound()
+                          : EssentialsCourseScreen(
+                              course: course,
+                              store: store,
+                              onOpenLesson: (courseId, lessonId) =>
+                                  context.pushNamed(
+                                    courseId == 'sql'
+                                        ? 'sql-lesson'
+                                        : 'engineering-lesson',
+                                    pathParameters: {
+                                      'lessonId': lessonId,
+                                      if (courseId != 'sql')
+                                        'courseId': courseId,
+                                    },
+                                  ),
+                            ),
+                    );
+                  },
+                ),
+                GoRoute(
                   path: 'sql/:lessonId',
                   name: 'sql-lesson',
                   pageBuilder: (_, state) {
@@ -216,6 +257,32 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
                       lesson == null
                           ? const _RouteNotFound()
                           : SqlLessonScreen(lesson: lesson, store: store),
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'engineering/:courseId/:lessonId',
+                  name: 'engineering-lesson',
+                  pageBuilder: (_, state) {
+                    final courseId = state.pathParameters['courseId'];
+                    final lessons = switch (courseId) {
+                      'backend' => backendLessons,
+                      'frontend' => frontendLessons,
+                      _ => const <EngineeringLesson>[],
+                    };
+                    final lesson = lessons
+                        .where(
+                          (item) => item.id == state.pathParameters['lessonId'],
+                        )
+                        .firstOrNull;
+                    return _studyPage<void>(
+                      state,
+                      lesson == null
+                          ? const _RouteNotFound()
+                          : EngineeringLessonScreen(
+                              lesson: lesson,
+                              store: store,
+                            ),
                     );
                   },
                 ),
@@ -381,7 +448,8 @@ class LearningHome extends StatefulWidget {
     this.onTabSelected,
     this.onOpenLesson,
     this.onOpenAttempt,
-    this.onOpenSqlLesson,
+    this.onOpenEssentialsCourse,
+    this.onOpenEssentialsLesson,
     this.onOpenDiagnostic,
     this.onOpenOnboarding,
     this.onOpenFeedback,
@@ -395,7 +463,8 @@ class LearningHome extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
   final ValueChanged<Lesson>? onOpenLesson;
   final ValueChanged<SessionController>? onOpenAttempt;
-  final ValueChanged<SqlLesson>? onOpenSqlLesson;
+  final ValueChanged<EssentialsCourse>? onOpenEssentialsCourse;
+  final OpenEssentialsLesson? onOpenEssentialsLesson;
   final Future<Lesson?> Function()? onOpenDiagnostic;
   final Future<bool?> Function()? onOpenOnboarding;
   final VoidCallback? onOpenFeedback;
@@ -640,17 +709,48 @@ class _LearningHomeState extends State<LearningHome> {
     );
   }
 
-  void openSqlLesson(SqlLesson lesson) {
-    final onOpen = widget.onOpenSqlLesson;
+  void openEssentialsCourse(EssentialsCourse course) {
+    final onOpen = widget.onOpenEssentialsCourse;
     if (onOpen != null) {
-      onOpen(lesson);
-    } else {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => SqlLessonScreen(lesson: lesson, store: store),
-        ),
-      );
+      onOpen(course);
+      return;
     }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => EssentialsCourseScreen(
+          course: course,
+          store: store,
+          onOpenLesson: openEssentialsLesson,
+        ),
+      ),
+    );
+  }
+
+  void openEssentialsLesson(String courseId, String lessonId) {
+    final onOpen = widget.onOpenEssentialsLesson;
+    if (onOpen != null) {
+      onOpen(courseId, lessonId);
+      return;
+    }
+    final Widget? screen;
+    if (courseId == 'sql') {
+      final lesson = sqlLessons
+          .where((item) => item.id == lessonId)
+          .firstOrNull;
+      screen = lesson == null
+          ? null
+          : SqlLessonScreen(lesson: lesson, store: store);
+    } else {
+      final lessons = courseId == 'backend' ? backendLessons : frontendLessons;
+      final lesson = lessons.where((item) => item.id == lessonId).firstOrNull;
+      screen = lesson == null
+          ? null
+          : EngineeringLessonScreen(lesson: lesson, store: store);
+    }
+    if (screen == null) return;
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => screen!));
   }
 
   void _openPatternPractice(PatternLesson pattern) {
@@ -884,7 +984,8 @@ class _LearningHomeState extends State<LearningHome> {
                                   : selected == 2
                                   ? SoftwareEssentials(
                                       store: store,
-                                      onOpenLesson: openSqlLesson,
+                                      onOpenCourse: openEssentialsCourse,
+                                      onOpenLesson: openEssentialsLesson,
                                     )
                                   : selected == 3
                                   ? _roadmaps()
