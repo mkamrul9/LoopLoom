@@ -74,6 +74,7 @@ class LearnerPreferences {
     this.diagnosticScores = const {},
     this.diagnosticAnswers = const {},
     this.savedLessonIds = const {},
+    this.completedEssentialsLessonIds = const {},
     this.pointsBalance = 10000,
     this.unlockedReferenceIds = const {},
     this.runnerAddress = '',
@@ -96,6 +97,7 @@ class LearnerPreferences {
   final DateTime? diagnosticCompletedAt;
   final Map<String, int> diagnosticScores, diagnosticAnswers;
   final Set<String> savedLessonIds;
+  final Set<String> completedEssentialsLessonIds;
 
   /// Local study credits; no payment or server ledger is attached.
   final int pointsBalance;
@@ -120,6 +122,8 @@ class LearnerPreferences {
     'diagnosticScores': diagnosticScores,
     'diagnosticAnswers': diagnosticAnswers,
     'savedLessonIds': savedLessonIds.toList()..sort(),
+    'completedEssentialsLessonIds': completedEssentialsLessonIds.toList()
+      ..sort(),
     'pointsBalance': pointsBalance,
     'unlockedReferenceIds': unlockedReferenceIds.toList()..sort(),
     'runnerAddress': runnerAddress,
@@ -158,6 +162,7 @@ class LearnerPreferences {
     }
 
     final rawSaved = json['savedLessonIds'];
+    final rawEssentials = json['completedEssentialsLessonIds'];
     final rawPoints = json['pointsBalance'];
     final rawUnlocked = json['unlockedReferenceIds'];
     return LearnerPreferences(
@@ -213,6 +218,13 @@ class LearnerPreferences {
                 .take(500)
                 .toSet()
           : const {},
+      completedEssentialsLessonIds: rawEssentials is List
+          ? rawEssentials
+                .whereType<String>()
+                .where((id) => id.isNotEmpty && id.length <= 100)
+                .take(200)
+                .toSet()
+          : const {},
       pointsBalance:
           rawPoints is int && rawPoints >= 0 && rawPoints <= 1000000000
           ? rawPoints
@@ -258,6 +270,7 @@ class LearnerPreferences {
     Map<String, int>? diagnosticScores,
     Map<String, int>? diagnosticAnswers,
     Set<String>? savedLessonIds,
+    Set<String>? completedEssentialsLessonIds,
     int? pointsBalance,
     Set<String>? unlockedReferenceIds,
     String? runnerAddress,
@@ -290,6 +303,8 @@ class LearnerPreferences {
         ? const {}
         : diagnosticAnswers ?? this.diagnosticAnswers,
     savedLessonIds: savedLessonIds ?? this.savedLessonIds,
+    completedEssentialsLessonIds:
+        completedEssentialsLessonIds ?? this.completedEssentialsLessonIds,
     pointsBalance: pointsBalance ?? this.pointsBalance,
     unlockedReferenceIds: unlockedReferenceIds ?? this.unlockedReferenceIds,
     runnerAddress: runnerAddress ?? this.runnerAddress,

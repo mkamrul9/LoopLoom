@@ -72,6 +72,7 @@ class PatternLesson {
     required this.concept,
     required this.recognize,
     required this.whenToUse,
+    required this.softwareUse,
     required this.watchFor,
     required this.example,
     this.problemSlug,
@@ -86,6 +87,7 @@ class PatternLesson {
       concept,
       recognize,
       whenToUse,
+      softwareUse,
       watchFor,
       example;
   final String? problemSlug;
@@ -107,6 +109,8 @@ const patternLessons = <PatternLesson>[
         'Look for complements, counts, duplicates, or repeated questions about values already scanned.',
     whenToUse:
         'You need to find a complement, count frequencies, or remember the first position of a value.',
+    softwareUse:
+        'A backend can deduplicate incoming event IDs or find a cached user record by ID without rescanning a list.',
     watchFor:
         'Check the map before inserting the current value when an element must not pair with itself.',
     example: 'Find two values that add to 9 in [2, 7, 11, 15].',
@@ -154,6 +158,8 @@ const patternLessons = <PatternLesson>[
         'The input is sorted, or comparing two ends tells you which side to move.',
     whenToUse:
         'The data is sorted, or a comparison at both ends tells you which side can be discarded.',
+    softwareUse:
+        'A search service can merge two sorted result lists with one pointer in each list.',
     watchFor:
         'Use left < right when the same element cannot be used twice. Explain why a pointer move cannot skip the answer.',
     example: 'Find a pair summing to 11 in sorted [1, 3, 4, 7, 9].',
@@ -207,6 +213,8 @@ const patternLessons = <PatternLesson>[
         'The question says contiguous subarray or substring, and asks for a fixed length, longest, or shortest valid range.',
     whenToUse:
         'The question asks about a contiguous subarray or substring, especially with a fixed length or a condition that changes as the range grows.',
+    softwareUse:
+        'Monitoring software computes rolling averages from recent samples without summing the whole window again.',
     watchFor:
         'Handle input shorter than the window and include the very first window in the answer.',
     example:
@@ -261,6 +269,8 @@ const patternLessons = <PatternLesson>[
         'Values are sorted, or a yes/no condition changes only once across a range of candidate answers.',
     whenToUse:
         'The input is sorted or the possible answers follow a monotonic yes/no condition.',
+    softwareUse:
+        'A log viewer can seek the first event at or after a timestamp in an ordered index.',
     watchFor:
         'State whether high is inclusive. Update low to mid + 1 or high to mid - 1 so the interval shrinks.',
     example: 'Find 9 in sorted [1, 3, 5, 7, 9, 11].',
@@ -308,6 +318,8 @@ const patternLessons = <PatternLesson>[
         'The input describes connections, cells, or moves, and asks what is reachable or how many steps away.',
     whenToUse:
         'The problem describes connections, reachability, shortest unweighted paths, or a grid you can move through.',
+    softwareUse:
+        'A dependency explorer walks services connected to a failed service to show what may be affected.',
     watchFor:
         'Mark a node visited when adding it to the queue, so two neighbors cannot enqueue it twice.',
     example: 'Start at A with edges A–B, A–C, B–D, C–E. Visit in BFS order.',
@@ -364,6 +376,8 @@ const patternLessons = <PatternLesson>[
         'The same smaller question repeats, and an answer for position i depends on earlier positions.',
     whenToUse:
         'The same subproblem appears repeatedly and the answer can be built from smaller answers.',
+    softwareUse:
+        'A parser or planner can memoize repeated subproblems instead of recomputing the same state.',
     watchFor:
         'Write the base cases before the recurrence. Check the smallest allowed input.',
     example: 'Count ways to reach stair 5 using moves of 1 or 2 steps.',
@@ -732,6 +746,12 @@ class _PatternLessonScreenState extends State<PatternLessonScreen> {
       _heading('When to use it'),
       Text(
         widget.lesson.whenToUse,
+        style: const TextStyle(fontSize: 16, height: 1.65),
+      ),
+      const SizedBox(height: 20),
+      _heading('In real software'),
+      Text(
+        widget.lesson.softwareUse,
         style: const TextStyle(fontSize: 16, height: 1.65),
       ),
       const SizedBox(height: 20),

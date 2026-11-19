@@ -605,6 +605,19 @@ class PracticeStore extends ChangeNotifier {
     await updatePreferences(preferences.copyWith(savedLessonIds: next));
   }
 
+  Future<void> setEssentialsLessonComplete(String id, bool complete) async {
+    if (id.isEmpty || id.length > 100) throw ArgumentError.value(id, 'id');
+    final next = {...preferences.completedEssentialsLessonIds};
+    if (complete) {
+      next.add(id);
+    } else {
+      next.remove(id);
+    }
+    await updatePreferences(
+      preferences.copyWith(completedEssentialsLessonIds: next),
+    );
+  }
+
   List<ReviewAssignment> get reviewSchedule {
     const intervals = [1, 3, 7, 14];
     final completedByLesson = <String, List<SessionController>>{};
@@ -723,6 +736,8 @@ class PracticeStore extends ChangeNotifier {
           ?.toIso8601String(),
       'diagnosticScores': preferences.diagnosticScores,
       'diagnosticAnswers': preferences.diagnosticAnswers,
+      'completedEssentialsLessonIds':
+          preferences.completedEssentialsLessonIds.toList()..sort(),
     },
     'sessions': [
       ..._sessions.map((session) => session.toJson()),
@@ -920,6 +935,7 @@ class PracticeStore extends ChangeNotifier {
             clearDiagnosticResult: study.diagnosticCompletedAt == null,
             diagnosticScores: study.diagnosticScores,
             diagnosticAnswers: study.diagnosticAnswers,
+            completedEssentialsLessonIds: study.completedEssentialsLessonIds,
           );
         }
         await updatePreferences(next);

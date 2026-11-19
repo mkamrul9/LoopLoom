@@ -34,23 +34,7 @@ class PatternDiagram extends StatelessWidget {
             style: noteLabel.copyWith(color: context.palette.muted),
           ),
           const SizedBox(height: 14),
-          AnimatedSwitcher(
-            duration: duration,
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(.035, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            ),
-            child: KeyedSubtree(
-              key: ValueKey('${lesson.title}-$frameIndex'),
-              child: _visual(context),
-            ),
-          ),
+          AnimatedSize(duration: duration, child: _visual(context)),
           const SizedBox(height: 16),
           AnimatedSwitcher(
             duration: duration,
@@ -81,13 +65,16 @@ class PatternDiagram extends StatelessWidget {
   }
 
   Widget _visual(BuildContext context) => switch (lesson.visual) {
-    PatternVisual.sequence ||
-    PatternVisual.numberLine => _sequence(context, lesson.tokens),
+    PatternVisual.sequence || PatternVisual.numberLine => _sequence(
+      context,
+      lesson.tokens,
+      showCursor: true,
+    ),
     PatternVisual.links => _linked(context),
     PatternVisual.stack => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sequence(context, lesson.tokens),
+        _sequence(context, lesson.tokens, showCursor: true),
         const SizedBox(height: 13),
         _caption(context, 'UNRESOLVED STACK'),
         const SizedBox(height: 6),
@@ -104,11 +91,19 @@ class PatternDiagram extends StatelessWidget {
     PatternVisual.bits => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sequence(context, lesson.tokens),
+        _sequence(context, lesson.tokens, showCursor: true),
         const SizedBox(height: 12),
         _caption(context, 'XOR CHANGES'),
         const SizedBox(height: 6),
-        _sequence(context, frame.display, highlightAll: true),
+        AnimatedSwitcher(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          child: KeyedSubtree(
+            key: ValueKey(frame.display.join('|')),
+            child: _sequence(context, frame.display, highlightAll: true),
+          ),
+        ),
       ],
     ),
   };
@@ -128,21 +123,32 @@ class PatternDiagram extends StatelessWidget {
     String token,
     bool active, {
     double? width,
-  }) => Container(
-    constraints: BoxConstraints(minWidth: width ?? 43, minHeight: 43),
-    alignment: Alignment.center,
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-    decoration: BoxDecoration(
-      color: active ? context.palette.accentWash : context.palette.sheet,
-      border: Border.all(
-        color: active ? context.palette.accent : context.palette.line,
-        width: active ? 2 : 1,
+  }) => AnimatedScale(
+    scale: active ? 1.04 : 1,
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 260),
+    curve: Curves.easeOutCubic,
+    child: AnimatedContainer(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 300),
+      curve: Curves.easeInOutCubic,
+      constraints: BoxConstraints(minWidth: width ?? 43, minHeight: 43),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: active ? context.palette.accentWash : context.palette.sheet,
+        border: Border.all(
+          color: active ? context.palette.accent : context.palette.line,
+          width: active ? 2 : 1,
+        ),
+        borderRadius: BorderRadius.circular(9),
       ),
-      borderRadius: BorderRadius.circular(9),
-    ),
-    child: Text(
-      token,
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      child: Text(
+        token,
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      ),
     ),
   );
 
@@ -150,41 +156,106 @@ class PatternDiagram extends StatelessWidget {
     BuildContext context,
     List<String> tokens, {
     bool highlightAll = false,
-  }) => Wrap(
-    spacing: 7,
-    runSpacing: 7,
-    children: [
-      for (final (index, token) in tokens.indexed)
-        _tile(context, token, highlightAll || frame.active.contains(index)),
-    ],
-  );
-
-  Widget _linked(BuildContext context) {
-    final links = frame.display.isEmpty ? lesson.tokens : frame.display;
-    return Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 5,
-      runSpacing: 8,
-      children: [
-        for (final (index, token) in links.indexed) ...[
-          _tile(context, token, true),
-          if (index < links.length - 1)
-            Icon(Icons.arrow_forward, size: 18, color: context.palette.accent),
-        ],
-      ],
+    bool showCursor = false,
+  }) {
+    const cell = 50.0;
+    const gap = 7.0;
+    final width = tokens.length * cell + (tokens.length - 1) * gap;
+    final active = frame.active.isEmpty
+        ? 0
+        : frame.active.last.clamp(0, tokens.length - 1);
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                for (final (index, token) in tokens.indexed) ...[
+                  SizedBox(
+                    width: cell,
+                    child: _tile(
+                      context,
+                      token,
+                      highlightAll || frame.active.contains(index),
+                    ),
+                  ),
+                  if (index < tokens.length - 1) const SizedBox(width: gap),
+                ],
+              ],
+            ),
+            if (showCursor)
+              SizedBox(
+                height: 23,
+                child: Stack(
+                  children: [
+                    AnimatedPositioned(
+                      key: const Key('pattern-cursor'),
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 360),
+                      curve: Curves.easeInOutCubic,
+                      left: active * (cell + gap) + 16,
+                      top: 2,
+                      child: Icon(
+                        Icons.arrow_drop_up,
+                        size: 22,
+                        color: context.palette.accent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _stack(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      for (final token in frame.display.reversed)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 5),
-          child: _tile(context, token, true, width: 76),
-        ),
-      _caption(context, 'BOTTOM'),
-    ],
+  Widget _linked(BuildContext context) {
+    final links = frame.display.isEmpty ? lesson.tokens : frame.display;
+    return AnimatedSwitcher(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 280),
+      child: Wrap(
+        key: ValueKey(links.join('|')),
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 5,
+        runSpacing: 8,
+        children: [
+          for (final (index, token) in links.indexed) ...[
+            _tile(context, token, true),
+            if (index < links.length - 1)
+              Icon(
+                Icons.arrow_forward,
+                size: 18,
+                color: context.palette.accent,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _stack(BuildContext context) => AnimatedSwitcher(
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 280),
+    child: Column(
+      key: ValueKey(frame.display.join('|')),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final token in frame.display.reversed)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5),
+            child: _tile(context, token, true, width: 76),
+          ),
+        _caption(context, 'BOTTOM'),
+      ],
+    ),
   );
 
   Widget _grid(BuildContext context) {
@@ -237,7 +308,10 @@ class PatternDiagram extends StatelessWidget {
                           padding: EdgeInsets.only(
                             left: constraints.maxWidth * start / 12,
                           ),
-                          child: Container(
+                          child: AnimatedContainer(
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 320),
                             height: 12,
                             width:
                                 constraints.maxWidth * (end - start + 1) / 12,
@@ -340,22 +414,34 @@ class PatternDiagram extends StatelessWidget {
           height: height,
           child: Stack(
             children: [
-              CustomPaint(
-                size: Size(width, height),
-                painter: _PatternEdges(
-                  positions,
-                  _edges(labels.length),
-                  context.palette.line,
+              Positioned.fill(
+                child: AnimatedSwitcher(
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : const Duration(milliseconds: 350),
+                  child: CustomPaint(
+                    key: ValueKey(labels.join('|')),
+                    size: Size(width, height),
+                    painter: _PatternEdges(
+                      positions,
+                      _edges(labels.length),
+                      context.palette.line,
+                    ),
+                  ),
                 ),
               ),
               for (final (index, label) in labels.indexed)
-                Positioned(
+                AnimatedPositioned(
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : const Duration(milliseconds: 350),
+                  curve: Curves.easeInOutCubic,
                   left: positions[index].dx * width - 25,
                   top: positions[index].dy * height - 22,
                   child: _tile(
                     context,
                     label,
-                    frame.active.contains(index) || dynamicStructure,
+                    frame.active.contains(index),
                     width: 50,
                   ),
                 ),

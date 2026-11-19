@@ -12,6 +12,8 @@ const extraPatternLessons = <PatternLesson>[
         'The input is a chain of nodes, and the task changes, skips, or reorders next links.',
     whenToUse:
         'A problem asks you to reorder nodes in place or move through a chain with constant extra space.',
+    softwareUse:
+        'A memory-managed queue or LRU cache rewires linked nodes when entries move or are removed.',
     watchFor:
         'Save next before overwriting current.next. An empty list and one node need no special loop.',
     example: 'Reverse 1 → 2 → 3 → null.',
@@ -69,6 +71,8 @@ const extraPatternLessons = <PatternLesson>[
         'The prompt asks for the next greater or smaller item, or how long an item waits to be resolved.',
     whenToUse:
         'You need the next greater or smaller value, or an earlier item must wait for a future one.',
+    softwareUse:
+        'A charting service can find the next higher measurement for each earlier measurement in one pass.',
     watchFor:
         'Store indices when the answer is a distance. Pop while the new value resolves the top, then push the new index.',
     example: 'Find days until warmer for [73, 74, 71, 76].',
@@ -126,6 +130,8 @@ const extraPatternLessons = <PatternLesson>[
         'The input is a tree and each node asks the same question of its children.',
     whenToUse:
         'The input branches into subtrees and a parent answer can be built from child answers.',
+    softwareUse:
+        'A UI renderer traverses a component tree and combines child layout information at each parent.',
     watchFor:
         'Define the null-tree base case before recursing. Keep clear whether depth counts nodes or edges.',
     example:
@@ -174,6 +180,8 @@ const extraPatternLessons = <PatternLesson>[
         'Many words share beginnings, and the task repeatedly inserts, searches, or checks prefixes.',
     whenToUse:
         'You need many prefix checks, word insertions, or dictionary searches over the same vocabulary.',
+    softwareUse:
+        'Autocomplete can share prefixes across thousands of words and narrow suggestions as each character arrives.',
     watchFor:
         'A prefix path can exist without being a complete word. Mark word endings explicitly.',
     example: 'Insert cat, then car. Both share c → a.',
@@ -231,6 +239,8 @@ const extraPatternLessons = <PatternLesson>[
         'The prompt asks for all valid arrangements, subsets, paths, or combinations rather than one optimal answer.',
     whenToUse:
         'You must enumerate combinations, subsets, permutations, or valid placements.',
+    softwareUse:
+        'A configuration validator can explore compatible option combinations and undo a choice before trying another.',
     watchFor:
         'Every recursive call needs a stopping condition. Undo the same change you made before exploring a sibling branch.',
     example: 'Enumerate subsets of [1, 2].',
@@ -288,6 +298,8 @@ const extraPatternLessons = <PatternLesson>[
         'You repeatedly need the current smallest or largest candidate, or only the best k items matter.',
     whenToUse:
         'You need a repeated minimum or maximum, or only the best k candidates matter.',
+    softwareUse:
+        'A service can keep the top 20 slowest requests seen so far without storing every request in memory.',
     watchFor:
         'Keep the heap at size k. When fewer than k values exist, the kth largest is not defined.',
     example: 'Find the 2nd largest of [3, 1, 5, 2].',
@@ -345,6 +357,8 @@ const extraPatternLessons = <PatternLesson>[
         'Words such as prerequisite, dependency, ordering, or cycle describe directed relationships.',
     whenToUse:
         'The task has prerequisites, dependency order, or asks whether all tasks can be completed.',
+    softwareUse:
+        'A build system orders tasks so each generated artifact is ready before a dependent task starts.',
     watchFor:
         'If fewer than all nodes leave the queue, a cycle remains. Count incoming edges in the correct direction.',
     example: 'A → B, A → C, B → D, C → D. Can all four tasks finish?',
@@ -402,6 +416,8 @@ const extraPatternLessons = <PatternLesson>[
         'Two changing positions define each subproblem, such as a grid cell or two string prefixes.',
     whenToUse:
         'Two independent indices describe a state, such as row and column or two string prefixes.',
+    softwareUse:
+        'A text-diff tool can compare prefixes of two documents with a table of reusable edit costs.',
     watchFor:
         'Initialize the first row and column before applying the recurrence to interior cells.',
     example: 'Count paths through a 3 × 3 grid, moving only right or down.',
@@ -459,6 +475,8 @@ const extraPatternLessons = <PatternLesson>[
         'The task asks for reachability or minimum choices, and one boundary summarizes earlier options.',
     whenToUse:
         'A locally best boundary summarizes all choices made so far, and you can justify why no discarded choice helps.',
+    softwareUse:
+        'A scheduler can maintain the farthest reachable checkpoint while scanning available transitions.',
     watchFor:
         'A greedy move needs a correctness argument. For this problem, every reachable index can extend the same farthest boundary.',
     example: 'Can [2, 3, 1, 1, 4] reach the last index?',
@@ -506,6 +524,8 @@ const extraPatternLessons = <PatternLesson>[
         'Input items are start/end ranges and the output depends on overlap, gaps, or coverage.',
     whenToUse:
         'The input describes ranges of time, positions, or values and asks about overlap or coverage.',
+    softwareUse:
+        'A calendar merges overlapping busy slots before showing a person’s actual unavailable time.',
     watchFor:
         'Touching endpoints overlap when ranges are closed. Sort first, and update the end with max.',
     example: 'Merge [1,3], [2,6], [8,10].',
@@ -556,6 +576,8 @@ const extraPatternLessons = <PatternLesson>[
         'The constraints describe paired duplicates, toggles, parity, or values represented as bits.',
     whenToUse:
         'Values repeat in pairs and one value is unpaired, or a compact mask can represent a set of binary choices.',
+    softwareUse:
+        'Feature flags and permissions can use bit masks for compact on/off state; XOR toggles or compares bit changes.',
     watchFor:
         'This exact shortcut requires every other value to appear twice. Check signed and fixed-width behavior for other bit tricks.',
     example: 'Find the single value in [4, 1, 4, 2, 1].',
@@ -613,6 +635,8 @@ const extraPatternLessons = <PatternLesson>[
         'A formula defines a numeric boundary, and the prompt asks for an integer or rounded result.',
     whenToUse:
         'A numeric or geometric condition has a clear formula and a monotonic true/false boundary.',
+    softwareUse:
+        'A capacity planner can binary-search the largest safe batch size under a measurable resource limit.',
     watchFor:
         'Use mid <= x / mid to avoid multiplying into overflow in fixed-width integer languages; handle x = 0.',
     example: 'Find floor(sqrt(10)).',

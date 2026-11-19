@@ -18,6 +18,9 @@ import 'domain/lesson.dart';
 import 'features/coaching/interview_diagnostic_screen.dart';
 import 'features/coaching/practice_screen.dart';
 import 'features/coaching/session_controller.dart';
+import 'features/essentials/software_essentials.dart';
+import 'features/essentials/sql_course.dart';
+import 'features/essentials/sql_lesson_screen.dart';
 import 'features/patterns/pattern_library.dart';
 import 'ui/looploom_theme.dart';
 import 'ui/save_status.dart';
@@ -90,10 +93,17 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
     if (identical(_routerStore, store) && _router != null) return _router!;
     _router?.dispose();
     _routerStore = store;
-    const tabLocations = ['/learn', '/patterns', '/roadmaps', '/history'];
+    const tabLocations = [
+      '/learn',
+      '/patterns',
+      '/essentials',
+      '/roadmaps',
+      '/history',
+    ];
     const practiceNames = [
       'practice-learn',
       'practice-patterns',
+      'practice-essentials',
       'practice-roadmaps',
       'practice-history',
     ];
@@ -137,14 +147,17 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
             final path = state.uri.path;
             final selected = path.startsWith('/patterns')
                 ? 1
-                : path.startsWith('/roadmaps')
+                : path.startsWith('/essentials')
                 ? 2
-                : path.startsWith('/history')
+                : path.startsWith('/roadmaps')
                 ? 3
+                : path.startsWith('/history')
+                ? 4
                 : 0;
             final isTabRoot =
                 path == '/learn' ||
                 path == '/patterns' ||
+                path == '/essentials' ||
                 path == '/roadmaps' ||
                 path == '/history';
             return LearningHome(
@@ -161,6 +174,10 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
                 practiceNames[selected],
                 pathParameters: {'lessonId': session.lesson.id},
                 queryParameters: {'attempt': session.id},
+              ),
+              onOpenSqlLesson: (lesson) => context.pushNamed(
+                'sql-lesson',
+                pathParameters: {'lessonId': lesson.id},
               ),
               onOpenDiagnostic: () => context.pushNamed<Lesson>('diagnostic'),
               onOpenOnboarding: () => context.pushNamed<bool>('onboarding'),
@@ -181,14 +198,38 @@ class _LoopLoomAppState extends State<LoopLoomApp> {
               routes: [practiceRoute(practiceNames[1])],
             ),
             GoRoute(
+              path: '/essentials',
+              builder: (_, _) => const SizedBox.shrink(),
+              routes: [
+                practiceRoute(practiceNames[2]),
+                GoRoute(
+                  path: 'sql/:lessonId',
+                  name: 'sql-lesson',
+                  pageBuilder: (_, state) {
+                    final lesson = sqlLessons
+                        .where(
+                          (item) => item.id == state.pathParameters['lessonId'],
+                        )
+                        .firstOrNull;
+                    return _studyPage<void>(
+                      state,
+                      lesson == null
+                          ? const _RouteNotFound()
+                          : SqlLessonScreen(lesson: lesson, store: store),
+                    );
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
               path: '/roadmaps',
               builder: (_, _) => const SizedBox.shrink(),
-              routes: [practiceRoute(practiceNames[2])],
+              routes: [practiceRoute(practiceNames[3])],
             ),
             GoRoute(
               path: '/history',
               builder: (_, _) => const SizedBox.shrink(),
-              routes: [practiceRoute(practiceNames[3])],
+              routes: [practiceRoute(practiceNames[4])],
             ),
             GoRoute(
               path: '/diagnostic',
@@ -340,6 +381,7 @@ class LearningHome extends StatefulWidget {
     this.onTabSelected,
     this.onOpenLesson,
     this.onOpenAttempt,
+    this.onOpenSqlLesson,
     this.onOpenDiagnostic,
     this.onOpenOnboarding,
     this.onOpenFeedback,
@@ -353,6 +395,7 @@ class LearningHome extends StatefulWidget {
   final ValueChanged<int>? onTabSelected;
   final ValueChanged<Lesson>? onOpenLesson;
   final ValueChanged<SessionController>? onOpenAttempt;
+  final ValueChanged<SqlLesson>? onOpenSqlLesson;
   final Future<Lesson?> Function()? onOpenDiagnostic;
   final Future<bool?> Function()? onOpenOnboarding;
   final VoidCallback? onOpenFeedback;
@@ -597,6 +640,19 @@ class _LearningHomeState extends State<LearningHome> {
     );
   }
 
+  void openSqlLesson(SqlLesson lesson) {
+    final onOpen = widget.onOpenSqlLesson;
+    if (onOpen != null) {
+      onOpen(lesson);
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SqlLessonScreen(lesson: lesson, store: store),
+        ),
+      );
+    }
+  }
+
   void _openPatternPractice(PatternLesson pattern) {
     final slug = pattern.problemSlug;
     if (slug == null) return;
@@ -783,6 +839,10 @@ class _LearningHomeState extends State<LearningHome> {
                           label: Text('Patterns'),
                         ),
                         NavigationRailDestination(
+                          icon: Icon(Icons.storage_outlined),
+                          label: Text('Essentials'),
+                        ),
+                        NavigationRailDestination(
                           icon: Icon(Icons.route_outlined),
                           label: Text('Problems'),
                         ),
@@ -822,6 +882,11 @@ class _LearningHomeState extends State<LearningHome> {
                                       onPractice: _openPatternPractice,
                                     )
                                   : selected == 2
+                                  ? SoftwareEssentials(
+                                      store: store,
+                                      onOpenLesson: openSqlLesson,
+                                    )
+                                  : selected == 3
                                   ? _roadmaps()
                                   : _history(),
                             ),
@@ -851,6 +916,10 @@ class _LearningHomeState extends State<LearningHome> {
                           NavigationDestination(
                             icon: Icon(Icons.account_tree_outlined),
                             label: 'Patterns',
+                          ),
+                          NavigationDestination(
+                            icon: Icon(Icons.storage_outlined),
+                            label: 'Essentials',
                           ),
                           NavigationDestination(
                             icon: Icon(Icons.route_outlined),
@@ -1096,7 +1165,7 @@ class _LearningHomeState extends State<LearningHome> {
                 runSpacing: 8,
                 children: [
                   FilledButton.tonalIcon(
-                    onPressed: () => _selectTab(2),
+                    onPressed: () => _selectTab(3),
                     icon: const Icon(Icons.route_outlined, size: 18),
                     label: const Text('Browse problems'),
                   ),
@@ -1283,7 +1352,7 @@ class _LearningHomeState extends State<LearningHome> {
         OutlinedButton.icon(
           onPressed: () {
             _selectTrack(suggestion.trackIndex);
-            _selectTab(2);
+            _selectTab(3);
           },
           icon: const Icon(Icons.route_outlined),
           label: const Text('Explore path'),

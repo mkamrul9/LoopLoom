@@ -8,7 +8,11 @@ Learn how to solve unfamiliar coding problems by explaining your thinking to a c
 
 The confirmed initial audience is **intermediate developers preparing for coding interviews**. The community Blind 75 collection is now the primary guided path; foundation lessons provide warm-ups and intermediate refreshers. Beginner and advanced paths extend the same learning system later. The confirmed development constraint is **strict zero spend**: no paid AI calls, paid infrastructure, purchased hardware, or automatic upgrade from free quotas. Use existing local resources and fall back to curated guided practice.
 
-The first product is a coding coach. Later modules can teach SQL, system design, CS fundamentals, and other technical material through the same lesson/checkpoint model.
+The first product is a coding coach. Software Essentials now includes an introductory database and SQL course; later modules can extend it to system design, CS fundamentals, and other technical material through the same lesson/checkpoint model.
+
+## Software Essentials: first course
+
+The standalone database course contains 21 lessons in six units: foundations, reading data, relationships, reliable changes, performance and design, and application practice. A single shop example connects schema design, queries, joins, transactions, indexing, and a checkout flow. Lessons explain what, why, when, and how; show SQLite code and an expected result; connect it to application code and alternative approaches; and end with a short check. Controllable visual traces illustrate sample rows and effects. They are not a live SQL engine. Lesson completion is stored locally and included in workbook backups. The course is independent of the interview problem roadmaps.
 
 ## The learning session
 

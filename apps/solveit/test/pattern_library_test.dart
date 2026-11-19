@@ -23,6 +23,7 @@ void main() {
     );
     for (final lesson in patternLessons) {
       expect(lesson.recognize, isNotEmpty);
+      expect(lesson.softwareUse, isNotEmpty);
       expect(lesson.code.keys.toSet(), CodeLanguage.values.toSet());
       expect(
         patternTemplates[lesson.title]!.keys.toSet(),
